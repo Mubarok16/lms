@@ -93,7 +93,7 @@ Detail Tugas
                     </div>
             </div>
             @endif
-            
+
             {{-- Bobot Nilai --}}
             @if ($tugas->bobot_nilai)
             <div class="flex items-center gap-3 rounded-xl border border-line bg-paper/60 px-4 py-3">
@@ -239,25 +239,55 @@ Detail Tugas
 </div>
 
 {{-- Form Submit / Resubmit --}}
+@if (now()->lte($tugas->deadline))
 <div class="mt-6 rounded-2xl border border-line bg-white p-6 shadow-sm">
     <h2 class="font-display text-base font-semibold text-ink">
         {{ $jawabanSaya ? 'Kumpulkan Ulang Jawaban' : 'Kumpulkan Jawaban' }}
     </h2>
+
     <p class="mt-1 text-sm text-ink/50">
-        Bisa upload lebih dari satu file (PDF atau foto). Mengumpulkan ulang akan menggantikan file sebelumnya.
+        Bisa upload lebih dari satu file (PDF atau foto).
+        Mengumpulkan ulang akan menggantikan file sebelumnya.
     </p>
 
-    <form method="POST" action="{{ route('student.tugas.submit', $tugas) }}" enctype="multipart/form-data" class="mt-4 flex flex-col gap-3">
+    <form method="POST"
+        action="{{ route('student.tugas.submit', $tugas) }}"
+        enctype="multipart/form-data"
+        class="mt-4 flex flex-col gap-3">
+
         @csrf
 
-        <input type="file" name="files[]" accept=".pdf,image/*" multiple required
+        <input type="file"
+            name="files[]"
+            accept=".pdf,image/*"
+            multiple
+            required
             class="block w-full text-sm text-ink/70 file:mr-3 file:rounded-lg file:border-0 file:bg-paper file:px-4 file:py-2 file:text-sm file:font-semibold file:text-ink hover:file:bg-line/30">
 
-        <button type="submit" class="self-start rounded-lg bg-ink px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primaryDark">
+        <button type="submit"
+            class="self-start rounded-lg bg-ink px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primaryDark">
             {{ $jawabanSaya ? 'Kumpulkan Ulang' : 'Kumpulkan' }}
         </button>
     </form>
 </div>
+@else
+{{-- Deadline sudah lewat --}}
+<div class="mt-6 rounded-2xl border border-red-200 bg-red-50 p-6">
+    <h2 class="font-display text-base font-semibold text-red-700">
+        Pengumpulan Ditutup
+    </h2>
+
+    <p class="mt-1 text-sm text-red-600">
+        Batas pengumpulan tugas telah berakhir.
+        Anda sudah tidak dapat mengumpulkan atau mengubah jawaban.
+    </p>
+
+    <p class="mt-2 text-xs text-red-500">
+        Deadline:
+        {{ \Carbon\Carbon::parse($tugas->deadline)->format('d M Y, H:i') }}
+    </p>
+</div>
+@endif
 
 </div>
 </div>
