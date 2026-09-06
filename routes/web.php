@@ -299,4 +299,18 @@ Route::middleware('auth')->group(function () {
 });
 
 
+// admin edit dan delete akun dosen
+Route::put('/admin/akun-dosen/{id}', [AccountController::class, 'update'])
+    ->name('admin.dosen.update');
+Route::delete('/admin/akun-dosen/{id}', [AccountController::class, 'destroy'])
+    ->name('admin.dosen.destroy');
+Route::get('/admin/akun-dosen/{id}', [AccountController::class, 'show'])
+    ->name('admin.dosen.show');
+
+// admin edit dan delete akun mhs
+Route::put('/admin/akun-mahasiswa/{id}', [AccountController::class, 'update_mahasiswa'])
+    ->name('admin.mahasiswa.update');
+Route::delete('/admin/akun-mahasiswa/{id}', [AccountController::class, 'destroy_mahasiswa'])
+    ->name('admin.mahasiswa.destroy');
+
 require __DIR__ . '/auth.php';
