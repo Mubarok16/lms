@@ -1,4 +1,3 @@
-
 <section>
 
     <form method="post"
@@ -71,16 +70,13 @@
                 name="name"
                 type="text"
                 value="{{ old('name', $user->name) }}"
-                required
+                disabled
                 autofocus
                 autocomplete="name"
-                class="w-full rounded-lg border border-ink/15
-                       bg-paper px-4 py-2.5
-                       text-sm text-ink
-                       placeholder:text-ink/30
-                       focus:border-amber
-                       focus:ring-2 focus:ring-amber/20
-                       outline-none transition">
+                class="w-full rounded-lg border border-ink/10
+                               bg-ink/5 px-4 py-2.5
+                               text-sm text-ink/60
+                               cursor-not-allowed">
 
             @error('name')
             <p class="mt-1 text-xs text-coral">

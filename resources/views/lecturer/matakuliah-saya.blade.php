@@ -29,7 +29,7 @@ Daftar Mata Kuliah
 
             @forelse ($kelas as $item)
 
-            <a href="{{ route('pengajaran.show', $item->id) }}"
+            <a href="{{ route('lecturer.pengajaran.show', $item->id) }}"
                 class="group relative overflow-hidden rounded-2xl border border-line bg-white shadow-sm
                    transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
 

@@ -21,7 +21,7 @@ Ringkasan E-Learning UNWIR
       </div>
       <span class="text-xs font-mono px-2 py-1 rounded-full bg-teal/10 text-teal">Ganjil 2025/2026</span>
     </div>
-    <p class="font-display text-3xl font-semibold mt-5">150+</p>
+    <p class="font-display text-3xl font-semibold mt-5">{{ auth()->user()->lecturer ? \App\Models\PengajaranDosen::where('dosen_id', auth()->user()->lecturer->id)->count() : 0 }}</p>
     <p class="text-sm text-ink/55 mt-1">Mata Kuliah Aktif</p>
   </div>
 
@@ -37,7 +37,7 @@ Ringkasan E-Learning UNWIR
       </div>
       <span class="text-xs font-mono px-2 py-1 rounded-full bg-coral/10 text-coral">6 Fakultas</span>
     </div>
-    <p class="font-display text-3xl font-semibold mt-5">450+</p>
+    <p class="font-display text-3xl font-semibold mt-5">{{ auth()->user()->lecturer ? \App\Models\PengajaranDosen::where('dosen_id', auth()->user()->lecturer->id)->count() : 0 }}</p>
     <p class="text-sm text-ink/55 mt-1">Dosen Pengajar</p>
   </div>
 
@@ -51,7 +51,7 @@ Ringkasan E-Learning UNWIR
       </div>
       <span class="text-xs font-mono px-2 py-1 rounded-full bg-amber/15 text-ink">Aktif</span>
     </div>
-    <p class="font-display text-3xl font-semibold mt-5">12.000+</p>
+    <p class="font-display text-3xl font-semibold mt-5">{{ auth()->user()->lecturer ? \App\Models\PengajaranDosen::where('dosen_id', auth()->user()->lecturer->id)->with('kelas')->get()->sum(fn($p) => $p->kelas->mahasiswa()->count()) : 0 }}</p>
     <p class="text-sm text-ink/55 mt-1">Mahasiswa Terdaftar</p>
   </div>
 

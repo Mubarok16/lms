@@ -43,7 +43,7 @@ Akun Pengguna E-Learning
     </button>
 
     <!-- Tombol Tambah Banyak Dosen -->
-    <a href="{{ route('dosen.import') }}"
+    <a href="{{ route('admin.dosen.import') }}"
         class="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg bg-teal text-white hover:bg-teal/90 transition-colors">
         + Tambah Banyak Dosen
     </a>
@@ -56,7 +56,7 @@ Akun Pengguna E-Learning
         <h2 class="font-display text-lg font-semibold">Daftar Akun Dosen</h2>
         <p class="text-sm text-ink/50 mt-0.5">===========================</p>
     </div>
-    <a href="#" class="text-sm font-medium text-teal hover:underline">Lihat Semua</a>
+    <a href="{{ route('akun_dosen.index') }}" class="text-sm font-medium text-teal hover:underline">Lihat Semua</a>
 </div>
 
 <!-- Tabel -->
@@ -82,33 +82,10 @@ Akun Pengguna E-Learning
                     <div class="flex items-center gap-2">
 
                         <!-- Edit -->
-                        <button type="button" onclick="openEditModal('{{ $mk['no'] }}')"
-                            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium
-                                  bg-blue-500 text-white hover:bg-blue-600 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 20h9" />
-                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" />
-                            </svg>
-                            Edit
-                        </button>
+                        <a href="{{ route('admin.dosen.edit', $mk->id) }}" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium bg-blue-500 text-white hover:bg-blue-600 transition-colors">Edit</a>
 
                         <!-- Delete -->
-                        <button type="button" onclick="deleteDosen('{{ $mk['no'] }}')"
-                            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium
-                                  bg-red-500 text-white hover:bg-red-600 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M3 6h18" />
-                                <path d="M8 6V4h8v2" />
-                                <path d="M19 6v14H5V6" />
-                                <path d="M10 11v6" />
-                                <path d="M14 11v6" />
-                            </svg>
-                            Delete
-                        </button>
+                        <form method="POST" action="{{ route('admin.dosen.destroy', $mk->id) }}" onsubmit="return confirm('Hapus akun ini?')">@csrf @method('DELETE')<button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium bg-red-500 text-white hover:bg-red-600 transition-colors">Hapus</button></form>
 
                     </div>
                 </td>

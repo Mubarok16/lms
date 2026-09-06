@@ -10,10 +10,18 @@ use Illuminate\Http\Request;
 
 class StudentQuizController extends Controller
 {
+    private function authorizeQuiz(Quiz $quiz): void
+    {
+        $student = auth()->user()->student; abort_unless($student,403);
+        $quiz->loadMissing('pengajaranDosen');
+        abort_unless(\App\Models\PengajaranMahasiswa::where('kelas_id',$quiz->pengajaranDosen->kelas_id)->where('mahasiswa_id',$student->id)->exists(),403);
+    }
+
     public function show(Quiz $quiz)
     {
+        $this->authorizeQuiz($quiz);
         $mahasiswa = auth()->user()->student;
-        $sessionKey = 'quiz_mulai_' . $quiz->id;
+        $sessionKey = 'quiz_mulai_' . $quiz->id . '_' . $mahasiswa->id;
         abort_unless($quiz->is_published, 404);
 
         $quiz->load('questions');
@@ -23,14 +31,21 @@ class StudentQuizController extends Controller
             ->first();
         $waktuSelesai = null;
         if (!$jawabanSaya && $quiz->durasi_menit) {
+            if (!session()->has($sessionKey)) {
+                session([$sessionKey => now()]);
+            }
             $waktuMulai = session($sessionKey);
             $waktuSelesai = \Carbon\Carbon::parse($waktuMulai)->addMinutes($quiz->durasi_menit);
+            if (now()->greaterThanOrEqualTo($waktuSelesai)) {
+                return $this->autoSubmitKosong($quiz, $mahasiswa, $sessionKey);
+            }
         }
         return view('student.quiz.show', compact('quiz', 'jawabanSaya', 'waktuSelesai'));
     }
 
     public function submit(Request $request, Quiz $quiz)
     {
+        $this->authorizeQuiz($quiz);
         $mahasiswa = auth()->user()->student;
 
         abort_if(

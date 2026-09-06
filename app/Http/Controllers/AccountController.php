@@ -136,7 +136,7 @@ class AccountController extends Controller
             );
 
             return redirect()
-                ->route('dosen.import')
+                ->route('admin.dosen.import')
                 ->with('success', 'Data akun dosen berhasil diimport.');
         } catch (ValidationException $e) {
 
@@ -153,14 +153,14 @@ class AccountController extends Controller
             }
 
             return redirect()
-                ->route('dosen.import')
+                ->route('admin.dosen.import')
                 ->with('error', $errors);
         } catch (\Throwable $e) {
 
             report($e);
 
             return redirect()
-                ->route('dosen.import')
+                ->route('admin.dosen.import')
                 ->with('error', [
                     [
                         'row' => null,
@@ -312,7 +312,7 @@ class AccountController extends Controller
             );
 
             return redirect()
-                ->route('mahasiswa.import')
+                ->route('admin.mahasiswa.import')
                 ->with(
                     'success',
                     'Data akun mahasiswa berhasil diimport.'
@@ -332,18 +332,75 @@ class AccountController extends Controller
             }
 
             return redirect()
-                ->route('mahasiswa.import')
+                ->route('admin.mahasiswa.import')
                 ->with('error', $errors);
         } catch (\Throwable $e) {
 
             report($e);
 
             return redirect()
-                ->route('mahasiswa.import')
+                ->route('admin.mahasiswa.import')
                 ->with(
                     'error',
                     'Import gagal. Terjadi kesalahan saat memproses file Excel.'
                 );
         }
+    }
+
+    public function editLecturer(Lecturer $lecturer)
+    {
+        $lecturer->load('user','prodi');
+        $prodi = Prodi::orderBy('nama_prodi')->get();
+        return view('admin.account-edit', ['type'=>'dosen','account'=>$lecturer,'prodi'=>$prodi]);
+    }
+
+    public function updateLecturer(Request $request, Lecturer $lecturer)
+    {
+        $validated=$request->validate([
+            'nidn'=>'required|string|max:20|unique:lecturer,nidn,'.$lecturer->id,
+            'name'=>'required|string|max:255',
+            'email'=>'required|email|max:255|unique:users,email,'.$lecturer->user_id,
+            'prodi_id'=>'required|exists:prodi,id', 'phone'=>'nullable|string|max:20',
+            'password'=>'nullable|string|min:8',
+        ]);
+        DB::transaction(function() use($validated,$lecturer){
+            $lecturer->update(['nidn'=>$validated['nidn'],'prodi_id'=>$validated['prodi_id'],'phone'=>$validated['phone']??null]);
+            $user=$lecturer->user; $user->name=$validated['name']; $user->email=$validated['email']; if(!empty($validated['password'])) $user->password=$validated['password']; $user->save();
+        });
+        return redirect()->route('akun_dosen.index')->with('success','Akun dosen berhasil diperbarui.');
+    }
+
+    public function destroyLecturer(Lecturer $lecturer)
+    {
+        $lecturer->user()->delete();
+        return back()->with('success','Akun dosen berhasil dihapus.');
+    }
+
+    public function editStudent(Student $student)
+    {
+        $student->load('user','prodi'); $prodi=Prodi::orderBy('nama_prodi')->get();
+        return view('admin.account-edit', ['type'=>'mahasiswa','account'=>$student,'prodi'=>$prodi]);
+    }
+
+    public function updateStudent(Request $request, Student $student)
+    {
+        $validated=$request->validate([
+            'nim'=>'required|string|max:12|unique:students,nim,'.$student->id,
+            'name'=>'required|string|max:255',
+            'email'=>'required|email|max:255|unique:users,email,'.$student->user_id,
+            'prodi_id'=>'required|exists:prodi,id', 'angkatan'=>'required|string|max:4', 'phone'=>'nullable|string|max:20',
+            'password'=>'nullable|string|min:8',
+        ]);
+        DB::transaction(function() use($validated,$student){
+            $student->update(['nim'=>$validated['nim'],'prodi_id'=>$validated['prodi_id'],'angkatan'=>$validated['angkatan'],'phone'=>$validated['phone']??null]);
+            $user=$student->user; $user->name=$validated['name']; $user->email=$validated['email']; if(!empty($validated['password'])) $user->password=$validated['password']; $user->save();
+        });
+        return redirect()->route('akun_mahasiswa.index')->with('success','Akun mahasiswa berhasil diperbarui.');
+    }
+
+    public function destroyStudent(Student $student)
+    {
+        $student->user()->delete();
+        return back()->with('success','Akun mahasiswa berhasil dihapus.');
     }
 }

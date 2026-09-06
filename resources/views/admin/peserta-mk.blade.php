@@ -358,6 +358,12 @@
 
         let kelasId = null;
 
+        // URL endpoint dibuat sekali di scope global agar dapat dipakai
+        // oleh fungsi pencarian, penambahan, dan daftar peserta.
+        const searchUrlTemplate = @json(route('admin.kelas.students', ['kelas' => '__KELAS__']));
+        const pesertaStoreUrlTemplate = @json(route('admin.kelas.peserta.store', ['kelas' => '__KELAS__']));
+        const pesertaListUrlTemplate = @json(route('admin.kelas.peserta', ['kelas' => '__KELAS__']));
+
 
         /*
         |--------------------------------------------------------------------------
@@ -466,7 +472,8 @@
                 */
 
                 const url =
-                    `/kelas/${kelasId}/students?search=${encodeURIComponent(search)}`;
+                    searchUrlTemplate.replace('__KELAS__', encodeURIComponent(kelasId))
+                    + `?search=${encodeURIComponent(search)}`;
 
                 console.log('Mencari mahasiswa:', url);
 
@@ -733,7 +740,7 @@
             */
 
             fetch(
-                    `/kelas/${kelasId}/peserta`, {
+                    pesertaStoreUrlTemplate.replace('__KELAS__', encodeURIComponent(kelasId)), {
 
                         method: 'POST',
 
@@ -943,7 +950,7 @@
             |--------------------------------------------------------------------------
             */
 
-            fetch(`/kelas/${kelasId}/peserta`, {
+            fetch(pesertaListUrlTemplate.replace('__KELAS__', kelasId), {
 
                     method: 'GET',
 

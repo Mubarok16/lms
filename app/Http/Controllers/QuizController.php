@@ -7,6 +7,7 @@ use App\Imports\QuizQuestionsImport;
 use App\Models\PengajaranDosen;
 use App\Models\Quiz;
 use App\Models\QuizQuestion;
+use App\Models\QuizJawaban;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -15,11 +16,18 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class QuizController extends Controller
 {
+    private function authorizeTeaching(PengajaranDosen $pengajaranDosen): void
+    { abort_unless(auth()->user()->lecturer && $pengajaranDosen->dosen_id === auth()->user()->lecturer->id, 403); }
+
+    private function authorizeQuiz(Quiz $quiz): void
+    { $quiz->loadMissing('pengajaranDosen'); abort_unless(auth()->user()->lecturer && $quiz->pengajaranDosen->dosen_id === auth()->user()->lecturer->id, 403); }
+
     /**
      * Daftar quiz untuk satu mata kuliah (pengajaran dosen).
      */
     public function index(PengajaranDosen $pengajaranDosen)
     {
+        $this->authorizeTeaching($pengajaranDosen);
         $quizzes = Quiz::where('pengajaran_dosen_id', $pengajaranDosen->id)
             ->withCount('questions')
             ->latest()
@@ -33,6 +41,7 @@ class QuizController extends Controller
      */
     public function create(PengajaranDosen $pengajaranDosen)
     {
+        $this->authorizeTeaching($pengajaranDosen);
         return view('lecturer.quiz.create', compact('pengajaranDosen'));
     }
 
@@ -41,6 +50,7 @@ class QuizController extends Controller
      */
     public function store(Request $request, PengajaranDosen $pengajaranDosen): RedirectResponse
     {
+        $this->authorizeTeaching($pengajaranDosen);
         $validated = $request->validate([
             'judul' => ['required', 'string', 'max:255'],
             'deskripsi' => ['nullable', 'string'],
@@ -64,9 +74,28 @@ class QuizController extends Controller
      */
     public function show(Quiz $quiz)
     {
-        $quiz->load('questions', 'pengajaranDosen');
+        $this->authorizeQuiz($quiz);
+        $quiz->load(['questions', 'pengajaranDosen.kelas.matakuliah']);
 
-        return view('lecturer.quiz.show', compact('quiz'));
+        $hasilList = QuizJawaban::with('mahasiswa.user')
+            ->where('quiz_id', $quiz->id)
+            ->whereNotNull('waktu_submit')
+            ->orderByDesc('waktu_submit')
+            ->get();
+
+        return view('lecturer.quiz.show', compact('quiz', 'hasilList'));
+    }
+
+    public function hasilShow(Quiz $quiz, QuizJawaban $jawaban)
+    {
+        $this->authorizeQuiz($quiz);
+        abort_if($jawaban->quiz_id !== $quiz->id, 404);
+
+        $quiz->load(['questions', 'pengajaranDosen.kelas.matakuliah']);
+        $jawaban->load(['mahasiswa.user', 'detail.question']);
+        $details = $jawaban->detail->keyBy('quiz_question_id');
+
+        return view('lecturer.quiz.hasil-show', compact('quiz', 'jawaban', 'details'));
     }
 
     /**
@@ -74,6 +103,7 @@ class QuizController extends Controller
      */
     public function downloadTemplate(Quiz $quiz)
     {
+        $this->authorizeQuiz($quiz);
         $namaFile = 'template-quiz-' . $quiz->id . '.xlsx';
 
         return Excel::download(new QuizTemplateExport, $namaFile);
@@ -84,6 +114,7 @@ class QuizController extends Controller
      */
     public function import(Request $request, Quiz $quiz): RedirectResponse
     {
+        $this->authorizeQuiz($quiz);
         $request->validate([
             'file' => ['required', 'file', 'mimes:xlsx,xls'],
         ]);
@@ -104,6 +135,7 @@ class QuizController extends Controller
      */
     public function publish(Quiz $quiz): RedirectResponse
     {
+        $this->authorizeQuiz($quiz);
         if ($quiz->questions()->count() === 0) {
             return back()->with('error', 'Quiz belum punya soal, upload soal terlebih dahulu sebelum publish.');
         }
@@ -120,6 +152,7 @@ class QuizController extends Controller
      */
     public function destroy(Quiz $quiz): RedirectResponse
     {
+        $this->authorizeQuiz($quiz);
         $pengajaranDosenId = $quiz->pengajaran_dosen_id;
         $quiz->delete();
 
@@ -129,6 +162,8 @@ class QuizController extends Controller
     }
     public function uploadGambarSoal(Request $request, QuizQuestion $quizQuestion)
     {
+        $quizQuestion->loadMissing('quiz.pengajaranDosen');
+        $this->authorizeQuiz($quizQuestion->quiz);
         $request->validate([
             'gambar' => 'required|image|mimes:jpg,jpeg,png|max:5120',
         ]);

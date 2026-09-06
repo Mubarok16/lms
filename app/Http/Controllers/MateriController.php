@@ -122,7 +122,7 @@ class MateriController extends Controller
         });
 
         return redirect()
-            ->route('pengajaran.show', $pengajaran->kelas_id)
+            ->route('lecturer.pengajaran.show', $pengajaran->kelas_id)
             ->with('success', 'Materi berhasil ditambahkan.');
     }
 
@@ -219,7 +219,7 @@ class MateriController extends Controller
         }
 
         return redirect()
-            ->route('pengajaran.show', $materi->pengajaran->kelas_id)
+            ->route('lecturer.pengajaran.show', $materi->pengajaran->kelas_id)
             ->with('success', 'Materi berhasil diperbarui.');
     }
 

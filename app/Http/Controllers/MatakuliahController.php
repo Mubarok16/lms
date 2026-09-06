@@ -190,6 +190,7 @@ class MatakuliahController extends Controller
     }
     public function show(Kelas $kelas)
     {
+        abort_unless(\App\Models\PengajaranMahasiswa::where('kelas_id',$kelas->id)->where('mahasiswa_id',auth()->user()->student?->id)->exists(), 403);
         $mahasiswa = auth()->user()->student;
 
         $terdaftar = PengajaranMahasiswa::where('kelas_id', $kelas->id)

@@ -77,32 +77,106 @@
             <!-- Topbar -->
             <header class="h-20 bg-white border-b border-line flex items-center gap-4 px-5 lg:px-8 sticky top-0 z-20">
                 <button @click="sidebarOpen = true" class="lg:hidden text-ink/60 hover:text-ink">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="1.8">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                         <path d="M3 6h18M3 12h18M3 18h18" />
                     </svg>
                 </button>
 
-
+                <div class="relative hidden sm:block w-full max-w-xs">
+                    <!-- <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-ink/30" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="M21 21l-4.3-4.3" />
+                    </svg> -->
+                    <!-- <input type="text" placeholder="Cari mata kuliah..." class="w-full pl-9 pr-3 py-2.5 rounded-lg bg-paper border border-line text-sm focus:outline-none focus:ring-2 focus:ring-teal/30 focus:border-teal"> -->
+                </div>
 
                 <div class="ml-auto flex items-center gap-4">
-                    <button class="relative text-ink/50 hover:text-ink">
-                        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="1.8">
+
+                    {{-- Notification --}}
+                    <button class="relative text-ink/50 hover:text-ink transition">
+                        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
                             <path d="M13.73 21a2 2 0 01-3.46 0" />
                         </svg>
+
                         <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-coral"></span>
                     </button>
+
                     <div class="w-px h-6 bg-line hidden sm:block"></div>
-                    <div class="flex items-center gap-2.5">
-                        <img src="https://i.pravatar.cc/80?img=32" class="w-9 h-9 rounded-full object-cover"
-                            alt="">
-                        <div class="hidden sm:block leading-tight">
-                            <p class="text-sm font-medium">{{ Auth::user()->name }}</p>
-                            <p class="text-xs text-ink/45">{{ Auth::user()->role }}</p>
+
+                    {{-- Profile Dropdown --}}
+                    <div class="relative" x-data="{ open: false }">
+
+                        {{-- Button Profile --}}
+                        <button
+                            @click="open = !open"
+                            class="flex items-center gap-2.5 focus:outline-none">
+
+                            <img
+                                src="{{ Auth::user()->profile_photo ? asset('storage/' . Auth::user()->profile_photo)  : asset('images/default-profile.png') }}"
+                                class="w-9 h-9 rounded-full object-cover"
+                                alt="{{ Auth::user()->name }}">
+
+                            <div class="hidden sm:block leading-tight text-left">
+                                <p class="text-sm font-medium">
+                                    {{ Auth::user()->name }}
+                                </p>
+
+                                <p class="text-xs text-ink/45">
+                                    {{ Auth::user()->role }}
+                                </p>
+                            </div>
+
+                            {{-- Arrow --}}
+                            <svg
+                                class="w-4 h-4 text-ink/50 transition-transform"
+                                :class="{ 'rotate-180': open }"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+
+                        </button>
+
+                        {{-- Dropdown Menu --}}
+                        <div
+                            x-show="open"
+                            @click.outside="open = false"
+                            x-transition
+                            class="absolute right-0 mt-3 w-44 bg-white border border-line rounded-xl shadow-lg overflow-hidden z-50">
+
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+
+                                <button
+                                    type="submit"
+                                    class="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition">
+                                    {{-- Logout Icon --}}
+                                    <svg
+                                        class="w-4 h-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
+                                    </svg>
+
+                                    Logout
+                                </button>
+                            </form>
+
                         </div>
+
                     </div>
+
                 </div>
             </header>
 

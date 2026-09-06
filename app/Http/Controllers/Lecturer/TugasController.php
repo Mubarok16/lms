@@ -12,9 +12,20 @@ use Illuminate\Support\Facades\Storage;
 
 class TugasController extends Controller
 {
+    private function authorizeTeaching(PengajaranDosen $pengajaranDosen): void
+    {
+        abort_unless(auth()->user()->lecturer && $pengajaranDosen->dosen_id === auth()->user()->lecturer->id, 403);
+    }
+
+    private function authorizeTugas(Tugas $tugas): void
+    {
+        $tugas->loadMissing('pengajaranDosen');
+        abort_unless(auth()->user()->lecturer && $tugas->pengajaranDosen->dosen_id === auth()->user()->lecturer->id, 403);
+    }
+
     public function create(PengajaranDosen $pengajaranDosen)
     {
-        // load relasi supaya tahu ini tugas untuk kelas/matkul apa
+        $this->authorizeTeaching($pengajaranDosen);
         $pengajaranDosen->load('kelas.matakuliah');
 
         return view('lecturer.tugas.create', compact('pengajaranDosen'));
@@ -22,6 +33,7 @@ class TugasController extends Controller
 
     public function store(Request $request, PengajaranDosen $pengajaranDosen)
     {
+        $this->authorizeTeaching($pengajaranDosen);
         $validated = $request->validate([
             'judul'       => 'required|string|max:255',
             'deskripsi'   => 'nullable|string',
@@ -56,11 +68,12 @@ class TugasController extends Controller
         }
 
         return redirect()
-            ->route('pengajaran.show', $pengajaranDosen->kelas_id) // sesuaikan dengan route show kamu
+            ->route('lecturer.pengajaran.show', $pengajaranDosen->kelas_id) // sesuaikan dengan route show kamu
             ->with('success', 'Tugas berhasil ditambahkan.');
     }
     public function edit(Tugas $tugas)
     {
+        $this->authorizeTugas($tugas);
         $tugas->load(['files', 'pengajaranDosen.kelas.matakuliah']);
 
         return view('lecturer.tugas.edit', compact('tugas'));
@@ -68,6 +81,7 @@ class TugasController extends Controller
 
     public function update(Request $request, Tugas $tugas)
     {
+        $this->authorizeTugas($tugas);
         $validated = $request->validate([
             'judul'       => 'required|string|max:255',
             'deskripsi'   => 'nullable|string',
@@ -117,12 +131,14 @@ class TugasController extends Controller
         }
 
         return redirect()
-            ->route('pengajaran.show', ['id' => $tugas->pengajaranDosen->kelas_id])
+            ->route('lecturer.pengajaran.show', ['id' => $tugas->pengajaranDosen->kelas_id])
             ->with('success', 'Tugas berhasil diperbarui.');
     }
 
     public function destroy(Tugas $tugas)
     {
+        $this->authorizeTugas($tugas);
+        $kelasId = $tugas->pengajaranDosen->kelas_id;
         foreach ($tugas->files as $file) {
             Storage::disk('public')->delete($file->file_path);
         }
@@ -130,25 +146,35 @@ class TugasController extends Controller
         $tugas->delete();
 
         return redirect()
-            ->route('pengajaran.show', ['id' => $tugas->pengajaranDosen->kelas_id])
+            ->route('lecturer.pengajaran.show', ['id' => $kelasId])
             ->with('success', 'Tugas berhasil dihapus.');
     }
     public function show(Tugas $tugas)
     {
+        $this->authorizeTugas($tugas);
         $tugas->load(['files', 'pengajaranDosen.kelas.matakuliah']);
 
-        return view('lecturer.tugas.show', compact('tugas'));
+        // Tampilkan hanya submission yang benar-benar sudah dikirim mahasiswa.
+        $jawabanList = TugasJawaban::with(['mahasiswa.user', 'files'])
+            ->where('tugas_id', $tugas->id)
+            ->whereNotNull('waktu_submit')
+            ->orderByRaw("CASE status WHEN 'menunggu_koreksi' THEN 1 WHEN 'sudah_dikoreksi' THEN 2 ELSE 3 END")
+            ->orderBy('waktu_submit')
+            ->get();
+
+        return view('lecturer.tugas.show', compact('tugas', 'jawabanList'));
     }
 
 // ... di dalam class TugasController (lecturer)
 
 public function jawabanIndex(Tugas $tugas)
 {
+    $this->authorizeTugas($tugas);
     $tugas->load('pengajaranDosen');
 
     $jawabanList = TugasJawaban::with('mahasiswa.user', 'files')
         ->where('tugas_id', $tugas->id)
-        ->orderByRaw("FIELD(status, 'menunggu_koreksi', 'sudah_dikoreksi', 'belum_submit')")
+        ->orderByRaw("CASE status WHEN 'menunggu_koreksi' THEN 1 WHEN 'sudah_dikoreksi' THEN 2 WHEN 'belum_submit' THEN 3 ELSE 4 END")
         ->orderBy('waktu_submit')
         ->get();
 
@@ -157,6 +183,7 @@ public function jawabanIndex(Tugas $tugas)
 
 public function jawabanShow(Tugas $tugas, TugasJawaban $jawaban)
 {
+    $this->authorizeTugas($tugas);
     abort_if($jawaban->tugas_id !== $tugas->id, 404);
 
     $jawaban->load('mahasiswa.user', 'files');
@@ -166,6 +193,7 @@ public function jawabanShow(Tugas $tugas, TugasJawaban $jawaban)
 
 public function koreksi(Request $request, Tugas $tugas, TugasJawaban $jawaban)
 {
+    $this->authorizeTugas($tugas);
     abort_if($jawaban->tugas_id !== $tugas->id, 404);
 
     $request->validate([

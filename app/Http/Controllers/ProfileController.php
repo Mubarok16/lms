@@ -24,6 +24,18 @@ class ProfileController extends Controller
         ]);
     }
 
+    public function edit_lecturer(Request $request): View
+    {
+        return view('profile.edit-lecturer', [
+            'user' => $request->user(),
+        ]);
+    }
+    public function edit_admin(Request $request): View
+    {
+        return view('profile.edit-admin', [
+            'user' => $request->user(),
+        ]);
+    }
     /**
      * Update the user's profile information.
      */
@@ -63,8 +75,73 @@ class ProfileController extends Controller
             ->with('status', 'profile-updated');
     }
 
+    public function update_lecturer(ProfileUpdateRequest $request): RedirectResponse
+    {
+        $user = $request->user();
 
+        $user->fill($request->validated());
 
+        if ($request->hasFile('profile_photo')) {
+
+            // Hapus foto lama jika ada
+            if (
+                $user->profile_photo &&
+                Storage::disk('public')->exists($user->profile_photo)
+            ) {
+
+                Storage::disk('public')->delete($user->profile_photo);
+            }
+
+            // Simpan foto baru
+            $path = $request->file('profile_photo')
+                ->store('profile-photos', 'public');
+
+            $user->profile_photo = $path;
+        }
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
+
+        return Redirect::route('lecturer.profile.edit')
+            ->with('status', 'profile-updated');
+    }
+
+    public function update_admin(ProfileUpdateRequest $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        $user->fill($request->validated());
+
+        if ($request->hasFile('profile_photo')) {
+
+            // Hapus foto lama jika ada
+            if (
+                $user->profile_photo &&
+                Storage::disk('public')->exists($user->profile_photo)
+            ) {
+
+                Storage::disk('public')->delete($user->profile_photo);
+            }
+
+            // Simpan foto baru
+            $path = $request->file('profile_photo')
+                ->store('profile-photos', 'public');
+
+            $user->profile_photo = $path;
+        }
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
+
+        return Redirect::route('admin.profile.edit')
+            ->with('status', 'profile-updated');
+    }
     /**
      * Delete the user's account.
      */

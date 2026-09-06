@@ -1,0 +1,9 @@
+@extends('student.app-student')
+@section('ketjudul')Akademik@endsection
+@section('judul')Nilai Saya@endsection
+@section('content')
+<div class="grid xl:grid-cols-2 gap-6">
+<section class="bg-white border border-line rounded-2xl overflow-hidden"><div class="p-5 border-b border-line"><h2 class="font-semibold">Nilai Kuis</h2></div><div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-paper"><tr><th class="text-left px-5 py-3">Kuis</th><th class="text-left px-5 py-3">Mata Kuliah</th><th class="text-right px-5 py-3">Skor</th></tr></thead><tbody>@forelse($quizGrades as $row)<tr class="border-t border-line"><td class="px-5 py-3">{{ $row->quiz->judul }}</td><td class="px-5 py-3">{{ $row->quiz->pengajaranDosen->kelas->matakuliah->nama_mk ?? '-' }}</td><td class="px-5 py-3 text-right font-semibold">{{ $row->skor ?? '-' }}</td></tr>@empty<tr><td colspan="3" class="p-8 text-center text-ink/45">Belum ada nilai kuis.</td></tr>@endforelse</tbody></table></div></section>
+<section class="bg-white border border-line rounded-2xl overflow-hidden"><div class="p-5 border-b border-line"><h2 class="font-semibold">Nilai Tugas</h2></div><div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-paper"><tr><th class="text-left px-5 py-3">Tugas</th><th class="text-left px-5 py-3">Mata Kuliah</th><th class="text-right px-5 py-3">Skor</th></tr></thead><tbody>@forelse($taskGrades as $row)<tr class="border-t border-line"><td class="px-5 py-3">{{ $row->tugas->judul }}</td><td class="px-5 py-3">{{ $row->tugas->pengajaranDosen->kelas->matakuliah->nama_mk ?? '-' }}</td><td class="px-5 py-3 text-right font-semibold">{{ $row->skor }}</td></tr>@empty<tr><td colspan="3" class="p-8 text-center text-ink/45">Belum ada nilai tugas.</td></tr>@endforelse</tbody></table></div></section>
+</div>
+@endsection

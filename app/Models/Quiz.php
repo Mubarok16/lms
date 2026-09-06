@@ -32,4 +32,9 @@ class Quiz extends Model
     {
         return $this->hasMany(QuizQuestion::class)->orderBy('nomor');
     }
+
+    public function jawaban(): HasMany
+    {
+        return $this->hasMany(QuizJawaban::class);
+    }
 }

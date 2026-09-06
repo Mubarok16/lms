@@ -71,7 +71,7 @@
     <div class="border border-line rounded-xl p-5">
         <h3 class="text-sm font-semibold mb-4">Unggah File Excel</h3>
 
-        <form action="{{ route('dosen.import.process') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('admin.dosen.import.process') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <div id="dropZone"
