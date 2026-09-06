@@ -1,551 +1,550 @@
-```blade
 @extends('admin.app-admin')
 
 @section('ketjudul')
-    DAFTAR
+DAFTAR
 @endsection
 
 @section('judul')
-    Peserta Matakuliah
+Peserta Matakuliah
 @endsection
 
 @section('content')
-    {{-- =========================================================
+{{-- =========================================================
         SEARCH PENGAJARAN
     ========================================================== --}}
-    <div class="mb-4 flex items-center justify-between gap-3">
+<div class="mb-4 flex items-center justify-between gap-3">
 
-        <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2">
 
-            <input type="text" id="searchPengajaran" placeholder="Cari MK atau dosen..."
-                class="w-64 h-9 px-3 border border-gray-300 rounded-md
+        <input type="text" id="searchPengajaran" placeholder="Cari MK atau dosen..."
+            class="w-64 h-9 px-3 border border-gray-300 rounded-md
                        text-sm focus:outline-none focus:ring-2
                        focus:ring-blue-500 focus:border-blue-500">
 
-            <button type="button" onclick="cariPengajaran()"
-                class="h-9 px-4 inline-flex items-center justify-center
+        <button type="button" onclick="cariPengajaran()"
+            class="h-9 px-4 inline-flex items-center justify-center
                        rounded-md bg-blue-600 text-white text-sm
                        font-medium hover:bg-blue-700 transition">
-                Cari
-            </button>
+            Cari
+        </button>
 
-            <button type="button" onclick="resetPengajaran()"
-                class="h-9 px-4 inline-flex items-center justify-center
+        <button type="button" onclick="resetPengajaran()"
+            class="h-9 px-4 inline-flex items-center justify-center
                        rounded-md bg-gray-200 text-gray-700 text-sm
                        font-medium hover:bg-gray-300 transition">
-                Reset
-            </button>
-
-        </div>
+            Reset
+        </button>
 
     </div>
 
+</div>
 
-    {{-- =========================================================
+
+{{-- =========================================================
         TABEL KELAS / MATA KULIAH
     ========================================================== --}}
-    <div class="overflow-x-auto">
+<div class="overflow-x-auto">
 
-        <table class="w-full text-sm text-left">
+    <table class="w-full text-sm text-left">
 
-            <thead class="bg-gray-100">
+        <thead class="bg-gray-100">
 
-                <tr>
+            <tr>
 
-                    <th class="px-4 py-3">
-                        No
-                    </th>
+                <th class="px-4 py-3">
+                    No
+                </th>
 
-                    <th class="px-4 py-3">
-                        Nama MK
-                    </th>
+                <th class="px-4 py-3">
+                    Nama MK
+                </th>
 
-                    <th class="px-4 py-3">
-                        Kelas
-                    </th>
+                <th class="px-4 py-3">
+                    Kelas
+                </th>
 
-                    <th class="px-4 py-3">
-                        Prodi
-                    </th>
+                <th class="px-4 py-3">
+                    Prodi
+                </th>
 
-                    <th class="px-4 py-3">
-                        Dosen Pengampu
-                    </th>
+                <th class="px-4 py-3">
+                    Dosen Pengampu
+                </th>
 
-                    <th class="px-4 py-3 text-center">
-                        Aksi
-                    </th>
+                <th class="px-4 py-3 text-center">
+                    Aksi
+                </th>
 
-                </tr>
+            </tr>
 
-            </thead>
-
-
-            <tbody id="tabelPengajaran">
-
-                @forelse ($pengajaran as $item)
-                    <tr class="border-b">
-
-                        {{-- NO --}}
-                        <td class="px-4 py-3">
-                            {{ $loop->iteration }}
-                        </td>
+        </thead>
 
 
-                        {{-- MATA KULIAH --}}
-                        <td class="px-4 py-3">
+        <tbody id="tabelPengajaran">
 
-                            <div class="font-medium">
-                                {{ $item->kelas->matakuliah->nama_mk ?? '-' }}
-                            </div>
+            @forelse ($pengajaran as $item)
+            <tr class="border-b">
 
-                            <div class="text-xs text-gray-500">
-                                {{ $item->kelas->kode_mk ?? '-' }}
-                            </div>
-
-                        </td>
+                {{-- NO --}}
+                <td class="px-4 py-3">
+                    {{ $loop->iteration }}
+                </td>
 
 
-                        {{-- KELAS --}}
-                        <td class="px-4 py-3">
+                {{-- MATA KULIAH --}}
+                <td class="px-4 py-3">
 
-                            <span
-                                class="inline-flex items-center px-2 py-1
+                    <div class="font-medium">
+                        {{ $item->kelas->matakuliah->nama_mk ?? '-' }}
+                    </div>
+
+                    <div class="text-xs text-gray-500">
+                        {{ $item->kelas->kode_mk ?? '-' }}
+                    </div>
+
+                </td>
+
+
+                {{-- KELAS --}}
+                <td class="px-4 py-3">
+
+                    <span
+                        class="inline-flex items-center px-2 py-1
                                        rounded-md bg-gray-100 text-gray-700
                                        text-xs font-medium">
-                                {{ $item->kelas->kode_kelas ?? '-' }}
-                            </span>
+                        {{ $item->kelas->kode_kelas ?? '-' }}
+                    </span>
 
-                        </td>
-
-
-                        {{-- PRODI --}}
-                        <td class="px-4 py-3">
-
-                            {{ $item->lecturer->prodi->nama_prodi ?? '-' }}
-
-                        </td>
+                </td>
 
 
-                        {{-- DOSEN --}}
-                        <td class="px-4 py-3">
+                {{-- PRODI --}}
+                <td class="px-4 py-3">
 
-                            {{ $item->lecturer->user->name ?? '-' }}
+                    {{ $item->lecturer->prodi->nama_prodi ?? '-' }}
 
-                        </td>
+                </td>
 
 
-                        <td class="px-4 py-3 text-center">
+                {{-- DOSEN --}}
+                <td class="px-4 py-3">
 
-                            <div class="flex items-center justify-center gap-2">
+                    {{ $item->lecturer->user->name ?? '-' }}
 
-                                {{-- TAMBAH PESERTA --}}
-                                <button type="button"
-                                    onclick="openPesertaModal(
+                </td>
+
+
+                <td class="px-4 py-3 text-center">
+
+                    <div class="flex items-center justify-center gap-2">
+
+                        {{-- TAMBAH PESERTA --}}
+                        <button type="button"
+                            onclick="openPesertaModal(
                 {{ $item->kelas->id }},
                 @js($item->kelas->matakuliah->nama_mk . ' - Kelas ' . $item->kelas->kode_kelas)
             )"
-                                    class="h-9 px-3 inline-flex items-center justify-center
+                            class="h-9 px-3 inline-flex items-center justify-center
                    rounded-md bg-blue-600 text-white text-xs
                    font-medium leading-none
                    hover:bg-blue-700 transition">
-                                    Peserta
-                                </button>
+                            Peserta
+                        </button>
 
 
-                                {{-- DAFTAR PESERTA --}}
-                                <button type="button"
-                                    onclick="openDaftarPesertaModal(
+                        {{-- DAFTAR PESERTA --}}
+                        <button type="button"
+                            onclick="openDaftarPesertaModal(
                 {{ $item->kelas->id }},
                 @js($item->kelas->matakuliah->nama_mk . ' - Kelas ' . $item->kelas->kode_kelas)
             )"
-                                    class="h-9 px-3 inline-flex items-center justify-center
+                            class="h-9 px-3 inline-flex items-center justify-center
                    rounded-md bg-green-600 text-white text-xs
                    font-medium leading-none
                    hover:bg-green-700 transition">
-                                    Daftar Peserta
-                                </button>
+                            Daftar Peserta
+                        </button>
 
-                            </div>
+                    </div>
 
-                        </td>
+                </td>
 
-                    </tr>
+            </tr>
 
-                @empty
+            @empty
 
-                    <tr>
+            <tr>
 
-                        <td colspan="6" class="px-4 py-6 text-center text-gray-500">
-                            Belum ada data pengajaran.
-                        </td>
+                <td colspan="6" class="px-4 py-6 text-center text-gray-500">
+                    Belum ada data pengajaran.
+                </td>
 
-                    </tr>
-                @endforelse
+            </tr>
+            @endforelse
 
-            </tbody>
+        </tbody>
 
-        </table>
+    </table>
 
-    </div>
+</div>
 
 
-    {{-- =========================================================
+{{-- =========================================================
         MODAL PESERTA
     ========================================================== --}}
-    <div id="pesertaModal" class="hidden fixed inset-0 z-50
+<div id="pesertaModal" class="hidden fixed inset-0 z-50
                bg-black/50 items-center justify-center p-4">
 
-        <div class="bg-white rounded-lg shadow-xl
+    <div class="bg-white rounded-lg shadow-xl
                    w-full max-w-2xl">
 
-            {{-- HEADER MODAL --}}
-            <div class="flex items-center justify-between
+        {{-- HEADER MODAL --}}
+        <div class="flex items-center justify-between
                        px-6 py-4 border-b">
 
-                <div>
+            <div>
 
-                    <h2 class="text-lg font-semibold">
-                        Tambah Peserta
-                    </h2>
+                <h2 class="text-lg font-semibold">
+                    Tambah Peserta
+                </h2>
 
-                    <p id="namaMatakuliah" class="text-sm text-gray-500"></p>
-
-                </div>
-
-
-                <button type="button" onclick="closePesertaModal()"
-                    class="text-gray-500 hover:text-gray-700
-                           text-xl">
-                    ✕
-                </button>
+                <p id="namaMatakuliah" class="text-sm text-gray-500"></p>
 
             </div>
 
 
-            {{-- ISI MODAL --}}
-            <div class="p-6">
+            <button type="button" onclick="closePesertaModal()"
+                class="text-gray-500 hover:text-gray-700
+                           text-xl">
+                ✕
+            </button>
 
-                <input type="text" id="searchStudent" placeholder="Cari NIM atau nama mahasiswa..."
-                    class="w-full border border-gray-300
+        </div>
+
+
+        {{-- ISI MODAL --}}
+        <div class="p-6">
+
+            <input type="text" id="searchStudent" placeholder="Cari NIM atau nama mahasiswa..."
+                class="w-full border border-gray-300
                            rounded-md px-3 py-2
                            focus:outline-none
                            focus:ring-2 focus:ring-blue-500">
 
 
-                {{-- HASIL PENCARIAN --}}
-                <div id="hasilStudent" class="mt-4 max-h-80 overflow-y-auto">
+            {{-- HASIL PENCARIAN --}}
+            <div id="hasilStudent" class="mt-4 max-h-80 overflow-y-auto">
 
-                    <div class="text-center text-gray-400 py-6">
-                        Ketik untuk mencari mahasiswa...
-                    </div>
-
+                <div class="text-center text-gray-400 py-6">
+                    Ketik untuk mencari mahasiswa...
                 </div>
 
             </div>
 
+        </div>
 
-            {{-- FOOTER --}}
-            <div class="flex items-center justify-between
+
+        {{-- FOOTER --}}
+        <div class="flex items-center justify-between
                        px-6 py-4 border-t">
 
-                <span id="jumlahTerpilih" class="text-sm text-gray-500">
-                    0 mahasiswa dipilih
-                </span>
+            <span id="jumlahTerpilih" class="text-sm text-gray-500">
+                0 mahasiswa dipilih
+            </span>
 
 
-                <button type="button" onclick="tambahPesertaTerpilih()"
-                    class="h-9 px-4 inline-flex items-center
+            <button type="button" onclick="tambahPesertaTerpilih()"
+                class="h-9 px-4 inline-flex items-center
                            justify-center rounded-md
                            bg-blue-600 text-white text-sm
                            font-medium hover:bg-blue-700
                            transition">
-                    Tambahkan Terpilih
-                </button>
-
-            </div>
+                Tambahkan Terpilih
+            </button>
 
         </div>
 
     </div>
 
-    {{-- =========================================================
+</div>
+
+{{-- =========================================================
     MODAL DAFTAR PESERTA
 ========================================================== --}}
-    <div id="daftarPesertaModal" class="hidden fixed inset-0 z-50
+<div id="daftarPesertaModal" class="hidden fixed inset-0 z-50
            bg-black/50 items-center justify-center p-4">
 
-        <div class="bg-white rounded-lg shadow-xl
+    <div class="bg-white rounded-lg shadow-xl
                 w-full max-w-2xl">
 
-            {{-- HEADER --}}
-            <div class="flex items-center justify-between
+        {{-- HEADER --}}
+        <div class="flex items-center justify-between
                     px-6 py-4 border-b">
 
-                <div>
+            <div>
 
-                    <h2 class="text-lg font-semibold">
-                        Daftar Peserta
-                    </h2>
+                <h2 class="text-lg font-semibold">
+                    Daftar Peserta
+                </h2>
 
-                    <p id="judulDaftarPeserta" class="text-sm text-gray-500">
-                    </p>
-
-                </div>
-
-                <button type="button" onclick="closeDaftarPesertaModal()"
-                    class="text-gray-500 hover:text-gray-700 text-xl">
-
-                    ✕
-
-                </button>
+                <p id="judulDaftarPeserta" class="text-sm text-gray-500">
+                </p>
 
             </div>
 
+            <button type="button" onclick="closeDaftarPesertaModal()"
+                class="text-gray-500 hover:text-gray-700 text-xl">
 
-            {{-- ISI --}}
-            <div class="p-6">
+                ✕
 
-                <div id="hasilDaftarPeserta" class="max-h-96 overflow-y-auto">
+            </button>
 
-                    <div class="text-center text-gray-400 py-6">
+        </div>
 
-                        Memuat data...
 
-                    </div>
+        {{-- ISI --}}
+        <div class="p-6">
+
+            <div id="hasilDaftarPeserta" class="max-h-96 overflow-y-auto">
+
+                <div class="text-center text-gray-400 py-6">
+
+                    Memuat data...
 
                 </div>
 
             </div>
 
+        </div>
 
-            {{-- FOOTER --}}
-            <div class="flex items-center justify-between
+
+        {{-- FOOTER --}}
+        <div class="flex items-center justify-between
                     px-6 py-4 border-t">
 
-                <span id="jumlahPeserta" class="text-sm text-gray-500">
+            <span id="jumlahPeserta" class="text-sm text-gray-500">
 
-                    0 mahasiswa
+                0 mahasiswa
 
-                </span>
+            </span>
 
-                <button type="button" onclick="closeDaftarPesertaModal()"
-                    class="h-9 px-4 rounded-md
+            <button type="button" onclick="closeDaftarPesertaModal()"
+                class="h-9 px-4 rounded-md
                        bg-gray-200 text-gray-700
                        text-sm font-medium
                        hover:bg-gray-300">
 
-                    Tutup
+                Tutup
 
-                </button>
-
-            </div>
+            </button>
 
         </div>
 
     </div>
-    {{-- =========================================================
+
+</div>
+{{-- =========================================================
         JAVASCRIPT
     ========================================================== --}}
-    <script>
-        /*
+<script>
+    /*
                                 |--------------------------------------------------------------------------
                                 | VARIABEL
                                 |--------------------------------------------------------------------------
                                 */
 
-        let selectedStudents = new Set();
+    let selectedStudents = new Set();
 
-        let kelasId = null;
+    let kelasId = null;
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | BUKA MODAL
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | BUKA MODAL
+    |--------------------------------------------------------------------------
+    */
 
-        function openPesertaModal(id, namaMk) {
+    function openPesertaModal(id, namaMk) {
 
-            kelasId = id;
+        kelasId = id;
 
-            // Reset mahasiswa terpilih
-            selectedStudents.clear();
+        // Reset mahasiswa terpilih
+        selectedStudents.clear();
 
-            // Tampilkan nama MK
-            document.getElementById('namaMatakuliah').innerText = namaMk;
+        // Tampilkan nama MK
+        document.getElementById('namaMatakuliah').innerText = namaMk;
 
-            // Tampilkan modal
-            const modal = document.getElementById('pesertaModal');
+        // Tampilkan modal
+        const modal = document.getElementById('pesertaModal');
 
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
 
-            // Reset search
-            document.getElementById('searchStudent').value = '';
+        // Reset search
+        document.getElementById('searchStudent').value = '';
 
-            // Reset hasil
-            document.getElementById('hasilStudent').innerHTML = `
+        // Reset hasil
+        document.getElementById('hasilStudent').innerHTML = `
                 <div class="text-center text-gray-400 py-6">
                     Ketik untuk mencari mahasiswa...
                 </div>
             `;
 
-            updateJumlahTerpilih();
+        updateJumlahTerpilih();
 
-            // Fokus search
-            document.getElementById('searchStudent').focus();
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | TUTUP MODAL
-        |--------------------------------------------------------------------------
-        */
-
-        function closePesertaModal() {
-
-            const modal = document.getElementById('pesertaModal');
-
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-
-            kelasId = null;
-        }
+        // Fokus search
+        document.getElementById('searchStudent').focus();
+    }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | SEARCH MAHASISWA
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | TUTUP MODAL
+    |--------------------------------------------------------------------------
+    */
 
-        document
-            .getElementById('searchStudent')
-            .addEventListener('input', function() {
+    function closePesertaModal() {
 
-                const search = this.value.trim();
+        const modal = document.getElementById('pesertaModal');
 
-                /*
-                |--------------------------------------------------------------------------
-                | Minimal 2 karakter
-                |--------------------------------------------------------------------------
-                */
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
 
-                if (search.length < 2) {
+        kelasId = null;
+    }
 
-                    document.getElementById('hasilStudent').innerHTML = `
+
+    /*
+    |--------------------------------------------------------------------------
+    | SEARCH MAHASISWA
+    |--------------------------------------------------------------------------
+    */
+
+    document
+        .getElementById('searchStudent')
+        .addEventListener('input', function() {
+
+            const search = this.value.trim();
+
+            /*
+            |--------------------------------------------------------------------------
+            | Minimal 2 karakter
+            |--------------------------------------------------------------------------
+            */
+
+            if (search.length < 2) {
+
+                document.getElementById('hasilStudent').innerHTML = `
                         <div class="text-center text-gray-400 py-6">
                             Ketik minimal 2 karakter...
                         </div>
                     `;
 
-                    return;
-                }
+                return;
+            }
 
 
-                /*
-                |--------------------------------------------------------------------------
-                | Pastikan kelas sudah dipilih
-                |--------------------------------------------------------------------------
-                */
+            /*
+            |--------------------------------------------------------------------------
+            | Pastikan kelas sudah dipilih
+            |--------------------------------------------------------------------------
+            */
 
-                if (!kelasId) {
+            if (!kelasId) {
 
-                    console.error('kelasId tidak tersedia.');
+                console.error('kelasId tidak tersedia.');
 
-                    return;
-                }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | URL SEARCH
-                |--------------------------------------------------------------------------
-                */
-
-                const url =
-                    `/kelas/${kelasId}/students?search=${encodeURIComponent(search)}`;
-
-                console.log('Mencari mahasiswa:', url);
+                return;
+            }
 
 
-                /*
-                |--------------------------------------------------------------------------
-                | REQUEST
-                |--------------------------------------------------------------------------
-                */
+            /*
+            |--------------------------------------------------------------------------
+            | URL SEARCH
+            |--------------------------------------------------------------------------
+            */
 
-                fetch(url, {
+            const url =
+                `/kelas/${kelasId}/students?search=${encodeURIComponent(search)}`;
 
-                        method: 'GET',
-
-                        headers: {
-                            'Accept': 'application/json'
-                        }
-
-                    })
-
-                    .then(async response => {
-
-                        const data = await response.json();
-
-                        if (!response.ok) {
-
-                            console.error(
-                                'Error server:',
-                                data
-                            );
-
-                            throw new Error(
-                                data.message ??
-                                'Gagal mengambil data mahasiswa.'
-                            );
-                        }
-
-                        return data;
-
-                    })
-
-                    .then(students => {
-
-                        let html = '';
+            console.log('Mencari mahasiswa:', url);
 
 
-                        /*
-                        |--------------------------------------------------------------------------
-                        | Tidak ada mahasiswa
-                        |--------------------------------------------------------------------------
-                        */
+            /*
+            |--------------------------------------------------------------------------
+            | REQUEST
+            |--------------------------------------------------------------------------
+            */
 
-                        if (!Array.isArray(students) || students.length === 0) {
+            fetch(url, {
 
-                            html = `
+                    method: 'GET',
+
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+
+                })
+
+                .then(async response => {
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+
+                        console.error(
+                            'Error server:',
+                            data
+                        );
+
+                        throw new Error(
+                            data.message ??
+                            'Gagal mengambil data mahasiswa.'
+                        );
+                    }
+
+                    return data;
+
+                })
+
+                .then(students => {
+
+                    let html = '';
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Tidak ada mahasiswa
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (!Array.isArray(students) || students.length === 0) {
+
+                        html = `
                             <div class="text-center text-gray-400 py-6">
                                 Mahasiswa tidak ditemukan.
                             </div>
                         `;
 
-                        }
+                    }
 
-                        /*
-                        |--------------------------------------------------------------------------
-                        | Ada mahasiswa
-                        |--------------------------------------------------------------------------
-                        */
-                        else {
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Ada mahasiswa
+                    |--------------------------------------------------------------------------
+                    */
+                    else {
 
-                            students.forEach(student => {
+                        students.forEach(student => {
 
-                                const studentId =
-                                    String(student.id);
+                            const studentId =
+                                String(student.id);
 
-                                const checked =
-                                    selectedStudents.has(studentId);
+                            const checked =
+                                selectedStudents.has(studentId);
 
 
-                                html += `
+                            html += `
 
                                 <label
                                     class="flex items-center
@@ -591,33 +590,33 @@
                                 </label>
 
                             `;
-                            });
+                        });
 
-                        }
+                    }
 
 
-                        /*
-                        |--------------------------------------------------------------------------
-                        | Tampilkan hasil
-                        |--------------------------------------------------------------------------
-                        */
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Tampilkan hasil
+                    |--------------------------------------------------------------------------
+                    */
 
-                        document.getElementById(
-                            'hasilStudent'
-                        ).innerHTML = html;
+                    document.getElementById(
+                        'hasilStudent'
+                    ).innerHTML = html;
 
-                    })
+                })
 
-                    .catch(error => {
+                .catch(error => {
 
-                        console.error(
-                            'Gagal mengambil mahasiswa:',
-                            error
-                        );
+                    console.error(
+                        'Gagal mengambil mahasiswa:',
+                        error
+                    );
 
-                        document.getElementById(
-                            'hasilStudent'
-                        ).innerHTML = `
+                    document.getElementById(
+                        'hasilStudent'
+                    ).innerHTML = `
 
                         <div
                             class="text-center
@@ -628,372 +627,372 @@
 
                     `;
 
-                    });
-
-            });
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | CHECKBOX MAHASISWA
-        |--------------------------------------------------------------------------
-        */
-
-        document.addEventListener('change', function(e) {
-
-            if (
-                !e.target.classList.contains(
-                    'student-checkbox'
-                )
-            ) {
-                return;
-            }
-
-
-            const studentId =
-                String(e.target.value);
-
-
-            if (e.target.checked) {
-
-                selectedStudents.add(studentId);
-
-            } else {
-
-                selectedStudents.delete(studentId);
-
-            }
-
-
-            updateJumlahTerpilih();
+                });
 
         });
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | CHECKBOX MAHASISWA
+    |--------------------------------------------------------------------------
+    */
+
+    document.addEventListener('change', function(e) {
+
+        if (
+            !e.target.classList.contains(
+                'student-checkbox'
+            )
+        ) {
+            return;
+        }
+
+
+        const studentId =
+            String(e.target.value);
+
+
+        if (e.target.checked) {
+
+            selectedStudents.add(studentId);
+
+        } else {
+
+            selectedStudents.delete(studentId);
+
+        }
+
+
+        updateJumlahTerpilih();
+
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE JUMLAH MAHASISWA DIPILIH
+    |--------------------------------------------------------------------------
+    */
+
+    function updateJumlahTerpilih() {
+
+        document.getElementById(
+                'jumlahTerpilih'
+            ).innerText =
+            `${selectedStudents.size} mahasiswa dipilih`;
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TAMBAH PESERTA
+    |--------------------------------------------------------------------------
+    */
+
+    function tambahPesertaTerpilih() {
+
+        const studentIds =
+            Array.from(selectedStudents);
+
+
         /*
         |--------------------------------------------------------------------------
-        | UPDATE JUMLAH MAHASISWA DIPILIH
+        | Validasi
         |--------------------------------------------------------------------------
         */
 
-        function updateJumlahTerpilih() {
+        if (!kelasId) {
 
-            document.getElementById(
-                    'jumlahTerpilih'
-                ).innerText =
-                `${selectedStudents.size} mahasiswa dipilih`;
+            alert('Kelas belum dipilih.');
 
+            return;
+        }
+
+
+        if (studentIds.length === 0) {
+
+            alert(
+                'Pilih minimal satu mahasiswa.'
+            );
+
+            return;
         }
 
 
         /*
         |--------------------------------------------------------------------------
-        | TAMBAH PESERTA
+        | REQUEST
         |--------------------------------------------------------------------------
+        |
+        | Perhatikan:
+        | Sekarang menggunakan kelas_id.
+        |
         */
 
-        function tambahPesertaTerpilih() {
+        fetch(
+                `/kelas/${kelasId}/peserta`, {
 
-            const studentIds =
-                Array.from(selectedStudents);
+                    method: 'POST',
 
+                    headers: {
 
-            /*
-            |--------------------------------------------------------------------------
-            | Validasi
-            |--------------------------------------------------------------------------
-            */
+                        'Content-Type': 'application/json',
 
-            if (!kelasId) {
+                        'Accept': 'application/json',
 
-                alert('Kelas belum dipilih.');
+                        'X-CSRF-TOKEN': document
+                            .querySelector(
+                                'meta[name="csrf-token"]'
+                            )
+                            .getAttribute(
+                                'content'
+                            )
 
-                return;
-            }
+                    },
 
+                    body: JSON.stringify({
 
-            if (studentIds.length === 0) {
+                        student_ids: studentIds
 
-                alert(
-                    'Pilih minimal satu mahasiswa.'
-                );
+                    })
 
-                return;
-            }
+                }
+            )
 
+            .then(async response => {
 
-            /*
-            |--------------------------------------------------------------------------
-            | REQUEST
-            |--------------------------------------------------------------------------
-            |
-            | Perhatikan:
-            | Sekarang menggunakan kelas_id.
-            |
-            */
-
-            fetch(
-                    `/kelas/${kelasId}/peserta`, {
-
-                        method: 'POST',
-
-                        headers: {
-
-                            'Content-Type': 'application/json',
-
-                            'Accept': 'application/json',
-
-                            'X-CSRF-TOKEN': document
-                                .querySelector(
-                                    'meta[name="csrf-token"]'
-                                )
-                                .getAttribute(
-                                    'content'
-                                )
-
-                        },
-
-                        body: JSON.stringify({
-
-                            student_ids: studentIds
-
-                        })
-
-                    }
-                )
-
-                .then(async response => {
-
-                    const data =
-                        await response.json();
+                const data =
+                    await response.json();
 
 
-                    if (!response.ok) {
+                if (!response.ok) {
 
-                        throw new Error(
-                            data.message ??
-                            'Gagal menambahkan mahasiswa.'
-                        );
-
-                    }
-
-
-                    return data;
-
-                })
-
-                .then(data => {
-
-                    if (data.success) {
-
-                        alert(data.message);
-
-                        closePesertaModal();
-
-                        selectedStudents.clear();
-
-                    } else {
-
-                        alert(
-                            data.message ??
-                            'Gagal menambahkan mahasiswa.'
-                        );
-
-                    }
-
-                })
-
-                .catch(error => {
-
-                    console.error(
-                        'Error tambah peserta:',
-                        error
+                    throw new Error(
+                        data.message ??
+                        'Gagal menambahkan mahasiswa.'
                     );
-
-                    alert(
-                        error.message ??
-                        'Terjadi kesalahan saat menambahkan mahasiswa.'
-                    );
-
-                });
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | SEARCH TABEL PENGAJARAN
-        |--------------------------------------------------------------------------
-        */
-
-        function cariPengajaran() {
-
-            const keyword =
-                document
-                .getElementById(
-                    'searchPengajaran'
-                )
-                .value
-                .toLowerCase()
-                .trim();
-
-
-            const rows =
-                document.querySelectorAll(
-                    '#tabelPengajaran tr'
-                );
-
-
-            rows.forEach(row => {
-
-                const text =
-                    row.innerText
-                    .toLowerCase();
-
-
-                if (text.includes(keyword)) {
-
-                    row.style.display = '';
-
-                } else {
-
-                    row.style.display = 'none';
 
                 }
 
-            });
 
-        }
+                return data;
 
+            })
 
-        /*
-        |--------------------------------------------------------------------------
-        | RESET SEARCH TABEL
-        |--------------------------------------------------------------------------
-        */
+            .then(data => {
 
-        function resetPengajaran() {
+                if (data.success) {
 
-            document.getElementById(
-                'searchPengajaran'
-            ).value = '';
+                    alert(data.message);
 
+                    closePesertaModal();
 
-            const rows =
-                document.querySelectorAll(
-                    '#tabelPengajaran tr'
+                    selectedStudents.clear();
+
+                } else {
+
+                    alert(
+                        data.message ??
+                        'Gagal menambahkan mahasiswa.'
+                    );
+
+                }
+
+            })
+
+            .catch(error => {
+
+                console.error(
+                    'Error tambah peserta:',
+                    error
                 );
 
+                alert(
+                    error.message ??
+                    'Terjadi kesalahan saat menambahkan mahasiswa.'
+                );
 
-            rows.forEach(row => {
+            });
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SEARCH TABEL PENGAJARAN
+    |--------------------------------------------------------------------------
+    */
+
+    function cariPengajaran() {
+
+        const keyword =
+            document
+            .getElementById(
+                'searchPengajaran'
+            )
+            .value
+            .toLowerCase()
+            .trim();
+
+
+        const rows =
+            document.querySelectorAll(
+                '#tabelPengajaran tr'
+            );
+
+
+        rows.forEach(row => {
+
+            const text =
+                row.innerText
+                .toLowerCase();
+
+
+            if (text.includes(keyword)) {
 
                 row.style.display = '';
 
-            });
+            } else {
 
-        }
-        /*
-        |--------------------------------------------------------------------------
-        | MODAL DAFTAR PESERTA
-        |--------------------------------------------------------------------------
-        */
+                row.style.display = 'none';
 
-        function openDaftarPesertaModal(kelasId, namaMk) {
+            }
 
-            const modal = document.getElementById(
-                'daftarPesertaModal'
+        });
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RESET SEARCH TABEL
+    |--------------------------------------------------------------------------
+    */
+
+    function resetPengajaran() {
+
+        document.getElementById(
+            'searchPengajaran'
+        ).value = '';
+
+
+        const rows =
+            document.querySelectorAll(
+                '#tabelPengajaran tr'
             );
 
-            const hasil = document.getElementById(
-                'hasilDaftarPeserta'
-            );
 
-            const judul = document.getElementById(
-                'judulDaftarPeserta'
-            );
+        rows.forEach(row => {
 
-            const jumlah = document.getElementById(
-                'jumlahPeserta'
-            );
+            row.style.display = '';
+
+        });
+
+    }
+    /*
+    |--------------------------------------------------------------------------
+    | MODAL DAFTAR PESERTA
+    |--------------------------------------------------------------------------
+    */
+
+    function openDaftarPesertaModal(kelasId, namaMk) {
+
+        const modal = document.getElementById(
+            'daftarPesertaModal'
+        );
+
+        const hasil = document.getElementById(
+            'hasilDaftarPeserta'
+        );
+
+        const judul = document.getElementById(
+            'judulDaftarPeserta'
+        );
+
+        const jumlah = document.getElementById(
+            'jumlahPeserta'
+        );
 
 
-            // Tampilkan modal
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+        // Tampilkan modal
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
 
 
-            // Judul
-            judul.innerText = namaMk;
+        // Judul
+        judul.innerText = namaMk;
 
 
-            // Loading
-            hasil.innerHTML = `
+        // Loading
+        hasil.innerHTML = `
         <div class="text-center text-gray-400 py-6">
             Memuat daftar peserta...
         </div>
     `;
 
 
-            jumlah.innerText = 'Memuat...';
+        jumlah.innerText = 'Memuat...';
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | REQUEST
-            |--------------------------------------------------------------------------
-            */
+        /*
+        |--------------------------------------------------------------------------
+        | REQUEST
+        |--------------------------------------------------------------------------
+        */
 
-            fetch(`/kelas/${kelasId}/peserta`, {
+        fetch(`/kelas/${kelasId}/peserta`, {
 
-                    method: 'GET',
+                method: 'GET',
 
-                    headers: {
-                        'Accept': 'application/json'
-                    }
+                headers: {
+                    'Accept': 'application/json'
+                }
 
-                })
+            })
 
-                .then(async response => {
+            .then(async response => {
 
-                    const data = await response.json();
+                const data = await response.json();
 
-                    if (!response.ok) {
+                if (!response.ok) {
 
-                        throw new Error(
-                            data.message ??
-                            'Gagal mengambil daftar peserta.'
-                        );
+                    throw new Error(
+                        data.message ??
+                        'Gagal mengambil daftar peserta.'
+                    );
 
-                    }
+                }
 
-                    return data;
+                return data;
 
-                })
+            })
 
-                .then(data => {
+            .then(data => {
 
-                    if (!data.success) {
+                if (!data.success) {
 
-                        throw new Error(
-                            data.message ??
-                            'Gagal mengambil daftar peserta.'
-                        );
+                    throw new Error(
+                        data.message ??
+                        'Gagal mengambil daftar peserta.'
+                    );
 
-                    }
-
-
-                    const peserta = data.data;
+                }
 
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | TIDAK ADA PESERTA
-                    |--------------------------------------------------------------------------
-                    */
+                const peserta = data.data;
 
-                    if (!peserta || peserta.length === 0) {
 
-                        hasil.innerHTML = `
+                /*
+                |--------------------------------------------------------------------------
+                | TIDAK ADA PESERTA
+                |--------------------------------------------------------------------------
+                */
+
+                if (!peserta || peserta.length === 0) {
+
+                    hasil.innerHTML = `
                 <div class="text-center text-gray-400 py-10">
 
                     <div class="text-3xl mb-2">
@@ -1008,33 +1007,33 @@
                 </div>
             `;
 
-                        jumlah.innerText =
-                            '0 mahasiswa';
+                    jumlah.innerText =
+                        '0 mahasiswa';
 
-                        return;
-                    }
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | TAMPILKAN PESERTA
-                    |--------------------------------------------------------------------------
-                    */
-
-                    let html = '';
+                    return;
+                }
 
 
-                    peserta.forEach((item, index) => {
+                /*
+                |--------------------------------------------------------------------------
+                | TAMPILKAN PESERTA
+                |--------------------------------------------------------------------------
+                */
 
-                        const student = item.student;
+                let html = '';
 
-                        const nama = student?.user?.name ?? '-';
 
-                        const nim = student?.nim ?? '-';
+                peserta.forEach((item, index) => {
 
-                        const prodi = student?.prodi?.nama_prodi ?? '-';
+                    const student = item.student;
 
-                        html += `
+                    const nama = student?.user?.name ?? '-';
+
+                    const nim = student?.nim ?? '-';
+
+                    const prodi = student?.prodi?.nama_prodi ?? '-';
+
+                    html += `
         <div
             class="flex items-center gap-4
                    p-3 border-b
@@ -1076,26 +1075,26 @@
 
         </div>
     `;
-                    });
+                });
 
 
-                    hasil.innerHTML = html;
+                hasil.innerHTML = html;
 
 
-                    jumlah.innerText =
-                        `${peserta.length} mahasiswa`;
+                jumlah.innerText =
+                    `${peserta.length} mahasiswa`;
 
-                })
+            })
 
-                .catch(error => {
+            .catch(error => {
 
-                    console.error(
-                        'Gagal mengambil daftar peserta:',
-                        error
-                    );
+                console.error(
+                    'Gagal mengambil daftar peserta:',
+                    error
+                );
 
 
-                    hasil.innerHTML = `
+                hasil.innerHTML = `
 
             <div
                 class="text-center
@@ -1117,30 +1116,30 @@
 
         `;
 
-                    jumlah.innerText =
-                        'Gagal memuat';
+                jumlah.innerText =
+                    'Gagal memuat';
 
-                });
+            });
 
-        }
+    }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | TUTUP MODAL DAFTAR PESERTA
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | TUTUP MODAL DAFTAR PESERTA
+    |--------------------------------------------------------------------------
+    */
 
-        function closeDaftarPesertaModal() {
+    function closeDaftarPesertaModal() {
 
-            const modal =
-                document.getElementById(
-                    'daftarPesertaModal'
-                );
+        const modal =
+            document.getElementById(
+                'daftarPesertaModal'
+            );
 
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
 
-        }
-    </script>
+    }
+</script>
 @endsection
