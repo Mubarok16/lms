@@ -319,4 +319,10 @@ Route::put('/admin/akun-mahasiswa/{id}', [AccountController::class, 'update_maha
 Route::delete('/admin/akun-mahasiswa/{id}', [AccountController::class, 'destroy_mahasiswa'])
     ->name('admin.mahasiswa.destroy');
 
+
+Route::get('/lecturer/pengajaran-dosen/{pengajaranDosen}/rekap-nilai', [
+    \App\Http\Controllers\PengajaranController::class,
+    'rekapNilai',
+])->name('lecturer.rekap.nilai');
+
 require __DIR__ . '/auth.php';
