@@ -58,10 +58,10 @@
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
       </button>
 
-      <div class="relative hidden sm:block w-full max-w-xs">
+      <!-- <div class="relative hidden sm:block w-full max-w-xs">
         <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-ink/30" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
         <input type="text" placeholder="Cari mata kuliah..." class="w-full pl-9 pr-3 py-2.5 rounded-lg bg-paper border border-line text-sm focus:outline-none focus:ring-2 focus:ring-teal/30 focus:border-teal">
-      </div>
+      </div> -->
 
       <div class="ml-auto flex items-center gap-4">
         <button class="relative text-ink/50 hover:text-ink">
@@ -96,11 +96,11 @@
               Pada pertemuan ini mahasiswa mempelajari cara membuat middleware kustom di Laravel untuk memvalidasi request masuk sebelum mencapai controller, termasuk penanganan error terstruktur.
             </p>
             <div class="flex flex-wrap gap-3 mt-5">
-              <a href="#" class="inline-flex items-center gap-2 text-sm font-medium bg-ink text-paper px-4 py-2.5 rounded-lg hover:bg-ink/90 transition-colors">
+              <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 text-sm font-medium bg-ink text-paper px-4 py-2.5 rounded-lg hover:bg-ink/90 transition-colors">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
                 Slide Pertemuan 9.pdf
               </a>
-              <a href="#" class="inline-flex items-center gap-2 text-sm font-medium border border-line px-4 py-2.5 rounded-lg hover:border-ink/30 transition-colors">
+              <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 text-sm font-medium border border-line px-4 py-2.5 rounded-lg hover:border-ink/30 transition-colors">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
                 Video Rekaman Kelas
               </a>
@@ -115,7 +115,7 @@
             <p class="text-sm text-ink/60 leading-relaxed mt-3">
               Buat middleware validasi untuk endpoint pendaftaran mata kuliah, lalu kumpulkan berupa repositori GitHub.
             </p>
-            <a href="#" class="inline-flex items-center gap-1.5 text-sm font-medium text-teal mt-4 hover:gap-2.5 transition-all">
+            <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-1.5 text-sm font-medium text-teal mt-4 hover:gap-2.5 transition-all">
               Kumpulkan tugas
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7H13M13 7L7.5 1.5M13 7L7.5 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </a>

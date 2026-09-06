@@ -277,7 +277,7 @@
         <span class="font-mono text-xs uppercase tracking-wider text-ink/40">Mata Kuliah Aktif</span>
         <h2 class="font-display text-3xl lg:text-4xl font-semibold tracking-tight mt-3">Mata kuliah yang paling banyak diakses mahasiswa.</h2>
       </div>
-      <a href="#" class="inline-flex items-center gap-1.5 font-medium text-ink border-b border-ink/30 hover:border-ink pb-0.5 transition-colors">
+      <a href="{{ route('home') }}" class="inline-flex items-center gap-1.5 font-medium text-ink border-b border-ink/30 hover:border-ink pb-0.5 transition-colors">
         Lihat semua mata kuliah
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7H13M13 7L7.5 1.5M13 7L7.5 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
@@ -444,17 +444,17 @@
     <div>
       <p class="font-medium text-sm">Universitas</p>
       <ul class="text-sm text-ink/55 space-y-2.5 mt-4">
-        <li><a href="#" class="hover:text-ink transition-colors">Tentang UNWIR</a></li>
-        <li><a href="#" class="hover:text-ink transition-colors">Fakultas & Prodi</a></li>
-        <li><a href="#" class="hover:text-ink transition-colors">Kalender Akademik</a></li>
+        <li><a href="{{ route('site.info', 'tentang') }}" class="hover:text-ink transition-colors">Tentang UNWIR</a></li>
+        <li><a href="{{ route('site.info', 'fakultas-prodi') }}" class="hover:text-ink transition-colors">Fakultas & Prodi</a></li>
+        <li><a href="{{ route('site.info', 'kalender-akademik') }}" class="hover:text-ink transition-colors">Kalender Akademik</a></li>
       </ul>
     </div>
     <div>
       <p class="font-medium text-sm">Bantuan</p>
       <ul class="text-sm text-ink/55 space-y-2.5 mt-4">
-        <li><a href="#" class="hover:text-ink transition-colors">Pusat Bantuan</a></li>
-        <li><a href="#" class="hover:text-ink transition-colors">Kebijakan Privasi</a></li>
-        <li><a href="#" class="hover:text-ink transition-colors">Hubungi BAAK</a></li>
+        <li><a href="{{ route('site.info', 'bantuan') }}" class="hover:text-ink transition-colors">Pusat Bantuan</a></li>
+        <li><a href="{{ route('site.info', 'privasi') }}" class="hover:text-ink transition-colors">Kebijakan Privasi</a></li>
+        <li><a href="{{ route('site.info', 'baak') }}" class="hover:text-ink transition-colors">Hubungi BAAK</a></li>
       </ul>
     </div>
   </div>

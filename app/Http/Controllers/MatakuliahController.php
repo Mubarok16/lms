@@ -2,9 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Kelas;
 use Illuminate\Http\Request;
 use App\Models\Prodi;
 use App\Models\Matakuliah;
+use App\Models\Materi;
+use App\Models\PengajaranDosen;
+use App\Models\PengajaranMahasiswa;
+use App\Models\Quiz;
+use App\Models\Tugas;
 
 class MatakuliahController extends Controller
 {
@@ -154,5 +160,75 @@ class MatakuliahController extends Controller
         $prodiList = Prodi::all();
 
         return view('admin.dosen-pengampu', compact('prodiList'));
+    }
+
+    public function search(Request $request)
+    {
+        $keyword = $request->keyword;
+
+        $matakuliah = Matakuliah::query()
+            ->where('nama_mk', 'like', "%{$keyword}%")
+            ->orWhere('kode_mk', 'like', "%{$keyword}%")
+            ->limit(20)
+            ->get([
+                'kode_mk',
+                'nama_mk',
+            ]);
+
+        return response()->json($matakuliah);
+    }
+
+    public function index_mhs()
+    {
+        $mahasiswa = auth()->user()->student; // sesuaikan cara ambil data student dari user login
+
+        $pengajaranList = PengajaranMahasiswa::where('mahasiswa_id', $mahasiswa->id)
+            ->with('kelas.matakuliah')
+            ->get();
+
+        return view('student.matakuliah.index', compact('pengajaranList'));
+    }
+    public function show(Kelas $kelas)
+    {
+        abort_unless(\App\Models\PengajaranMahasiswa::where('kelas_id',$kelas->id)->where('mahasiswa_id',auth()->user()->student?->id)->exists(), 403);
+        $mahasiswa = auth()->user()->student;
+
+        $terdaftar = PengajaranMahasiswa::where('kelas_id', $kelas->id)
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->exists();
+
+        abort_unless($terdaftar, 403, 'Kamu tidak terdaftar di kelas ini.');
+
+        $kelas->load('matakuliah');
+
+        $pengajaranDosenIds = PengajaranDosen::where('kelas_id', $kelas->id)->pluck('id');
+
+        $materiList = Materi::whereIn('pengajaran_id', $pengajaranDosenIds)
+            ->latest()
+            ->get();
+
+        $tugasList = Tugas::whereIn('pengajaran_dosen_id', $pengajaranDosenIds)
+            ->with(['files', 'jawaban' => function ($q) use ($mahasiswa) {
+                $q->where('mahasiswa_id', $mahasiswa->id);
+            }])
+            ->latest()
+            ->get();
+
+        $quizList = Quiz::whereIn('pengajaran_dosen_id', $pengajaranDosenIds)
+            ->where('is_published', true)
+            ->withCount('questions')
+            ->get();
+
+        $dosenList = PengajaranDosen::where('kelas_id', $kelas->id)
+            ->with('lecturer.user')
+            ->get();
+
+        return view('student.matakuliah.show', compact(
+            'kelas',
+            'materiList',
+            'tugasList',
+            'quizList',
+            'dosenList'
+        ));
     }
 }

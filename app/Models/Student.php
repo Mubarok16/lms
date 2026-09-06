@@ -15,13 +15,18 @@ class Student extends Model
         'user_id',
         'nim',
         'prodi_id',
-        'semester',
+        'angkatan',
         'phone',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function student()
+    {
+        return $this->hasOne(Student::class, 'user_id');
     }
 
     public function prodi()

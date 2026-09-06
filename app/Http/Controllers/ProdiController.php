@@ -10,9 +10,9 @@ use App\Models\Prodi;
 class ProdiController extends Controller
 {
     public function index()
-{
-    $prodiList = Prodi::all();
+    {
+        $prodiList = Prodi::all();
 
-    return view('admin.dosen.index', compact('prodiList'));
-}
+        return view('admin.dosen.index', compact('prodiList'));
+    }
 }
