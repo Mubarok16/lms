@@ -61,6 +61,7 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Ski
                     'nim' => (string) $row['nim'],
                     'prodi_id' => $prodi->id,
                     'semester' => (int) $row['semester'],
+                    'angkatan' => $row['angkatan'],
                     'phone' => !empty($row['phone'])
                         ? (string) $row['phone']
                         : null,
@@ -103,6 +104,8 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Ski
                 'integer',
                 'between:1,14',
             ],
+
+            'angkatan' => ['required', 'integer', 'digits:4',],
 
             'phone' => [
                 'nullable',
@@ -157,6 +160,10 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Ski
 
             'semester.between' =>
             'Semester harus antara 1 sampai 14.',
+
+            'angkatan.required' => 'Angkatan wajib diisi.',
+            'angkatan.integer' => 'Angkatan harus berupa angka.',
+            'angkatan.digits' => 'Angkatan harus terdiri dari 4 digit.',
         ];
     }
 }

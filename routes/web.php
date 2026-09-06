@@ -77,6 +77,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::post('/mahasiswa/import', [AccountController::class, 'importStudent'])
         ->name('admin.mahasiswa.import.process');
 
+    Route::post('/mahasiswa/import/process', [AccountController::class, 'import'])
+        ->name('mahasiswa.import.process');
+
 
     // ============================================================
     // PROSES TAMBAH MATAKULIAH
