@@ -64,6 +64,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::post('/dosen/import', [AccountController::class, 'import'])
         ->name('admin.dosen.import.process');
 
+    Route::post('/dosen/import/process', [AccountController::class, 'import'])
+        ->name('dosen.import.process');
+
 
     // ============================================================
     // PROSES TAMBAH AKUN MAHASISWA
