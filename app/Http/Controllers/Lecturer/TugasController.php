@@ -140,49 +140,49 @@ class TugasController extends Controller
         return view('lecturer.tugas.show', compact('tugas'));
     }
 
-// ... di dalam class TugasController (lecturer)
+    // ... di dalam class TugasController (lecturer)
 
-public function jawabanIndex(Tugas $tugas)
-{
-    $tugas->load('pengajaranDosen');
+    public function jawabanIndex(Tugas $tugas)
+    {
+        $tugas->load('pengajaranDosen');
 
-    $jawabanList = TugasJawaban::with('mahasiswa.user', 'files')
-        ->where('tugas_id', $tugas->id)
-        ->orderByRaw("FIELD(status, 'menunggu_koreksi', 'sudah_dikoreksi', 'belum_submit')")
-        ->orderBy('waktu_submit')
-        ->get();
+        $jawabanList = TugasJawaban::with('mahasiswa.user', 'files')
+            ->where('tugas_id', $tugas->id)
+            ->orderByRaw("FIELD(status, 'menunggu_koreksi', 'sudah_dikoreksi', 'belum_submit')")
+            ->orderBy('waktu_submit')
+            ->get();
 
-    return view('lecturer.tugas.jawaban-index', compact('tugas', 'jawabanList'));
-}
+        return view('lecturer.tugas.jawaban-index', compact('tugas', 'jawabanList'));
+    }
 
-public function jawabanShow(Tugas $tugas, TugasJawaban $jawaban)
-{
-    abort_if($jawaban->tugas_id !== $tugas->id, 404);
+    public function jawabanShow(Tugas $tugas, TugasJawaban $jawaban)
+    {
+        abort_if($jawaban->tugas_id !== $tugas->id, 404);
 
-    $jawaban->load('mahasiswa.user', 'files');
+        $jawaban->load('mahasiswa.user', 'files');
 
-    return view('lecturer.tugas.jawaban-show', compact('tugas', 'jawaban'));
-}
+        return view('lecturer.tugas.jawaban-show', compact('tugas', 'jawaban'));
+    }
 
-public function koreksi(Request $request, Tugas $tugas, TugasJawaban $jawaban)
-{
-    abort_if($jawaban->tugas_id !== $tugas->id, 404);
+    public function koreksi(Request $request, Tugas $tugas, TugasJawaban $jawaban)
+    {
+        abort_if($jawaban->tugas_id !== $tugas->id, 404);
 
-    $request->validate([
-        'skor'            => 'required|numeric|min:0|max:100',
-        'catatan_koreksi' => 'nullable|string|max:2000',
-    ]);
+        $request->validate([
+            'skor'            => 'required|numeric|min:0|max:100',
+            'catatan_koreksi' => 'nullable|string|max:2000',
+        ]);
 
-    $jawaban->update([
-        'skor'            => $request->skor,
-        'catatan_koreksi' => $request->catatan_koreksi,
-        'status'          => 'sudah_dikoreksi',
-        'dikoreksi_oleh'  => auth()->user()->lecturer->id, // sesuaikan relasi user->lecturer Anda
-        'dikoreksi_at'    => now(),
-    ]);
+        $jawaban->update([
+            'skor'            => $request->skor,
+            'catatan_koreksi' => $request->catatan_koreksi,
+            'status'          => 'sudah_dikoreksi',
+            'dikoreksi_oleh'  => auth()->user()->lecturer->id, // sesuaikan relasi user->lecturer Anda
+            'dikoreksi_at'    => now(),
+        ]);
 
-    return redirect()
-        ->route('lecturer.tugas.jawaban.index', $tugas)
-        ->with('success', 'Koreksi berhasil disimpan.');
-}
+        return redirect()
+            ->route('lecturer.tugas.jawaban.index', $tugas)
+            ->with('success', 'Koreksi berhasil disimpan.');
+    }
 }
