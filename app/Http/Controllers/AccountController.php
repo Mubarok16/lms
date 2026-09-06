@@ -340,10 +340,16 @@ class AccountController extends Controller
 
             return redirect()
                 ->route('mahasiswa.import')
-                ->with(
-                    'error',
-                    'Import gagal. Terjadi kesalahan saat memproses file Excel.'
-                );
+                ->with('error', [
+                    [
+                        'row' => null,
+                        'attribute' => null,
+                        'errors' => [
+                            $e->getMessage(),
+                        ],
+                        'values' => [],
+                    ],
+                ]);
         }
     }
 
