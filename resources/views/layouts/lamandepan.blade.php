@@ -142,7 +142,7 @@
 
         <div class="flex flex-wrap items-center gap-4 mt-9">
           <a href="{{ route('login') }}" class="inline-flex items-center gap-2 bg-coral text-paper font-medium px-6 py-3.5 rounded-full hover:bg-coral/90 transition-colors shadow-[0_6px_0_0_#12326b] active:translate-y-1 active:shadow-none">
-            Masuk dengan Akun SIAKAD
+            Masuk dengan Akun SIMAKO
           </a>
           <a href="#cara-kerja" class="inline-flex items-center gap-2 font-medium text-ink/80 hover:text-ink px-2 py-3.5 transition-colors">
             <span class="w-9 h-9 rounded-full border border-ink/20 flex items-center justify-center">
@@ -160,68 +160,108 @@
             <img class="w-10 h-10 rounded-full border-2 border-paper object-cover" src="https://i.pravatar.cc/80?img=47" alt="">
             <img class="w-10 h-10 rounded-full border-2 border-paper object-cover" src="https://i.pravatar.cc/80?img=15" alt="">
           </div>
-          <p class="text-sm text-ink/60">Digunakan oleh <span class="font-semibold text-ink">12.000+</span> mahasiswa Universitas Wiralodra</p>
+          <p class="text-sm text-ink/60">
+            Digunakan oleh
+            <span class="font-semibold text-ink">
+              {{ number_format($jumlahMahasiswa, 0, ',', '.') }}+
+            </span>
+            mahasiswa Universitas Wiralodra
+          </p>
         </div>
       </div>
 
       <!-- hero visual: stacked course cards like index cards on a desk -->
       <div class="relative h-[440px] hidden lg:block">
-        <div class="absolute right-6 top-2 w-80 bg-white border border-line rounded-2xl shadow-xl p-5 rotate-[4deg]">
+
+        @foreach ($matakuliah as $index => $mk)
+
+        <div class="
+            absolute
+            {{ $index == 0 ? 'right-6 top-2 rotate-[4deg]' : 'left-2 top-32 -rotate-[3deg]' }}
+            w-80 bg-white border border-line rounded-2xl shadow-xl p-5
+        ">
+
           <div class="flex items-center justify-between">
-            <span class="font-mono text-[11px] uppercase tracking-wider text-teal bg-teal/10 px-2 py-1 rounded">Teknik Informatika</span>
-            <span class="font-mono text-[11px] text-ink/40">Pertemuan 9</span>
+
+            {{-- Nama Program Studi --}}
+            <span class="
+                    font-mono text-[11px] uppercase tracking-wider
+                    {{ $index == 0 ? 'text-teal bg-teal/10' : 'text-coral bg-coral/10' }}
+                    px-2 py-1 rounded
+                ">
+              {{ $mk->prodi->nama_prodi ?? 'Program Studi' }}
+            </span>
+
+            {{-- Kode Mata Kuliah --}}
+            <span class="font-mono text-[11px] text-ink/40">
+              {{ $mk->kode_mk }}
+            </span>
+
           </div>
-          <h3 class="font-display text-lg font-medium mt-3">Pemrograman Web Lanjut</h3>
-          <div class="mt-4 h-1.5 bg-line rounded-full overflow-hidden">
-            <div class="h-full bg-teal rounded-full" style="width:62%"></div>
-          </div>
-          <p class="text-xs text-ink/50 mt-2">62% materi selesai · 2 tugas tersisa</p>
+
+          {{-- Nama Mata Kuliah --}}
+          <h3 class="font-display text-lg font-medium mt-3">
+            {{ $mk->nama_mk }}
+          </h3>
+
+          {{-- SKS --}}
+          <p class="text-xs text-ink/50 mt-4">
+            {{ $mk->sks }} SKS
+          </p>
+
         </div>
 
-        <div class="absolute left-2 top-32 w-80 bg-white border border-line rounded-2xl shadow-xl p-5 -rotate-[3deg]">
-          <div class="flex items-center justify-between">
-            <span class="font-mono text-[11px] uppercase tracking-wider text-coral bg-coral/10 px-2 py-1 rounded">Manajemen</span>
-            <span class="font-mono text-[11px] text-ink/40">Pertemuan 3</span>
-          </div>
-          <h3 class="font-display text-lg font-medium mt-3">Manajemen Keuangan Perusahaan</h3>
-          <div class="mt-4 h-1.5 bg-line rounded-full overflow-hidden">
-            <div class="h-full bg-coral rounded-full" style="width:18%"></div>
-          </div>
-          <p class="text-xs text-ink/50 mt-2">18% materi selesai · baru dimulai</p>
-        </div>
+        @endforeach
 
-        <div class="absolute right-10 bottom-4 w-72 bg-ink text-paper rounded-2xl shadow-xl p-5 rotate-[2deg]">
-          <div class="flex items-center gap-2">
-            <span class="w-8 h-8 rounded-full bg-amber flex items-center justify-center text-ink text-sm font-semibold">✓</span>
-            <div>
-              <p class="text-sm font-medium">Nilai UTS terbit</p>
-              <p class="text-xs text-paper/50 font-mono">Ekonomi Mikro — Semester 3</p>
-            </div>
-          </div>
-        </div>
       </div>
+
     </div>
   </section>
 
   <!-- ============ STATS STRIP ============ -->
   <section class="border-y border-line bg-ink text-paper">
     <div class="max-w-7xl mx-auto px-6 lg:px-10 py-10 grid grid-cols-2 lg:grid-cols-4 gap-8">
+
+      {{-- Jumlah Mata Kuliah --}}
       <div>
-        <p class="font-display text-3xl font-semibold">150+</p>
-        <p class="text-sm text-paper/50 mt-1">Mata kuliah daring</p>
+        <p class="font-display text-3xl font-semibold">
+          {{ number_format($jumlahMatakuliah, 0, ',', '.') }}+
+        </p>
+        <p class="text-sm text-paper/50 mt-1">
+          Mata kuliah daring
+        </p>
       </div>
+
+      {{-- Jumlah Mahasiswa --}}
       <div>
-        <p class="font-display text-3xl font-semibold">12K+</p>
-        <p class="text-sm text-paper/50 mt-1">Mahasiswa aktif</p>
+        <p class="font-display text-3xl font-semibold">
+          {{ number_format($jumlahMahasiswa, 0, ',', '.') }}+
+        </p>
+        <p class="text-sm text-paper/50 mt-1">
+          Mahasiswa aktif
+        </p>
       </div>
+
+      {{-- Jumlah Program Studi --}}
       <div>
-        <p class="font-display text-3xl font-semibold">6</p>
-        <p class="text-sm text-paper/50 mt-1">Fakultas terhubung</p>
+        <p class="font-display text-3xl font-semibold">
+          {{ number_format($jumlahProdi, 0, ',', '.') }}
+        </p>
+        <p class="text-sm text-paper/50 mt-1">
+          Program Studi terhubung
+        </p>
       </div>
+
+      {{-- Jumlah Dosen --}}
       <div>
-        <p class="font-display text-3xl font-semibold">450+</p>
-        <p class="text-sm text-paper/50 mt-1">Dosen pengampu</p>
+        <p class="font-display text-3xl font-semibold">
+          {{ number_format($jumlahDosen, 0, ',', '.') }}+
+        </p>
+        <p class="text-sm text-paper/50 mt-1">
+          Dosen pengampu
+        </p>
       </div>
+
     </div>
   </section>
 
@@ -321,7 +361,7 @@
         </a>
       </div>
 
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-7 mt-14">
+      <!-- <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-7 mt-14">
 
         <article class="group border border-line rounded-2xl overflow-hidden hover:shadow-lg transition-shadow">
           <div class="h-44 bg-gradient-to-br from-teal to-ink relative overflow-hidden">
@@ -368,6 +408,78 @@
           </div>
         </article>
 
+      </div> -->
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-7 mt-14">
+
+        @forelse ($kursusPopuler as $index => $item)
+
+        @php
+        $warna = match ($index) {
+        0 => 'from-teal to-ink',
+        1 => 'from-coral to-ink',
+        default => 'from-amber to-ink',
+        };
+        @endphp
+
+        <article class="group border border-line rounded-2xl overflow-hidden hover:shadow-lg transition-shadow">
+
+          {{-- Header Card --}}
+          <div class="h-44 bg-gradient-to-br {{ $warna }} relative overflow-hidden">
+
+            {{-- Nama Prodi --}}
+            <span class="absolute top-3 left-3 font-mono text-[11px] uppercase tracking-wider bg-white/90 text-ink px-2.5 py-1 rounded-full">
+              {{ $item->kelas->matakuliah->prodi->nama_prodi ?? 'Program Studi' }}
+            </span>
+
+          </div>
+
+          {{-- Isi Card --}}
+          <div class="p-6">
+
+            {{-- Prodi dan Kode Kelas --}}
+            <!-- <div class="flex items-center gap-1 text-ink/50 text-xs font-mono">
+              Prodi {{ $item->kelas->matakuliah->prodi->nama_prodi ?? '-' }}
+              · Semester {{ $item->kelas->semester ?? '-' }}
+            </div> -->
+
+            {{-- Nama Mata Kuliah --}}
+            <h3 class="font-display text-lg font-medium mt-2">
+              {{ $item->kelas->matakuliah->nama_mk ?? 'Mata Kuliah' }}
+            </h3>
+
+            {{-- SKS dan Kode Mata Kuliah --}}
+            <p class="text-sm text-ink/55 mt-1.5">
+              {{ $item->kelas->matakuliah->sks ?? 0 }} SKS
+              · {{ $item->kelas->matakuliah->kode_mk ?? '-' }}
+            </p>
+
+            {{-- Jumlah Mahasiswa --}}
+            <div class="flex items-center justify-between mt-5 pt-5 border-t border-line">
+
+              <span class="font-semibold">
+                {{ number_format($item->jumlah_mahasiswa, 0, ',', '.') }} mahasiswa
+              </span>
+
+              <span class="text-sm text-teal font-medium group-hover:translate-x-1 transition-transform">
+                Lihat kelas →
+              </span>
+
+            </div>
+
+          </div>
+
+        </article>
+
+        @empty
+
+        <div class="col-span-full text-center py-12">
+          <p class="text-ink/50">
+            Belum ada mata kuliah yang tersedia.
+          </p>
+        </div>
+
+        @endforelse
+
       </div>
     </div>
   </section>
@@ -384,8 +496,8 @@
 
       <div class="relative">
         <span class="font-mono text-sm w-12 h-12 rounded-full bg-ink text-paper flex items-center justify-center relative z-10">01</span>
-        <h3 class="font-display text-lg font-medium mt-5">Masuk dengan akun SIAKAD</h3>
-        <p class="text-sm text-ink/60 leading-relaxed mt-2">Gunakan NIM dan kata sandi SIAKAD kamu untuk masuk ke E-Learning UNWIR.</p>
+        <h3 class="font-display text-lg font-medium mt-5">Masuk dengan akun SIMAKO</h3>
+        <p class="text-sm text-ink/60 leading-relaxed mt-2">Gunakan NIM dan kata sandi SIMAKO kamu untuk masuk ke E-Learning UNWIR.</p>
       </div>
       <div class="relative">
         <span class="font-mono text-sm w-12 h-12 rounded-full bg-ink text-paper flex items-center justify-center relative z-10">02</span>
@@ -452,7 +564,7 @@
       <h2 class="font-display text-3xl lg:text-[2.6rem] font-semibold tracking-tight max-w-2xl mx-auto leading-tight">
         Lanjutkan perkuliahanmu <span class="highlight-mark">hari ini juga.</span>
       </h2>
-      <p class="text-ink/60 mt-4 max-w-md mx-auto">Gunakan akun SIAKAD kamu — tidak perlu mendaftar akun baru.</p>
+      <p class="text-ink/60 mt-4 max-w-md mx-auto">Gunakan akun SIMAKO kamu — tidak perlu mendaftar akun baru.</p>
       <a href="{{ route('login') }}" class="inline-flex items-center gap-2 bg-coral text-paper font-medium px-7 py-3.5 rounded-full hover:bg-coral/90 transition-colors mt-8 shadow-[0_6px_0_0_#12326b] active:translate-y-1 active:shadow-none">
         Masuk ke E-Learning UNWIR
       </a>
