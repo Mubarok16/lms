@@ -13,8 +13,8 @@ Koreksi Tugas
     <div class="mx-auto max-w-4xl px-6 py-8">
 
         <div class="mb-6">
-            <a href="{{ route('lecturer.pengajaran.show', ['id' => $tugas->pengajaranDosen->kelas_id]) }}">
-                &larr; Kembali ke kelas
+            <a href="{{ route('lecturer.akademik.tugas.list', $tugas->pengajaranDosen) }}">
+                &larr; Kembali ke daftar tugas
             </a>
         </div>
 

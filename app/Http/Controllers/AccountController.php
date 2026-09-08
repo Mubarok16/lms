@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 // use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Validators\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
-
+use Illuminate\Validation\Rule;
 use App\Models\User;
 use App\Models\Lecturer;
 use App\Models\Student;
@@ -136,7 +136,7 @@ class AccountController extends Controller
             );
 
             return redirect()
-                ->route('admin.dosen.import')
+                ->route('dosen.import')
                 ->with('success', 'Data akun dosen berhasil diimport.');
         } catch (ValidationException $e) {
 
@@ -153,14 +153,14 @@ class AccountController extends Controller
             }
 
             return redirect()
-                ->route('admin.dosen.import')
+                ->route('dosen.import')
                 ->with('error', $errors);
         } catch (\Throwable $e) {
 
             report($e);
 
             return redirect()
-                ->route('admin.dosen.import')
+                ->route('dosen.import')
                 ->with('error', [
                     [
                         'row' => null,
@@ -312,7 +312,7 @@ class AccountController extends Controller
             );
 
             return redirect()
-                ->route('admin.mahasiswa.import')
+                ->route('mahasiswa.import')
                 ->with(
                     'success',
                     'Data akun mahasiswa berhasil diimport.'
@@ -332,75 +332,217 @@ class AccountController extends Controller
             }
 
             return redirect()
-                ->route('admin.mahasiswa.import')
+                ->route('mahasiswa.import')
                 ->with('error', $errors);
         } catch (\Throwable $e) {
 
             report($e);
 
             return redirect()
-                ->route('admin.mahasiswa.import')
-                ->with(
-                    'error',
-                    'Import gagal. Terjadi kesalahan saat memproses file Excel.'
-                );
+                ->route('mahasiswa.import')
+                ->with('error', [
+                    [
+                        'row' => null,
+                        'attribute' => null,
+                        'errors' => [
+                            $e->getMessage(),
+                        ],
+                        'values' => [],
+                    ],
+                ]);
         }
     }
 
-    public function editLecturer(Lecturer $lecturer)
+    // ============================================================
+    // PROSES UPDATE AKUN DOSEN
+    // ============================================================
+    public function update(Request $request, $id)
     {
-        $lecturer->load('user','prodi');
-        $prodi = Prodi::orderBy('nama_prodi')->get();
-        return view('admin.account-edit', ['type'=>'dosen','account'=>$lecturer,'prodi'=>$prodi]);
-    }
+        $lecturer = Lecturer::with('user')->findOrFail($id);
 
-    public function updateLecturer(Request $request, Lecturer $lecturer)
-    {
-        $validated=$request->validate([
-            'nidn'=>'required|string|max:20|unique:lecturer,nidn,'.$lecturer->id,
-            'name'=>'required|string|max:255',
-            'email'=>'required|email|max:255|unique:users,email,'.$lecturer->user_id,
-            'prodi_id'=>'required|exists:prodi,id', 'phone'=>'nullable|string|max:20',
-            'password'=>'nullable|string|min:8',
+        $validated = $request->validate([
+            'nidn' => [
+                'required',
+                'string',
+                'max:20',
+                Rule::unique('lecturer', 'nidn')->ignore($lecturer->id),
+            ],
+
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($lecturer->user_id),
+            ],
+
+            'prodi_id' => [
+                'required',
+                'integer',
+                'exists:prodi,id',
+            ],
+
+            'phone' => [
+                'nullable',
+                'string',
+                'max:20',
+            ],
         ]);
-        DB::transaction(function() use($validated,$lecturer){
-            $lecturer->update(['nidn'=>$validated['nidn'],'prodi_id'=>$validated['prodi_id'],'phone'=>$validated['phone']??null]);
-            $user=$lecturer->user; $user->name=$validated['name']; $user->email=$validated['email']; if(!empty($validated['password'])) $user->password=$validated['password']; $user->save();
+
+        DB::transaction(function () use ($lecturer, $validated) {
+
+            // Update data User
+            $lecturer->user->update([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+            ]);
+
+            // Update data Lecturer
+            $lecturer->update([
+                'nidn' => $validated['nidn'],
+                'prodi_id' => $validated['prodi_id'],
+                'phone' => $validated['phone'] ?? null,
+            ]);
         });
-        return redirect()->route('akun_dosen.index')->with('success','Akun dosen berhasil diperbarui.');
+
+        return redirect()
+            ->route('akun_dosen.index')
+            ->with('success', 'Data akun dosen berhasil diperbarui.');
     }
 
-    public function destroyLecturer(Lecturer $lecturer)
+    // ============================================================
+    // PROSES HAPUS AKUN DOSEN
+    // ============================================================
+    public function destroy($id)
     {
-        $lecturer->user()->delete();
-        return back()->with('success','Akun dosen berhasil dihapus.');
+        $lecturer = Lecturer::findOrFail($id);
+
+        DB::transaction(function () use ($lecturer) {
+
+            // Simpan user_id sebelum lecturer dihapus
+            $userId = $lecturer->user_id;
+
+            // Hapus data lecturer
+            $lecturer->delete();
+
+            // Hapus data user
+            User::where('id', $userId)->delete();
+        });
+
+        return redirect()
+            ->route('akun_dosen.index')
+            ->with('success', 'Akun dosen berhasil dihapus.');
     }
 
-    public function editStudent(Student $student)
+    public function show($id)
     {
-        $student->load('user','prodi'); $prodi=Prodi::orderBy('nama_prodi')->get();
-        return view('admin.account-edit', ['type'=>'mahasiswa','account'=>$student,'prodi'=>$prodi]);
-    }
+        $lecturer = Lecturer::with('user')->findOrFail($id);
 
-    public function updateStudent(Request $request, Student $student)
-    {
-        $validated=$request->validate([
-            'nim'=>'required|string|max:12|unique:students,nim,'.$student->id,
-            'name'=>'required|string|max:255',
-            'email'=>'required|email|max:255|unique:users,email,'.$student->user_id,
-            'prodi_id'=>'required|exists:prodi,id', 'angkatan'=>'required|string|max:4', 'phone'=>'nullable|string|max:20',
-            'password'=>'nullable|string|min:8',
+        return response()->json([
+            'id' => $lecturer->id,
+            'nidn' => $lecturer->nidn,
+            'name' => $lecturer->user->name,
+            'email' => $lecturer->user->email,
+            'prodi_id' => $lecturer->prodi_id,
+            'phone' => $lecturer->phone,
         ]);
-        DB::transaction(function() use($validated,$student){
-            $student->update(['nim'=>$validated['nim'],'prodi_id'=>$validated['prodi_id'],'angkatan'=>$validated['angkatan'],'phone'=>$validated['phone']??null]);
-            $user=$student->user; $user->name=$validated['name']; $user->email=$validated['email']; if(!empty($validated['password'])) $user->password=$validated['password']; $user->save();
-        });
-        return redirect()->route('akun_mahasiswa.index')->with('success','Akun mahasiswa berhasil diperbarui.');
     }
 
-    public function destroyStudent(Student $student)
+
+    // ============================================================
+    // PROSES UPDATE AKUN MAHASISWA
+    // ============================================================
+    public function update_mahasiswa(Request $request, $id)
     {
-        $student->user()->delete();
-        return back()->with('success','Akun mahasiswa berhasil dihapus.');
+        $student = Student::with('user')->findOrFail($id);
+
+        $validated = $request->validate([
+            'nim' => [
+                'required',
+                'string',
+                'max:12',
+                Rule::unique('students', 'nim')->ignore($student->id),
+            ],
+
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($student->user_id),
+            ],
+
+            'prodi_id' => [
+                'required',
+                'integer',
+                'exists:prodi,id',
+            ],
+
+            'angkatan' => [
+                'required',
+                'string',
+                'max:4',
+            ],
+
+            'phone' => [
+                'nullable',
+                'string',
+                'max:20',
+            ],
+        ]);
+
+        DB::transaction(function () use ($student, $validated) {
+
+            // Update User
+            $student->user->update([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+            ]);
+
+            // Update Student
+            $student->update([
+                'nim' => $validated['nim'],
+                'prodi_id' => $validated['prodi_id'],
+                'angkatan' => $validated['angkatan'],
+                'phone' => $validated['phone'] ?? null,
+            ]);
+        });
+
+        return redirect()
+            ->route('akun_mahasiswa.index')
+            ->with('success', 'Data akun mahasiswa berhasil diperbarui.');
+    }
+
+    // ============================================================
+    // PROSES HAPUS AKUN MAHASISWA
+    // ============================================================
+    public function destroy_mahasiswa($id)
+    {
+        $student = Student::findOrFail($id);
+
+        DB::transaction(function () use ($student) {
+
+            $userId = $student->user_id;
+
+            // Hapus data mahasiswa
+            $student->delete();
+
+            // Hapus akun user
+            User::where('id', $userId)->delete();
+        });
+
+        return redirect()
+            ->route('akun_mahasiswa.index')
+            ->with('success', 'Akun mahasiswa berhasil dihapus.');
     }
 }

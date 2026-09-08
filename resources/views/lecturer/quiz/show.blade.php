@@ -208,29 +208,4 @@
 
         </div>
     </div>
-<div class="mt-6 pt-5 border-t border-line"><form method="POST" action="{{ route('lecturer.quiz.destroy', $quiz) }}" onsubmit="return confirm('Hapus quiz beserta seluruh soalnya?')">@csrf @method('DELETE')<button type="submit" class="rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700">Hapus Quiz</button></form>    {{-- Hasil Pengerjaan Mahasiswa --}}
-    <div class="mt-6 overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
-        <div class="border-b border-line p-6">
-            <h2 class="font-display text-base font-semibold text-ink">Hasil Pengerjaan Mahasiswa</h2>
-            <p class="mt-1 text-sm text-ink/50">{{ $hasilList->count() }} mahasiswa sudah mengerjakan quiz ini.</p>
-        </div>
-        <div class="divide-y divide-line">
-            @forelse($hasilList as $hasil)
-                <div class="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <p class="text-sm font-semibold text-ink">{{ $hasil->mahasiswa->user->name ?? '-' }}</p>
-                        <p class="mt-1 text-xs text-ink/45">NIM: {{ $hasil->mahasiswa->nim ?? '-' }}</p>
-                        <p class="mt-1 text-xs text-ink/50">Dikumpulkan: {{ $hasil->waktu_submit?->translatedFormat('d M Y, H:i') ?? '-' }}</p>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <span class="rounded-xl bg-paper px-4 py-2 text-lg font-bold text-ink">{{ number_format((float) $hasil->skor, 2) }}</span>
-                        <a href="{{ route('lecturer.quiz.hasil.show', [$quiz, $hasil]) }}" class="rounded-lg bg-ink px-4 py-2.5 text-xs font-semibold text-white hover:bg-primaryDark">Detail Jawaban</a>
-                    </div>
-                </div>
-            @empty
-                <div class="p-8 text-center text-sm text-ink/50">Belum ada mahasiswa yang mengerjakan quiz.</div>
-            @endforelse
-        </div>
-    </div>
-</div>
 @endsection

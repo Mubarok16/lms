@@ -1,211 +1,201 @@
 <x-guest-layout>
 
 
-        <div class="w-full max-w-md">
 
-            <!-- Register Card -->
-            <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+    <div class="w-full max-w-md">
 
-                <!-- Header -->
-                <div class="bg-[#0F2A4D] px-6 py-6 text-center">
+        <!-- Register Card -->
+        <div class="bg-white rounded-2xl border border-[#DCE6F5] shadow-xl overflow-hidden">
 
-                    <h1 class="text-3xl font-bold text-white">
-                        LMS UNWIR
-                    </h1>
+            <!-- Header -->
+            <div class="bg-[#0F2A4D] px-6 py-6 text-center">
 
-                    <p class="mt-2 text-sm text-blue-100">
-                        Learning Management System
-                    </p>
-
-                    <p class="mt-1 text-xs text-blue-200">
-                        Universitas Wiralodra
-                    </p>
-
+                <!-- Logo -->
+                <div class="w-8 h-8 mx-auto rounded-lg bg-[#F5F8FC]/10 border border-white/10 flex items-center justify-center">
+                    <span class="font-display text-xl font-semibold text-[#93C5FD]">
+                        U
+                    </span>
                 </div>
 
+                <h1 class="mt-1 font-display text-2xl font-semibold text-white">
+                    Buat akun baru
+                </h1>
 
-                <!-- Form -->
-                <div class="px-8 py-8">
+                <p class="mt-1 text-sm text-white/60">
+                    Lengkapi data berikut untuk mulai menggunakan E-Learning UNWIR.
+                </p>
 
-                    <div class="mb-6">
+            </div>
 
-                        <h2 class="text-2xl font-semibold text-gray-800">
-                            Buat Akun
-                        </h2>
 
-                        <p class="mt-1 text-sm text-gray-500">
-                            Lengkapi data berikut untuk membuat akun baru.
-                        </p>
+            <!-- Form -->
+            <div class="px-6 py-6">
+
+
+                <form method="POST" action="{{ route('register') }}">
+
+                    @csrf
+
+
+                    <!-- Name -->
+                    <div>
+
+                        <label
+                            for="name"
+                            class="block text-sm font-medium text-[#0F2A4D]">
+
+                            Nama Lengkap
+
+                        </label>
+
+                        <input
+                            id="name"
+                            type="text"
+                            name="name"
+                            value="{{ old('name') }}"
+                            required
+                            autofocus
+                            autocomplete="name"
+                            placeholder="Masukkan nama lengkap"
+                            class="mt-2 block w-full rounded-xl border-[#DCE6F5] bg-[#F5F8FC]/50 px-4 py-3 text-sm text-[#0F2A4D] placeholder:text-[#0F2A4D]/35 shadow-sm transition focus:border-[#2563EB] focus:ring-[#2563EB]">
+
+                        <x-input-error
+                            :messages="$errors->get('name')"
+                            class="mt-2" />
 
                     </div>
 
 
-                    <form method="POST" action="{{ route('register') }}">
+                    <!-- Email -->
+                    <div class="mt-2">
 
-                        @csrf
+                        <label
+                            for="email"
+                            class="block text-sm font-medium text-[#0F2A4D]">
 
+                            Email
 
-                        <!-- Name -->
-                        <div>
+                        </label>
 
-                            <label
-                                for="name"
-                                class="block text-sm font-medium text-gray-700">
-                                Nama Lengkap
-                            </label>
+                        <input
+                            id="email"
+                            type="email"
+                            name="email"
+                            value="{{ old('email') }}"
+                            required
+                            autocomplete="username"
+                            placeholder="Masukkan email aktif"
+                            class="mt-2 block w-full rounded-xl border-[#DCE6F5] bg-[#F5F8FC]/50 px-4 py-3 text-sm text-[#0F2A4D] placeholder:text-[#0F2A4D]/35 shadow-sm transition focus:border-[#2563EB] focus:ring-[#2563EB]">
 
-                            <input
-                                id="name"
-                                type="text"
-                                name="name"
-                                value="{{ old('name') }}"
-                                required
-                                autofocus
-                                autocomplete="name"
-                                placeholder="Masukkan nama lengkap"
-                                class="mt-2 block w-full rounded-lg border-gray-300
-                            shadow-sm focus:border-[#2563EB]
-                            focus:ring-[#2563EB]">
+                        <x-input-error
+                            :messages="$errors->get('email')"
+                            class="mt-2" />
 
-                            <x-input-error
-                                :messages="$errors->get('name')"
-                                class="mt-2" />
-
-                        </div>
+                    </div>
 
 
-                        <!-- Email -->
-                        <div class="mt-5">
+                    <!-- Password -->
+                    <div class="mt-2">
 
-                            <label
-                                for="email"
-                                class="block text-sm font-medium text-gray-700">
-                                Email
-                            </label>
+                        <label
+                            for="password"
+                            class="block text-sm font-medium text-[#0F2A4D]">
 
-                            <input
-                                id="email"
-                                type="email"
-                                name="email"
-                                value="{{ old('email') }}"
-                                required
-                                autocomplete="username"
-                                placeholder="Masukkan email"
-                                class="mt-2 block w-full rounded-lg border-gray-300
-                            shadow-sm focus:border-[#2563EB]
-                            focus:ring-[#2563EB]">
+                            Password
 
-                            <x-input-error
-                                :messages="$errors->get('email')"
-                                class="mt-2" />
+                        </label>
 
-                        </div>
+                        <input
+                            id="password"
+                            type="password"
+                            name="password"
+                            required
+                            autocomplete="new-password"
+                            placeholder="Buat password"
+                            class="mt-2 block w-full rounded-xl border-[#DCE6F5] bg-[#F5F8FC]/50 px-4 py-3 text-sm text-[#0F2A4D] placeholder:text-[#0F2A4D]/35 shadow-sm transition focus:border-[#2563EB] focus:ring-[#2563EB]">
 
+                        <x-input-error
+                            :messages="$errors->get('password')"
+                            class="mt-2" />
 
-                        <!-- Password -->
-                        <div class="mt-5">
-
-                            <label
-                                for="password"
-                                class="block text-sm font-medium text-gray-700">
-                                Password
-                            </label>
-
-                            <input
-                                id="password"
-                                type="password"
-                                name="password"
-                                required
-                                autocomplete="new-password"
-                                placeholder="Masukkan password"
-                                class="mt-2 block w-full rounded-lg border-gray-300
-                            shadow-sm focus:border-[#2563EB]
-                            focus:ring-[#2563EB]">
-
-                            <x-input-error
-                                :messages="$errors->get('password')"
-                                class="mt-2" />
-
-                        </div>
+                    </div>
 
 
-                        <!-- Confirm Password -->
-                        <div class="mt-5">
+                    <!-- Confirm Password -->
+                    <div class="mt-2">
 
-                            <label
-                                for="password_confirmation"
-                                class="block text-sm font-medium text-gray-700">
-                                Konfirmasi Password
-                            </label>
+                        <label
+                            for="password_confirmation"
+                            class="block text-sm font-medium text-[#0F2A4D]">
 
-                            <input
-                                id="password_confirmation"
-                                type="password"
-                                name="password_confirmation"
-                                required
-                                autocomplete="new-password"
-                                placeholder="Masukkan kembali password"
-                                class="mt-2 block w-full rounded-lg border-gray-300
-                            shadow-sm focus:border-[#2563EB]
-                            focus:ring-[#2563EB]">
+                            Konfirmasi Password
 
-                            <x-input-error
-                                :messages="$errors->get('password_confirmation')"
-                                class="mt-2" />
+                        </label>
 
-                        </div>
+                        <input
+                            id="password_confirmation"
+                            type="password"
+                            name="password_confirmation"
+                            required
+                            autocomplete="new-password"
+                            placeholder="Masukkan kembali password"
+                            class="mt-2 block w-full rounded-xl border-[#DCE6F5] bg-[#F5F8FC]/50 px-4 py-3 text-sm text-[#0F2A4D] placeholder:text-[#0F2A4D]/35 shadow-sm transition focus:border-[#2563EB] focus:ring-[#2563EB]">
 
+                        <x-input-error
+                            :messages="$errors->get('password_confirmation')"
+                            class="mt-2" />
 
-                        <!-- Register Button -->
-                        <button
-                            type="submit"
-                            class="mt-6 w-full rounded-lg bg-[#0F2A4D]
-                        px-4 py-3 text-sm font-semibold text-white
-                        shadow-md transition duration-200
-                        hover:bg-[#2563EB]
-                        focus:outline-none
-                        focus:ring-2
-                        focus:ring-[#2563EB]
-                        focus:ring-offset-2">
-                            Daftar Sekarang
-                        </button>
+                    </div>
 
 
-                        <!-- Login Link -->
-                        <div class="mt-6 text-center">
+                    <!-- Register Button -->
+                    <button
+                        type="submit"
+                        class="mt-2 w-full rounded-full bg-[#1D4ED8] px-5 py-3.5 text-sm font-medium text-[#F5F8FC] shadow-[0_5px_0_0_#12326b] transition-all hover:bg-[#2563EB] active:translate-y-1 active:shadow-none focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:ring-offset-2">
 
-                            <p class="text-sm text-gray-500">
+                        Buat Akun & Mulai Belajar
 
-                                Sudah memiliki akun?
-
-                                <a
-                                    href="{{ route('login') }}"
-                                    class="font-semibold text-[#2563EB]
-                                hover:text-[#0F2A4D]">
-                                    Masuk
-                                </a>
-
-                            </p>
-
-                        </div>
-
-                    </form>
-
-                </div>
+                    </button>
 
 
-                <!-- Footer -->
-                <div class="border-t border-gray-100 px-8 py-4 text-center">
+                    <!-- Login Link -->
+                    <div class="mt-2 pt-2 border-t border-[#DCE6F5] text-center">
 
-                    <p class="text-xs text-gray-400">
-                        © {{ date('Y') }} Universitas Wiralodra
-                    </p>
+                        <p class="text-sm text-[#0F2A4D]/55">
 
-                </div>
+                            Sudah memiliki akun?
+
+                            <a
+                                href="{{ route('login') }}"
+                                class="font-semibold text-[#2563EB] hover:text-[#0F2A4D] transition-colors">
+
+                                Masuk sekarang →
+
+                            </a>
+
+                        </p>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            <!-- Footer -->
+            <div class="border-t border-[#DCE6F5] bg-[#F5F8FC]/60 px-8 py-4 text-center">
+
+                <p class="font-mono text-[10px] uppercase tracking-wider text-[#0F2A4D]/40">
+
+                    © {{ date('Y') }} Universitas Wiralodra
+
+                </p>
 
             </div>
 
         </div>
+
+    </div>
 
 
 

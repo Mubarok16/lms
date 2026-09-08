@@ -11,6 +11,7 @@ class Kelas extends Model
     protected $fillable = [
         'kode_mk',
         'kode_kelas',
+        'semester',
     ];
 
     public function matakuliah()
@@ -34,7 +35,10 @@ class Kelas extends Model
     }
     public function pengajaranMahasiswa()
     {
-        return $this->hasMany(PengajaranMahasiswa::class);
+        return $this->hasMany(
+            PengajaranMahasiswa::class,
+            'kelas_id'
+        );
     }
     // relasi many-to-many langsung ke Student lewat tabel pivot
     public function mahasiswa()
@@ -46,4 +50,14 @@ class Kelas extends Model
             'mahasiswa_id'
         )->withTimestamps();
     }
+    public function chats()
+    {
+        return $this->hasMany(CourseChat::class, 'kelas_id');
+    }
+
+    public function jadwal()
+    {
+        return $this->hasMany(JadwalMatakuliah::class, 'kelas_id');
+    }
+
 }

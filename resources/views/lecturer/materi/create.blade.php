@@ -17,7 +17,7 @@ Tambah Materi
         {{-- =================================================
             BACK LINK
         ================================================== --}}
-        <a href="{{ route('lecturer.pengajaran.show', $pengajaran->kelas_id) }}"
+        <a href="{{ route('pengajaran.show', $pengajaran->kelas_id) }}"
             class="inline-flex items-center gap-1.5 text-sm font-medium text-ink/50
                    transition hover:text-ink">
 
@@ -278,7 +278,7 @@ Tambah Materi
                 ================================================== --}}
                 <div class="flex items-center justify-end gap-3 bg-paper/60 p-6">
 
-                    <a href="{{ route('lecturer.pengajaran.show', $pengajaran->kelas_id) }}"
+                    <a href="{{ route('pengajaran.show', $pengajaran->kelas_id) }}"
                         class="rounded-lg px-4 py-2.5 text-sm font-medium text-ink/60
                                transition hover:bg-paper hover:text-ink">
                         Batal

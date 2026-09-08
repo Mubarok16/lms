@@ -6,21 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\Quiz;
 use App\Models\QuizJawaban;
 use App\Models\QuizJawabanDetail;
+use App\Models\PengajaranMahasiswa;
 use Illuminate\Http\Request;
 
 class StudentQuizController extends Controller
 {
-    private function authorizeQuiz(Quiz $quiz): void
-    {
-        $student = auth()->user()->student; abort_unless($student,403);
-        $quiz->loadMissing('pengajaranDosen');
-        abort_unless(\App\Models\PengajaranMahasiswa::where('kelas_id',$quiz->pengajaranDosen->kelas_id)->where('mahasiswa_id',$student->id)->exists(),403);
-    }
-
     public function show(Quiz $quiz)
     {
-        $this->authorizeQuiz($quiz);
         $mahasiswa = auth()->user()->student;
+        abort_unless($mahasiswa, 403, 'Akun ini tidak terdaftar sebagai mahasiswa.');
+        $this->authorizeQuiz($quiz, $mahasiswa->id);
         $sessionKey = 'quiz_mulai_' . $quiz->id . '_' . $mahasiswa->id;
         abort_unless($quiz->is_published, 404);
 
@@ -32,21 +27,20 @@ class StudentQuizController extends Controller
         $waktuSelesai = null;
         if (!$jawabanSaya && $quiz->durasi_menit) {
             if (!session()->has($sessionKey)) {
-                session([$sessionKey => now()]);
+                session()->put($sessionKey, now()->toIso8601String());
             }
             $waktuMulai = session($sessionKey);
             $waktuSelesai = \Carbon\Carbon::parse($waktuMulai)->addMinutes($quiz->durasi_menit);
-            if (now()->greaterThanOrEqualTo($waktuSelesai)) {
-                return $this->autoSubmitKosong($quiz, $mahasiswa, $sessionKey);
-            }
         }
         return view('student.quiz.show', compact('quiz', 'jawabanSaya', 'waktuSelesai'));
     }
 
     public function submit(Request $request, Quiz $quiz)
     {
-        $this->authorizeQuiz($quiz);
         $mahasiswa = auth()->user()->student;
+        abort_unless($mahasiswa, 403, 'Akun ini tidak terdaftar sebagai mahasiswa.');
+        $this->authorizeQuiz($quiz, $mahasiswa->id);
+        abort_unless($quiz->is_published, 404);
 
         abort_if(
             QuizJawaban::where('quiz_id', $quiz->id)->where('mahasiswa_id', $mahasiswa->id)->exists(),
@@ -124,4 +118,16 @@ class StudentQuizController extends Controller
 
         return $quizJawaban;
     }
+    private function authorizeQuiz(Quiz $quiz, int $mahasiswaId): void
+    {
+        $quiz->loadMissing('pengajaranDosen');
+        abort_unless(
+            PengajaranMahasiswa::where('kelas_id', $quiz->pengajaranDosen->kelas_id)
+                ->where('mahasiswa_id', $mahasiswaId)
+                ->exists(),
+            403,
+            'Kamu tidak terdaftar pada kelas quiz ini.'
+        );
+    }
+
 }

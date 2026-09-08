@@ -7,7 +7,6 @@ use App\Imports\QuizQuestionsImport;
 use App\Models\PengajaranDosen;
 use App\Models\Quiz;
 use App\Models\QuizQuestion;
-use App\Models\QuizJawaban;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -16,18 +15,12 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class QuizController extends Controller
 {
-    private function authorizeTeaching(PengajaranDosen $pengajaranDosen): void
-    { abort_unless(auth()->user()->lecturer && $pengajaranDosen->dosen_id === auth()->user()->lecturer->id, 403); }
-
-    private function authorizeQuiz(Quiz $quiz): void
-    { $quiz->loadMissing('pengajaranDosen'); abort_unless(auth()->user()->lecturer && $quiz->pengajaranDosen->dosen_id === auth()->user()->lecturer->id, 403); }
-
     /**
      * Daftar quiz untuk satu mata kuliah (pengajaran dosen).
      */
     public function index(PengajaranDosen $pengajaranDosen)
     {
-        $this->authorizeTeaching($pengajaranDosen);
+        $this->authorizePengajaran($pengajaranDosen);
         $quizzes = Quiz::where('pengajaran_dosen_id', $pengajaranDosen->id)
             ->withCount('questions')
             ->latest()
@@ -41,7 +34,7 @@ class QuizController extends Controller
      */
     public function create(PengajaranDosen $pengajaranDosen)
     {
-        $this->authorizeTeaching($pengajaranDosen);
+        $this->authorizePengajaran($pengajaranDosen);
         return view('lecturer.quiz.create', compact('pengajaranDosen'));
     }
 
@@ -50,7 +43,7 @@ class QuizController extends Controller
      */
     public function store(Request $request, PengajaranDosen $pengajaranDosen): RedirectResponse
     {
-        $this->authorizeTeaching($pengajaranDosen);
+        $this->authorizePengajaran($pengajaranDosen);
         $validated = $request->validate([
             'judul' => ['required', 'string', 'max:255'],
             'deskripsi' => ['nullable', 'string'],
@@ -75,27 +68,9 @@ class QuizController extends Controller
     public function show(Quiz $quiz)
     {
         $this->authorizeQuiz($quiz);
-        $quiz->load(['questions', 'pengajaranDosen.kelas.matakuliah']);
+        $quiz->load('questions', 'pengajaranDosen');
 
-        $hasilList = QuizJawaban::with('mahasiswa.user')
-            ->where('quiz_id', $quiz->id)
-            ->whereNotNull('waktu_submit')
-            ->orderByDesc('waktu_submit')
-            ->get();
-
-        return view('lecturer.quiz.show', compact('quiz', 'hasilList'));
-    }
-
-    public function hasilShow(Quiz $quiz, QuizJawaban $jawaban)
-    {
-        $this->authorizeQuiz($quiz);
-        abort_if($jawaban->quiz_id !== $quiz->id, 404);
-
-        $quiz->load(['questions', 'pengajaranDosen.kelas.matakuliah']);
-        $jawaban->load(['mahasiswa.user', 'detail.question']);
-        $details = $jawaban->detail->keyBy('quiz_question_id');
-
-        return view('lecturer.quiz.hasil-show', compact('quiz', 'jawaban', 'details'));
+        return view('lecturer.quiz.show', compact('quiz'));
     }
 
     /**
@@ -163,7 +138,7 @@ class QuizController extends Controller
     public function uploadGambarSoal(Request $request, QuizQuestion $quizQuestion)
     {
         $quizQuestion->loadMissing('quiz.pengajaranDosen');
-        $this->authorizeQuiz($quizQuestion->quiz);
+        $this->authorizePengajaran($quizQuestion->quiz->pengajaranDosen);
         $request->validate([
             'gambar' => 'required|image|mimes:jpg,jpeg,png|max:5120',
         ]);
@@ -177,4 +152,20 @@ class QuizController extends Controller
 
         return redirect()->back()->with('success', 'Gambar soal berhasil ditambahkan.');
     }
+    private function authorizePengajaran(PengajaranDosen $pengajaranDosen): void
+    {
+        $lecturer = auth()->user()->lecturer;
+        abort_unless(
+            $lecturer && (int) $pengajaranDosen->dosen_id === (int) $lecturer->id,
+            403,
+            'Anda tidak mengampu mata kuliah ini.'
+        );
+    }
+
+    private function authorizeQuiz(Quiz $quiz): void
+    {
+        $quiz->loadMissing('pengajaranDosen');
+        $this->authorizePengajaran($quiz->pengajaranDosen);
+    }
+
 }

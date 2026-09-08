@@ -102,44 +102,9 @@ Detail Tugas
             </div>
             @endif
 
-            {{-- Pengumpulan Mahasiswa --}}
-            <div class="mt-6 overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
-                <div class="border-b border-line p-6">
-                    <div class="flex items-center justify-between gap-4">
-                        <div>
-                            <h3 class="font-display text-base font-semibold text-ink">Pengumpulan Mahasiswa</h3>
-                            <p class="mt-1 text-sm text-ink/50">{{ $jawabanList->count() }} mahasiswa sudah mengumpulkan tugas ini.</p>
-                        </div>
-                        <a href="{{ route('lecturer.tugas.jawaban.index', $tugas) }}" class="rounded-lg border border-line px-3 py-2 text-xs font-semibold text-ink hover:bg-paper">Lihat Semua</a>
-                    </div>
-                </div>
-                <div class="divide-y divide-line">
-                    @forelse($jawabanList as $j)
-                        <div class="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-                            <div>
-                                <p class="text-sm font-semibold text-ink">{{ $j->mahasiswa->user->name ?? '-' }}</p>
-                                <p class="mt-1 text-xs text-ink/45">NIM: {{ $j->mahasiswa->nim ?? '-' }}</p>
-                                <p class="mt-1 text-xs text-ink/50">Dikumpulkan: {{ $j->waktu_submit?->translatedFormat('d M Y, H:i') ?? '-' }}</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                @if($j->status === 'sudah_dikoreksi')
-                                    <span class="text-sm font-bold text-ink">{{ $j->skor }}</span>
-                                    <span class="rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-700">Sudah Dikoreksi</span>
-                                @else
-                                    <span class="rounded-full bg-yellow-50 px-3 py-1 text-xs font-semibold text-yellow-700">Menunggu Koreksi</span>
-                                @endif
-                                <a href="{{ route('lecturer.tugas.jawaban.show', [$tugas, $j]) }}" class="rounded-lg bg-ink px-3 py-2 text-xs font-semibold text-white hover:bg-primaryDark">Koreksi</a>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="p-8 text-center text-sm text-ink/50">Belum ada mahasiswa yang mengumpulkan tugas.</div>
-                    @endforelse
-                </div>
-            </div>
-
             {{-- Kembali --}}
             <div class="mt-6 border-t border-line pt-6">
-                <a href="{{ route('lecturer.pengajaran.show', ['id' => $tugas->pengajaranDosen->kelas_id]) }}"
+                <a href="{{ route('pengajaran.show', ['id' => $tugas->pengajaranDosen->kelas_id]) }}"
                     class="text-sm font-medium text-ink/60 hover:text-ink">
                     ← Kembali ke halaman kelas
                 </a>
