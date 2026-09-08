@@ -19,16 +19,9 @@ use App\Models\Prodi;
 use App\Models\Matakuliah;
 use App\Models\Lecturer;
 use Illuminate\Support\Facades\Route;
-<<<<<<< HEAD
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\HomeController;
 use App\Models\PengajaranMahasiswa;
-=======
-use App\Models\Matakuliah;
-use App\Models\Lecturer;
-use App\Models\Student;
-
->>>>>>> origin/main
 
 Route::get('/', function () {
 
@@ -385,5 +378,16 @@ Route::get('/lecturer/pengajaran-dosen/{pengajaranDosen}/rekap-nilai', [
     \App\Http\Controllers\PengajaranController::class,
     'rekapNilai',
 ])->name('lecturer.rekap.nilai');
+
+
+Route::get(
+    '/lecturer/pengajaran/{pengajaranDosen}/absensi/rekap',
+    [AbsensiController::class, 'rekapSemua']
+)->name('lecturer.absensi.rekapSemua');
+
+Route::get(
+    '/lecturer/pengajaran/{pengajaranDosen}/absensi/rekap/export',
+    [AbsensiController::class, 'exportRekap']
+)->name('lecturer.absensi.rekapSemua.export');
 
 require __DIR__ . '/auth.php';

@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\PengajaranMahasiswa;
 use App\Models\SesiAbsensi;
 use App\Models\Absensi;
+use App\Models\PengajaranDosen;
+use App\Exports\RekapAbsensiExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AbsensiController extends Controller
 {
@@ -44,5 +47,44 @@ class AbsensiController extends Controller
             : 'Kamu sudah absen di sesi ini.';
 
         return redirect('/')->with('success', $pesan);
+    }
+
+    public function rekapSemua(PengajaranDosen $pengajaranDosen)
+    {
+        $pengajaran = $pengajaranDosen->kelas; // alias biar sama kayak view utama
+
+        $sesiAbsensiList = SesiAbsensi::where('kelas_id', $pengajaranDosen->kelas_id)
+            ->with('absensi.mahasiswa.user')
+            ->orderBy('pertemuan_ke')
+            ->get();
+
+        $mahasiswaList = $pengajaran->mahasiswa;
+
+        return view('lecturer.absensi.rekapsemua', compact(
+            'pengajaran',
+            'pengajaranDosen',
+            'sesiAbsensiList',
+            'mahasiswaList'
+        ));
+    }
+
+
+    public function exportRekap(PengajaranDosen $pengajaranDosen)
+    {
+        $pengajaran = $pengajaranDosen->kelas;
+
+        $sesiAbsensiList = SesiAbsensi::where('kelas_id', $pengajaranDosen->kelas_id)
+            ->with('absensi')
+            ->orderBy('pertemuan_ke')
+            ->get();
+
+        $mahasiswaList = $pengajaran->mahasiswa;
+
+        $namaFile = 'Rekap-Absensi-' . str_replace(' ', '-', $pengajaran->matakuliah->nama_mk) . '.xlsx';
+
+        return Excel::download(
+            new RekapAbsensiExport($pengajaranDosen, $sesiAbsensiList, $mahasiswaList),
+            $namaFile
+        );
     }
 }
