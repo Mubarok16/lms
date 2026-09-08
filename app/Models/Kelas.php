@@ -11,6 +11,7 @@ class Kelas extends Model
     protected $fillable = [
         'kode_mk',
         'kode_kelas',
+        'semester',
     ];
 
     public function matakuliah()
@@ -34,7 +35,10 @@ class Kelas extends Model
     }
     public function pengajaranMahasiswa()
     {
-        return $this->hasMany(PengajaranMahasiswa::class);
+        return $this->hasMany(
+            PengajaranMahasiswa::class,
+            'kelas_id'
+        );
     }
     // relasi many-to-many langsung ke Student lewat tabel pivot
     public function mahasiswa()

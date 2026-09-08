@@ -14,13 +14,50 @@ use App\Http\Controllers\SesiAbsensiController;
 use App\Http\Controllers\StudentQuizController;
 use App\Http\Controllers\StudentAbsensiController;
 use App\Models\Absensi;
+use App\Models\Student;
+use App\Models\Prodi;
+use App\Models\Matakuliah;
+use App\Models\Lecturer;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\HomeController;
+use App\Models\PengajaranMahasiswa;
 
 Route::get('/', function () {
-    return view('layouts.lamandepan');
+
+    // Statistik
+    $jumlahMahasiswa = Student::count();
+    $jumlahMatakuliah = Matakuliah::count();
+    $jumlahProdi = Prodi::count();
+    $jumlahDosen = Lecturer::count();
+
+    // Data mata kuliah untuk hero
+    $matakuliah = Matakuliah::with('prodi')
+        ->take(2)
+        ->get();
+
+    // Kursus populer
+    $kursusPopuler = PengajaranMahasiswa::query()
+        ->with([
+            'kelas.matakuliah.prodi'
+        ])
+        ->select('kelas_id')
+        ->selectRaw('COUNT(DISTINCT mahasiswa_id) as jumlah_mahasiswa')
+        ->groupBy('kelas_id')
+        ->orderByDesc('jumlah_mahasiswa')
+        ->take(3)
+        ->get();
+
+    return view('layouts.lamandepan', compact(
+        'jumlahMahasiswa',
+        'jumlahMatakuliah',
+        'jumlahProdi',
+        'jumlahDosen',
+        'matakuliah',
+        'kursusPopuler'
+    ));
 });
 
-use Illuminate\Support\Facades\Auth;
 
 Route::get('/dashboard', function () {
 
