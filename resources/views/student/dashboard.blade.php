@@ -19,9 +19,9 @@ Ringkasan E-Learning UNWIR
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
         </svg>
       </div>
-      <span class="text-xs font-mono px-2 py-1 rounded-full bg-teal/10 text-teal">Ganjil 2025/2026</span>
+      <span class="text-xs font-mono px-2 py-1 rounded-full bg-teal/10 text-teal">Ganjil 2026/2027</span>
     </div>
-    <p class="font-display text-3xl font-semibold mt-5">150+</p>
+    <p class="font-display text-3xl font-semibold mt-5">{{ number_format($totalMatkul, 0, ',', '.') }}</p>
     <p class="text-sm text-ink/55 mt-1">Mata Kuliah Aktif</p>
   </div>
 
@@ -37,7 +37,7 @@ Ringkasan E-Learning UNWIR
       </div>
       <span class="text-xs font-mono px-2 py-1 rounded-full bg-coral/10 text-coral">6 Fakultas</span>
     </div>
-    <p class="font-display text-3xl font-semibold mt-5">450+</p>
+    <p class="font-display text-3xl font-semibold mt-5">{{ number_format($totalDosen, 0, ',', '.') }}</p>
     <p class="text-sm text-ink/55 mt-1">Dosen Pengajar</p>
   </div>
 
@@ -51,7 +51,7 @@ Ringkasan E-Learning UNWIR
       </div>
       <span class="text-xs font-mono px-2 py-1 rounded-full bg-amber/15 text-ink">Aktif</span>
     </div>
-    <p class="font-display text-3xl font-semibold mt-5">12.000+</p>
+    <p class="font-display text-3xl font-semibold mt-5">{{ number_format($totalMahasiswa, 0, ',', '.') }}</p>
     <p class="text-sm text-ink/55 mt-1">Mahasiswa Terdaftar</p>
   </div>
 

@@ -1,4 +1,4 @@
-@extends('student.app-student')
+@extends('student.app-student-show-mk')
 
 @section('ketjudul')
 Mata Kuliah oleh

@@ -82,58 +82,6 @@
     </a>
   </div>
 
-  @php
-  // Asumsi total pertemuan per semester untuk hitung progres.
-  // Ganti angka ini kalau ada kolom "total_pertemuan" di tabel kelas/matakuliah.
-  $totalPertemuan = 16;
-  $jumlahMateri = $materiList->count();
-  $progress = $totalPertemuan > 0
-  ? min(100, round(($jumlahMateri / $totalPertemuan) * 100))
-  : 0;
-  @endphp
-
-  <!-- Kursus yang sedang dibuka -->
-  <div>
-    <button @click="courseOpen = !courseOpen" class="w-full flex items-center gap-2 px-3 mb-2 text-[11px] font-mono uppercase tracking-wider text-paper/40">
-      <span>Sedang Dibuka</span>
-      <svg :class="courseOpen ? 'rotate-90' : ''" class="ml-auto transition-transform" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6">
-        <path d="M4 2l4 4-4 4" />
-      </svg>
-    </button>
-
-    <div x-show="courseOpen" x-cloak class="rounded-xl bg-white/5 border border-white/10 p-3">
-      <p class="text-sm font-medium leading-snug">{{ $kelas->matakuliah->nama_mk }}</p>
-      <p class="text-[11px] text-paper/40 font-mono mt-0.5 mb-3">
-        {{ $mahasiswa->study_program ?? '-' }} · Semester {{ $mahasiswa->semester ?? '-' }} · {{ $kelas->matakuliah->sks }} SKS
-      </p>
-
-      <ol class="space-y-0.5">
-        @forelse($materiList as $index => $materi)
-        <li>
-          <span class="flex items-center gap-2.5 px-2 py-1.5 rounded-md text-paper/60 text-[13px]">
-            <span class="w-4 h-4 rounded-full bg-teal/40 flex items-center justify-center shrink-0">
-              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
-                <path d="M20 6L9 17l-5-5" />
-              </svg>
-            </span>
-            {{ $materi->judul ?? 'Materi ' . ($index + 1) }}
-          </span>
-        </li>
-        @empty
-        <li class="px-2 py-1.5 text-[13px] text-paper/40">Belum ada materi untuk kelas ini.</li>
-        @endforelse
-      </ol>
-
-      <div class="mt-3 pt-3 border-t border-white/10">
-        <div class="flex items-center justify-between text-[11px] text-paper/40 mb-1.5 font-mono">
-          <span>PROGRES</span><span>{{ $progress }}%</span>
-        </div>
-        <div class="h-1.5 bg-white/10 rounded-full overflow-hidden">
-          <div class="h-full bg-amber rounded-full" style="width:{{ $progress }}%"></div>
-        </div>
-      </div>
-    </div>
-  </div>
 
 </nav>
 

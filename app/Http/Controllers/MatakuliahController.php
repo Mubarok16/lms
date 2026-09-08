@@ -227,9 +227,44 @@ class MatakuliahController extends Controller
         return view('student.matakuliah.show', compact(
             'kelas',
             'materiList',
+            'mahasiswa',
             'tugasList',
             'quizList',
             'dosenList'
         ));
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'kode_mk'  => 'required|string|max:20|unique:matakuliah,kode_mk',
+            'nama_mk'  => 'required|string|max:255',
+            'prodi_id' => 'required|exists:prodi,id',   // <- pastikan ini "prodi", bukan "prodis"
+            'sks'      => 'required|integer|min:1|max:6',
+        ]);
+
+        Matakuliah::create($validated);
+
+        return back()->with('success', 'Matakuliah berhasil ditambahkan.');
+    }
+
+    public function update(Request $request, Matakuliah $matakuliah)
+    {
+        $validated = $request->validate([
+            'nama_mk'  => 'required|string|max:255',
+            'prodi_id' => 'required|exists:prodi,id',   // <- sama di sini
+            'sks'      => 'required|integer|min:1|max:6',
+        ]);
+
+        $matakuliah->update($validated);
+
+        return back()->with('success', 'Matakuliah berhasil diperbarui.');
+    }
+
+    public function destroy(Matakuliah $matakuliah)
+    {
+        $matakuliah->delete();
+
+        return back()->with('success', 'Matakuliah berhasil dihapus.');
     }
 }
