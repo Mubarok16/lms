@@ -600,23 +600,28 @@ Mata Kuliah oleh
                 <div id="absensi" class="mt-8 overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
 
                     {{-- Header --}}
-                    <div
-                        class="flex flex-col justify-between gap-4 border-b border-line p-6
-                sm:flex-row sm:items-center">
+                    {{-- Header --}}
+                    <div class="flex flex-col justify-between gap-4 border-b border-line p-6 sm:flex-row sm:items-center">
                         <div>
-                            <h2 class="font-display text-lg font-semibold text-ink">
-                                Absensi
-                            </h2>
-                            <p class="mt-1 text-sm text-ink/50">
-                                Kelola kehadiran mahasiswa per pertemuan.
-                            </p>
+                            <h2 class="font-display text-lg font-semibold text-ink">Absensi</h2>
+                            <p class="mt-1 text-sm text-ink/50">Kelola kehadiran mahasiswa per pertemuan.</p>
                         </div>
 
-                        <button type="button" @click="$dispatch('open-modal-absensi')"
-                            class="rounded-lg bg-ink px-4 py-2.5 text-sm font-semibold text-white
+                        <div class="flex items-center gap-2">
+                            {{-- Rekap Semua --}}
+                            <a href="{{ route('lecturer.absensi.rekapSemua', $pengajaranDosen->id) }}"
+                                class="rounded-lg border border-line px-4 py-2.5 text-sm font-semibold text-ink
+                   transition hover:bg-paper">
+                                Rekap Semua
+                            </a>
+
+                            {{-- Buka Absensi --}}
+                            <button type="button" @click="$dispatch('open-modal-absensi')"
+                                class="rounded-lg bg-ink px-4 py-2.5 text-sm font-semibold text-white
                    transition hover:bg-primaryDark">
-                            + Buka Absensi
-                        </button>
+                                + Buka Absensi
+                            </button>
+                        </div>
                     </div>
 
                     {{-- List Sesi Absensi --}}

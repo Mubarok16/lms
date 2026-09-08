@@ -24,7 +24,6 @@ use App\Http\Controllers\HomeController;
 use App\Models\PengajaranMahasiswa;
 
 
-
 Route::get('/', function () {
 
     // Statistik
@@ -380,5 +379,16 @@ Route::get('/lecturer/pengajaran-dosen/{pengajaranDosen}/rekap-nilai', [
     \App\Http\Controllers\PengajaranController::class,
     'rekapNilai',
 ])->name('lecturer.rekap.nilai');
+
+
+Route::get(
+    '/lecturer/pengajaran/{pengajaranDosen}/absensi/rekap',
+    [AbsensiController::class, 'rekapSemua']
+)->name('lecturer.absensi.rekapSemua');
+
+Route::get(
+    '/lecturer/pengajaran/{pengajaranDosen}/absensi/rekap/export',
+    [AbsensiController::class, 'exportRekap']
+)->name('lecturer.absensi.rekapSemua.export');
 
 require __DIR__ . '/auth.php';
