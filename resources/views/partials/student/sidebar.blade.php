@@ -36,7 +36,7 @@
 <nav class="flex-1 overflow-y-auto px-4 py-5 space-y-6">
 
   <div class="space-y-1">
-    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white/10 text-paper text-sm font-medium">
+    <a href="{{ route('student.dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white/10 text-paper text-sm font-medium">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
         <rect x="3" y="3" width="7" height="9" rx="1.5" />
         <rect x="14" y="3" width="7" height="5" rx="1.5" />
@@ -52,34 +52,41 @@
       </svg>
       Mata Kuliah Saya
     </a>
-    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-paper/70 hover:bg-white/5 hover:text-paper text-sm font-medium transition-colors">
+    <a href="{{ route('student.akademik.tugas.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-paper/70 hover:bg-white/5 hover:text-paper text-sm font-medium transition-colors">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
         <path d="M9 11l3 3L22 4" />
         <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
       </svg>
-      Tugas & Kuis
-      <span class="ml-auto bg-coral text-white text-[11px] font-mono px-1.5 py-0.5 rounded-full">3</span>
+      Tugas
     </a>
-    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-paper/70 hover:bg-white/5 hover:text-paper text-sm font-medium transition-colors">
+    <a href="{{ route('student.akademik.quiz.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-paper/70 hover:bg-white/5 hover:text-paper text-sm font-medium transition-colors">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M9.5 9a2.7 2.7 0 015.1 1.2c0 1.8-2.6 2-2.6 3.6M12 17h.01" />
+      </svg>
+      Quiz
+    </a>
+    <a href="{{ route('student.akademik.nilai.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-paper/70 hover:bg-white/5 hover:text-paper text-sm font-medium transition-colors">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
         <path d="M3 3v18h18" />
         <path d="M7 15l4-6 3 4 5-8" />
       </svg>
       Nilai
     </a>
-    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-paper/70 hover:bg-white/5 hover:text-paper text-sm font-medium transition-colors">
+    <a href="{{ route('jadwal.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-paper/70 hover:bg-white/5 hover:text-paper text-sm font-medium transition-colors">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
         <rect x="3" y="4" width="18" height="16" rx="2" />
         <path d="M3 10h18M8 2v4M16 2v4" />
       </svg>
       Jadwal Kuliah
     </a>
-    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-paper/70 hover:bg-white/5 hover:text-paper text-sm font-medium transition-colors">
+    <a href="{{ route('chat.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-paper/70 hover:bg-white/5 hover:text-paper text-sm font-medium transition-colors">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
         <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
       </svg>
       Pesan
     </a>
+    @include('partials.chat-course-links')
   </div>
 
   @php
