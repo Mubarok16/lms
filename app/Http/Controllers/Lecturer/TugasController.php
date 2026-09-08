@@ -150,11 +150,12 @@ class TugasController extends Controller
 
     public function jawabanIndex(Tugas $tugas)
     {
+        $this->authorizeTugas($tugas);
         $tugas->load('pengajaranDosen');
 
         $jawabanList = TugasJawaban::with('mahasiswa.user', 'files')
             ->where('tugas_id', $tugas->id)
-            ->orderByRaw("FIELD(status, 'menunggu_koreksi', 'sudah_dikoreksi', 'belum_submit')")
+            ->orderByRaw("CASE status WHEN 'menunggu_koreksi' THEN 1 WHEN 'sudah_dikoreksi' THEN 2 WHEN 'belum_submit' THEN 3 ELSE 4 END")
             ->orderBy('waktu_submit')
             ->get();
 
@@ -163,6 +164,7 @@ class TugasController extends Controller
 
     public function jawabanShow(Tugas $tugas, TugasJawaban $jawaban)
     {
+        $this->authorizeTugas($tugas);
         abort_if($jawaban->tugas_id !== $tugas->id, 404);
 
         $jawaban->load('mahasiswa.user', 'files');
@@ -172,6 +174,7 @@ class TugasController extends Controller
 
     public function koreksi(Request $request, Tugas $tugas, TugasJawaban $jawaban)
     {
+        $this->authorizeTugas($tugas);
         abort_if($jawaban->tugas_id !== $tugas->id, 404);
 
         $request->validate([
@@ -190,5 +193,16 @@ class TugasController extends Controller
         return redirect()
             ->route('lecturer.tugas.jawaban.index', $tugas)
             ->with('success', 'Koreksi berhasil disimpan.');
+    }
+    private function authorizePengajaran(PengajaranDosen $pengajaranDosen): void
+    {
+        $lecturer = auth()->user()->lecturer;
+        abort_unless($lecturer && (int) $pengajaranDosen->dosen_id === (int) $lecturer->id, 403, 'Anda tidak mengampu mata kuliah ini.');
+    }
+
+    private function authorizeTugas(Tugas $tugas): void
+    {
+        $tugas->loadMissing('pengajaranDosen');
+        $this->authorizePengajaran($tugas->pengajaranDosen);
     }
 }
