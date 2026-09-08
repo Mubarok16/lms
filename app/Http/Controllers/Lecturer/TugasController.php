@@ -14,6 +14,7 @@ class TugasController extends Controller
 {
     public function create(PengajaranDosen $pengajaranDosen)
     {
+        $this->authorizePengajaran($pengajaranDosen);
         // load relasi supaya tahu ini tugas untuk kelas/matkul apa
         $pengajaranDosen->load('kelas.matakuliah');
 
@@ -22,6 +23,7 @@ class TugasController extends Controller
 
     public function store(Request $request, PengajaranDosen $pengajaranDosen)
     {
+        $this->authorizePengajaran($pengajaranDosen);
         $validated = $request->validate([
             'judul'       => 'required|string|max:255',
             'deskripsi'   => 'nullable|string',
@@ -61,6 +63,7 @@ class TugasController extends Controller
     }
     public function edit(Tugas $tugas)
     {
+        $this->authorizeTugas($tugas);
         $tugas->load(['files', 'pengajaranDosen.kelas.matakuliah']);
 
         return view('lecturer.tugas.edit', compact('tugas'));
@@ -68,6 +71,7 @@ class TugasController extends Controller
 
     public function update(Request $request, Tugas $tugas)
     {
+        $this->authorizeTugas($tugas);
         $validated = $request->validate([
             'judul'       => 'required|string|max:255',
             'deskripsi'   => 'nullable|string',
@@ -123,6 +127,7 @@ class TugasController extends Controller
 
     public function destroy(Tugas $tugas)
     {
+        $this->authorizeTugas($tugas);
         foreach ($tugas->files as $file) {
             Storage::disk('public')->delete($file->file_path);
         }
@@ -135,6 +140,7 @@ class TugasController extends Controller
     }
     public function show(Tugas $tugas)
     {
+        $this->authorizeTugas($tugas);
         $tugas->load(['files', 'pengajaranDosen.kelas.matakuliah']);
 
         return view('lecturer.tugas.show', compact('tugas'));

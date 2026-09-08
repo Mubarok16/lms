@@ -1,329 +1,714 @@
-# Akses Laravel dari HP melalui Jaringan Lokal
+# LMS - Learning Management System
 
-Panduan menjalankan project Laravel di komputer agar dapat diakses melalui HP yang berada pada jaringan Wi-Fi/LAN yang sama.
+Learning Management System berbasis **Laravel 12** untuk pengelolaan kegiatan perkuliahan antara **Admin, Dosen, dan Mahasiswa**.
 
-## 1. Cek IP Address Komputer
-
-Buka **Command Prompt (CMD)** atau PowerShell di komputer, kemudian jalankan:
-
-```bash
-ipconfig
-```
-
-Cari bagian **IPv4 Address** pada adapter jaringan yang sedang digunakan.
-
-Contoh:
-
-```text
-IPv4 Address. . . . . . . . . . . : 10.166.126.191
-```
-
-Catat alamat IP tersebut karena akan digunakan untuk mengakses Laravel dari HP.
-
-> Pastikan komputer dan HP terhubung ke jaringan Wi-Fi/LAN yang sama.
+Project ini memiliki fitur pengelolaan mata kuliah, kelas, materi, tugas, quiz, absensi, nilai, jadwal kuliah, serta chat per mata kuliah.
 
 ---
 
-## 2. Jalankan Laravel agar Bisa Diakses dari HP
+## Fitur Utama
 
-Secara default, Laravel hanya dapat diakses dari komputer melalui `localhost`.
+### Admin
 
-Jalankan Laravel dengan:
+- Manajemen program studi
+- Manajemen dosen
+- Manajemen mahasiswa
+- Manajemen mata kuliah
+- Manajemen kelas
+- Pengaturan pengajaran dosen dan mahasiswa
+- Manajemen jadwal mata kuliah
+- Tambah, edit, dan hapus jadwal
+- Import jadwal mata kuliah melalui Excel
+- Melihat ruang chat mata kuliah
 
-```bash
-php artisan serve --host=0.0.0.0 --port=8000
-```
+### Dosen
 
-Jika berhasil, biasanya akan muncul:
+- Melihat mata kuliah yang diampu
+- Mengelola materi perkuliahan
+- Mengelola pertemuan
+- Mengelola absensi
+- Membuat dan mengelola tugas
+- Melihat mahasiswa yang mengumpulkan tugas
+- Melakukan koreksi dan pemberian nilai tugas
+- Membuat dan mengelola quiz
+- Melihat mahasiswa yang mengerjakan quiz
+- Melihat detail jawaban quiz mahasiswa
+- Melihat rekap nilai mahasiswa per mata kuliah
+- Melihat rekap tugas, quiz, dan absensi mahasiswa
+- Melihat jadwal kuliah
+- Chat dua arah dengan mahasiswa pada setiap mata kuliah
 
-```text
-INFO  Server running on [http://0.0.0.0:8000].
-```
+### Mahasiswa
 
-`0.0.0.0` membuat Laravel menerima koneksi dari perangkat lain yang berada dalam jaringan yang sama.
+- Melihat mata kuliah yang diikuti
+- Mengakses materi perkuliahan
+- Mengikuti absensi
+- Melihat dan mengumpulkan tugas
+- Mengerjakan quiz
+- Melihat nilai per mata kuliah
+- Melihat rekap nilai tugas
+- Melihat nilai quiz
+- Melihat rekap absensi
+- Melihat jadwal kuliah
+- Chat dua arah dengan dosen dan peserta kelas
 
 ---
 
-## 3. Update APP_URL pada `.env`
+# Teknologi
 
-Buka file:
+Project menggunakan:
 
-```text
-.env
+- PHP `^8.2`
+- Laravel `^12.0`
+- Laravel Breeze
+- Blade Template
+- Tailwind CSS
+- Alpine.js
+- Vite
+- SQLite sebagai konfigurasi database default
+- Maatwebsite Excel untuk import jadwal
+- Yajra DataTables
+- Composer
+- Node.js dan NPM
+
+---
+
+# Requirement
+
+Pastikan perangkat sudah memiliki:
+
+- PHP 8.2 atau lebih baru
+- Composer
+- Node.js
+- NPM
+- Git
+- Ekstensi PHP SQLite apabila menggunakan SQLite
+
+Untuk Windows, project dapat dijalankan menggunakan **Laragon**.
+
+---
+
+# Instalasi Project
+
+## 1. Clone Repository
+
+```bash
+git clone URL_REPOSITORY_GITHUB
 ```
 
-Cari:
+Masuk ke folder project:
+
+```bash
+cd lms-main
+```
+
+Jika project diperoleh dalam bentuk ZIP, extract ZIP kemudian buka terminal pada folder project.
+
+Contoh pada Laragon:
+
+```text
+C:\laragon\www\lms-main
+```
+
+---
+
+## 2. Install Dependency PHP
+
+```bash
+composer install
+```
+
+---
+
+## 3. Install Dependency Frontend
+
+```bash
+npm install
+```
+
+---
+
+## 4. Buat File `.env`
+
+Jika file `.env` belum tersedia:
+
+### Windows CMD / Laragon Terminal
+
+```bash
+copy .env.example .env
+```
+
+### Linux / macOS
+
+```bash
+cp .env.example .env
+```
+
+---
+
+## 5. Generate Application Key
+
+```bash
+php artisan key:generate
+```
+
+---
+
+# Konfigurasi Database
+
+Project secara default menggunakan **SQLite**.
+
+Pastikan konfigurasi `.env` berisi:
 
 ```env
-APP_URL=http://localhost
+DB_CONNECTION=sqlite
 ```
 
-Kemudian ubah menjadi IP komputer.
+Buat file database SQLite apabila belum tersedia:
 
-Contoh jika IPv4 komputer adalah:
+```bash
+php -r "file_exists('database/database.sqlite') || touch('database/database.sqlite');"
+```
+
+File database akan berada di:
 
 ```text
-10.166.126.191
+database/database.sqlite
 ```
 
-maka:
+---
+
+## Alternatif: Menggunakan MySQL
+
+Jika ingin menggunakan MySQL, ubah `.env` menjadi contoh berikut:
 
 ```env
-APP_URL=http://10.166.126.191:8000
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=lms
+DB_USERNAME=root
+DB_PASSWORD=
 ```
 
-Pengaturan ini penting terutama jika aplikasi menggunakan `route()` untuk menghasilkan URL absolut, misalnya pada QR Code absensi.
-
-Contoh:
-
-```php
-route('mahasiswa.absensi.scan', $token)
-```
-
-URL yang dihasilkan akan mengarah ke alamat komputer yang dapat diakses melalui jaringan lokal.
+Buat database `lms` terlebih dahulu melalui phpMyAdmin, HeidiSQL, atau tool database lainnya.
 
 ---
 
-## 4. Bersihkan Cache Konfigurasi Laravel
+# Migrasi dan Seeder
 
-Setelah mengubah `.env`, jalankan:
+## Instalasi Pertama / Database Development Baru
 
-```bash
-php artisan config:clear
-```
-
-Jika diperlukan, bisa juga menjalankan:
+Untuk membuat seluruh tabel sekaligus memasukkan data awal:
 
 ```bash
-php artisan cache:clear
+php artisan migrate:fresh --seed
 ```
+
+> **Perhatian:** `migrate:fresh` akan menghapus seluruh tabel dan data yang sudah ada.
+
+Gunakan perintah ini hanya pada database baru atau database development yang datanya boleh dihapus.
 
 ---
 
-## 5. Akses Laravel dari HP
+## Database yang Sudah Berisi Data
 
-Setelah Laravel berjalan, buka browser di HP.
+Jika database sudah memiliki data penting, gunakan:
+
+```bash
+php artisan migrate
+```
 
 Jangan menggunakan:
 
-```text
-http://localhost:8000
+```bash
+php artisan migrate:fresh
 ```
 
-Gunakan IP komputer:
+karena seluruh data akan dihapus.
 
-```text
-http://10.166.126.191:8000
+---
+
+## Menjalankan Seeder Saja
+
+Semua seeder utama:
+
+```bash
+php artisan db:seed
 ```
 
-Sesuaikan dengan IPv4 komputer kamu.
+Seeder user admin:
+
+```bash
+php artisan db:seed --class=UserSeeder
+```
+
+Seeder program studi:
+
+```bash
+php artisan db:seed --class=ProdiSeeder
+```
+
+Seeder data akademik demo:
+
+```bash
+php artisan db:seed --class=AcademicDemoSeeder
+```
+
+Seeder menggunakan `updateOrCreate` / `firstOrCreate` pada data utama sehingga lebih aman ketika dijalankan ulang.
+
+---
+
+# Data User Awal
+
+Setelah menjalankan:
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+akun berikut tersedia untuk pengujian.
+
+| Role | Nama | Email | Password |
+|---|---|---|---|
+| Admin | Administrator | `admin@example.com` | `admin123` |
+| Dosen | Dosen Demo | `dosen@example.com` | `dosen123` |
+| Mahasiswa | Mahasiswa Demo | `mahasiswa@example.com` | `mahasiswa123` |
+
+> Akun tersebut adalah akun development/demo. Ganti password sebelum digunakan pada lingkungan production.
+
+---
+
+# Data Akademik Awal
+
+Seeder juga membuat beberapa data untuk kebutuhan pengujian.
+
+## Program Studi
+
+- Teknik Komputer
+- Teknik Sipil
+- Teknik Lingkungan
+
+## Mata Kuliah Demo
+
+### Pemrograman Web
+
+```text
+Kode MK : TK101
+Kelas   : A
+Semester: 5
+```
+
+### Basis Data
+
+```text
+Kode MK : TK102
+Kelas   : A
+Semester: 5
+```
+
+Dosen dan mahasiswa demo sudah dihubungkan dengan mata kuliah tersebut sehingga fitur dapat langsung diuji setelah seeding.
+
+Data demo juga mencakup:
+
+- Jadwal mata kuliah
+- Chat mata kuliah
+- Tugas
+- Jawaban tugas
+- Nilai tugas
+- Quiz
+- Soal quiz
+- Jawaban quiz mahasiswa
+- Nilai quiz
+- Sesi absensi
+- Data kehadiran mahasiswa
+
+---
+
+# Storage File
+
+Project menggunakan Laravel public storage untuk beberapa file upload.
+
+Setelah instalasi, wajib jalankan:
+
+```bash
+php artisan storage:link
+```
+
+Kemudian bersihkan cache Laravel:
+
+```bash
+php artisan optimize:clear
+```
+
+Hal ini penting agar file seperti PDF tugas dapat diakses melalui:
+
+```text
+/storage/...
+```
+
+Jika `public/storage` sudah ada tetapi bermasalah, hapus symbolic link lama kemudian jalankan kembali:
+
+```bash
+php artisan storage:link
+```
+
+---
+
+# Menjalankan Project
+
+## Terminal 1 - Laravel
+
+```bash
+php artisan serve
+```
+
+Secara default aplikasi dapat dibuka melalui:
+
+```text
+http://127.0.0.1:8000
+```
+
+## Terminal 2 - Vite
+
+```bash
+npm run dev
+```
+
+Biarkan kedua terminal tetap berjalan selama development.
+
+---
+
+## Alternatif Menjalankan Development
+
+Project juga menyediakan script Composer:
+
+```bash
+composer run dev
+```
+
+Script tersebut dapat menjalankan beberapa service development secara bersamaan.
+
+---
+
+# Build Frontend untuk Production
+
+Untuk membuat asset production:
+
+```bash
+npm run build
+```
+
+---
+
+# Langkah Instalasi Cepat
+
+Untuk instalasi development baru menggunakan SQLite:
+
+```bash
+composer install
+npm install
+copy .env.example .env
+php artisan key:generate
+php -r "file_exists('database/database.sqlite') || touch('database/database.sqlite');"
+php artisan migrate:fresh --seed
+php artisan storage:link
+php artisan optimize:clear
+```
+
+Kemudian jalankan:
+
+```bash
+php artisan serve
+```
+
+Pada terminal lain:
+
+```bash
+npm run dev
+```
+
+---
+
+# Import Jadwal Mata Kuliah
+
+Import jadwal hanya dapat dilakukan oleh **Admin**.
+
+Kolom file Excel:
+
+| Kolom | Keterangan |
+|---|---|
+| `kode_mk` | Kode mata kuliah |
+| `kode_kelas` | Kode kelas |
+| `hari` | Hari perkuliahan |
+| `jam_mulai` | Jam mulai |
+| `jam_selesai` | Jam selesai |
+| `ruangan` | Nama/nomor ruangan |
 
 Contoh:
 
-```text
-http://10.166.126.191:8000
-```
-
-Jika halaman Laravel muncul, berarti HP sudah berhasil terhubung ke aplikasi Laravel di komputer.
+| kode_mk | kode_kelas | hari | jam_mulai | jam_selesai | ruangan |
+|---|---|---|---|---|---|
+| TK101 | A | Senin | 08:00 | 10:30 | Lab Komputer 1 |
+| TK102 | A | Rabu | 10:00 | 12:30 | Ruang 203 |
 
 ---
 
-## 6. Jika Tidak Bisa Diakses dari HP
-
-Jika Laravel sudah dijalankan tetapi HP tidak dapat membuka halaman, periksa beberapa hal berikut.
-
-### A. Pastikan HP dan komputer berada pada jaringan yang sama
-
-Contoh:
+# Alur Tugas Dosen
 
 ```text
-Komputer → Wi-Fi Kampus
-HP       → Wi-Fi Kampus
-```
-
-Keduanya harus berada pada jaringan yang memungkinkan komunikasi antar-perangkat.
-
-### B. Pastikan IP yang digunakan benar
-
-Jalankan kembali:
-
-```bash
-ipconfig
-```
-
-Kemudian gunakan IPv4 dari adapter jaringan yang aktif.
-
-### C. Periksa Windows Firewall
-
-Windows Firewall dapat memblokir koneksi ke port `8000`.
-
-Jika muncul permintaan izin dari Windows Firewall ketika menjalankan Laravel, izinkan akses pada jaringan yang sesuai.
-
-### D. Pastikan Laravel masih berjalan
-
-Terminal harus tetap menjalankan:
-
-```bash
-php artisan serve --host=0.0.0.0 --port=8000
-```
-
-Jangan menutup terminal tersebut selama aplikasi ingin diakses dari HP.
-
----
-
-# Update Project Laravel ke GitHub
-
-Setelah melakukan perubahan pada project Laravel, gunakan Git untuk mengirim perubahan ke repository GitHub.
-
-## 1. Cek perubahan
-
-Buka terminal di folder project Laravel:
-
-```bash
-git status
-```
-
-Perintah ini akan menampilkan file yang berubah, ditambahkan, atau dihapus.
-
----
-
-## 2. Tambahkan perubahan ke Git
-
-Untuk menambahkan semua perubahan:
-
-```bash
-git add .
-```
-
-Kemudian cek kembali:
-
-```bash
-git status
+Sidebar Tugas
+    ↓
+Pilih Mata Kuliah
+    ↓
+Daftar Tugas
+    ↓
+Pilih Tugas
+    ↓
+Daftar Mahasiswa yang Submit
+    ↓
+Koreksi Jawaban
+    ↓
+Simpan Nilai
 ```
 
 ---
 
-## 3. Buat Commit
+# Alur Quiz Dosen
 
-Contoh:
-
-```bash
-git commit -m "Update fitur absensi"
+```text
+Sidebar Quiz
+    ↓
+Pilih Mata Kuliah
+    ↓
+Daftar Quiz
+    ↓
+Pilih Quiz
+    ↓
+Daftar Mahasiswa
+    ↓
+Pilih Mahasiswa
+    ↓
+Detail Jawaban Quiz
 ```
 
-Gunakan pesan commit yang menjelaskan perubahan yang dilakukan.
+Detail jawaban menampilkan jawaban mahasiswa, kunci jawaban, benar/salah, dan skor.
 
-Contoh lainnya:
+---
+
+# Alur Nilai Dosen
+
+```text
+Sidebar Nilai
+    ↓
+Pilih Mata Kuliah
+    ↓
+Daftar Mahasiswa
+    ↓
+Pilih Mahasiswa
+    ↓
+Rekap Tugas + Quiz + Absensi
+```
+
+---
+
+# Hak Akses
+
+## Admin
+
+Admin memiliki akses pengelolaan data akademik dan jadwal.
+
+## Dosen
+
+Dosen hanya dapat mengakses kelas dan mata kuliah yang diampu.
+
+## Mahasiswa
+
+Mahasiswa hanya dapat mengakses kelas dan mata kuliah yang diikuti.
+
+Pembatasan dilakukan pada sisi route/controller, sehingga pengguna tidak seharusnya dapat membuka data kelas lain hanya dengan mengganti ID URL.
+
+---
+
+# Chat Mata Kuliah
+
+Chat tersedia berdasarkan kelas/mata kuliah.
+
+- Dosen dapat mengirim dan membalas pesan.
+- Mahasiswa dapat mengirim dan membalas pesan.
+- Admin dapat melihat ruang chat.
+- Pesan tersimpan di database.
+- Halaman mengambil pesan baru secara berkala.
+
+---
+
+# Jadwal Mata Kuliah
+
+Hak akses jadwal:
+
+| Role | Lihat | Tambah | Edit | Hapus | Import |
+|---|---:|---:|---:|---:|---:|
+| Admin | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Dosen | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Mahasiswa | ✅ | ❌ | ❌ | ❌ | ❌ |
+
+---
+
+# Membersihkan Cache
+
+Jika setelah mengubah route, Blade, `.env`, atau konfigurasi masih muncul tampilan/error lama:
 
 ```bash
-git commit -m "Add QR code attendance"
+php artisan optimize:clear
+```
+
+Untuk membersihkan cache view saja:
+
+```bash
+php artisan view:clear
+```
+
+---
+
+# Troubleshooting
+
+## `Undefined variable $slot`
+
+Pastikan view yang menggunakan layout mahasiswa memakai layout yang sesuai, misalnya:
+
+```blade
+@extends('student.app-student')
+```
+
+Jangan menggunakan layout Blade Component melalui `@extends` apabila layout tersebut bergantung pada:
+
+```blade
+{{ $slot }}
+```
+
+---
+
+## PDF / File Upload Menampilkan `403 Forbidden`
+
+Jalankan:
+
+```bash
+php artisan storage:link
+php artisan optimize:clear
+```
+
+Pastikan file upload tersedia pada:
+
+```text
+storage/app/public/
+```
+
+dan symbolic link:
+
+```text
+public/storage
+```
+
+sudah dibuat.
+
+---
+
+## Error `UNIQUE constraint failed: users.email`
+
+Jangan membuat user seed menggunakan `create()` berulang kali untuk email yang sama.
+
+Seeder project sudah menggunakan pendekatan seperti:
+
+```php
+User::updateOrCreate(...)
 ```
 
 atau:
 
-```bash
-git commit -m "Fix attendance session"
+```php
+User::firstOrCreate(...)
 ```
+
+sehingga dapat dijalankan kembali tanpa membuat email duplikat.
 
 ---
 
-## 4. Pull Perubahan Terbaru dari GitHub
+# Akses dari HP pada Jaringan yang Sama
 
-Sebelum melakukan push, sebaiknya ambil perubahan terbaru dari GitHub:
-
-```bash
-git pull origin main
-```
-
-Jika project menggunakan branch lain, sesuaikan `main` dengan branch yang digunakan.
-
-Contoh:
-
-```bash
-git pull origin develop
-```
-
-Jika terjadi conflict, selesaikan conflict terlebih dahulu sebelum melanjutkan.
-
----
-
-## 5. Push ke GitHub
-
-Jika menggunakan branch `main`:
-
-```bash
-git push origin main
-```
-
-Jika menggunakan branch `develop`:
-
-```bash
-git push origin develop
-```
-
-Setelah berhasil, perubahan project lokal sudah dikirim ke repository GitHub.
-
----
-
-# Alur Singkat
-
-### Menjalankan Laravel agar bisa diakses HP
+Cari IPv4 komputer:
 
 ```bash
 ipconfig
 ```
 
-Cari IPv4, misalnya:
-
-```text
-10.166.126.191
-```
-
-Kemudian:
+Kemudian jalankan Laravel:
 
 ```bash
 php artisan serve --host=0.0.0.0 --port=8000
 ```
 
-`.env`:
+Misalnya IP komputer:
 
-```env
-APP_URL=http://10.166.126.191:8000
+```text
+192.168.1.10
 ```
 
-Kemudian:
+ubah `.env`:
+
+```env
+APP_URL=http://192.168.1.10:8000
+```
+
+Bersihkan konfigurasi:
 
 ```bash
 php artisan config:clear
 ```
 
-Akses dari HP:
+Kemudian dari HP buka:
 
 ```text
-http://10.166.126.191:8000
+http://192.168.1.10:8000
 ```
 
-### Update project ke GitHub
+Pastikan komputer dan HP berada pada jaringan yang sama dan Windows Firewall mengizinkan koneksi ke PHP/Laravel.
 
-```bash
-git status
-git add .
-git commit -m "Update fitur"
-git pull origin main
-git push origin main
+---
+
+# Struktur Akun Development
+
+```text
+ADMIN
+Email    : admin@example.com
+Password : admin123
+
+DOSEN
+Email    : dosen@example.com
+Password : dosen123
+
+MAHASISWA
+Email    : mahasiswa@example.com
+Password : mahasiswa123
 ```
 
-> **Catatan:** Jangan memasukkan file `.env` ke GitHub karena file tersebut biasanya berisi konfigurasi database, password, API key, dan informasi sensitif lainnya. Pastikan `.env` sudah tercantum di `.gitignore`.
+---
 
-## Install maatwebsite/excel.
+# Catatan Keamanan
 
-aplikasi ini menggunakan file excel sebagai templating, maka perlu dilakukan instalasi maatwebsite/excel, caranya:
+Sebelum deployment production:
 
-```bash
-composer require maatwebsite/excel
-```
+1. Ganti seluruh password akun demo.
+2. Gunakan `APP_ENV=production`.
+3. Gunakan `APP_DEBUG=false`.
+4. Gunakan database production yang sesuai.
+5. Jangan commit file `.env`.
+6. Pastikan permission storage benar.
+7. Jalankan build frontend production.
+8. Pastikan akses file upload dilindungi sesuai kebutuhan aplikasi.
 
-kalau error, pstikan di composer.json seperti ini:
-```bash
-"maatwebsite/excel": "^3.1",
-```
+---
+
+# License
+
+Project dikembangkan untuk kebutuhan Learning Management System / sistem akademik.
+
