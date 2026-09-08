@@ -64,7 +64,7 @@
         <!-- ============ SIDEBAR ============ -->
         <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
             class="fixed lg:sticky top-0 left-0 h-screen w-72 shrink-0 bg-ink text-paper z-40 flex flex-col transition-transform duration-200">
-            @include('partials.student.sidebar1')
+            @include('partials.student.sidebar')
         </aside>
 
         <!-- ============ MAIN ============ -->

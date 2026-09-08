@@ -15,6 +15,10 @@ use App\Http\Controllers\StudentQuizController;
 use App\Http\Controllers\StudentAbsensiController;
 use App\Models\Absensi;
 use Illuminate\Support\Facades\Route;
+use App\Models\Matakuliah;
+use App\Models\Lecturer;
+use App\Models\Student;
+
 
 Route::get('/', function () {
     return view('layouts.lamandepan');
@@ -35,15 +39,27 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/admin/dashboard', function () {
-    return view('admin.dashboard');
+    $totalMatkul    = Matakuliah::count();
+    $totalDosen     = Lecturer::count();
+    $totalMahasiswa = Student::count();
+
+    return view('admin.dashboard', compact('totalMatkul', 'totalDosen', 'totalMahasiswa'));
 })->middleware(['auth', 'role:admin'])->name('admin.dashboard');
 
 Route::get('/lecturer/dashboard', function () {
-    return view('lecturer.dashboard');
+    $totalMatkul    = Matakuliah::count();
+    $totalDosen     = Lecturer::count();
+    $totalMahasiswa = Student::count();
+
+    return view('lecturer.dashboard', compact('totalMatkul', 'totalDosen', 'totalMahasiswa'));
 })->middleware(['auth', 'role:lecturer'])->name('lecturer.dashboard');
 
 Route::get('/student/dashboard', function () {
-    return view('student.dashboard');
+    $totalMatkul    = Matakuliah::count();
+    $totalDosen     = Lecturer::count();
+    $totalMahasiswa = Student::count();
+
+    return view('student.dashboard', compact('totalMatkul', 'totalDosen', 'totalMahasiswa'));
 })->middleware(['auth', 'role:student'])->name('student.dashboard');
 
 
@@ -87,6 +103,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::post('/matakuliah', [MatakuliahController::class, 'storeMatkul'])
         ->name('admin.tambah.matkul');
 });
+
+Route::get('/admin/matakuliah', [MatakuliahController::class, 'index'])->name('matakuliah.index');
+Route::post('/admin/matakuliah', [MatakuliahController::class, 'store'])->name('admin.tambah.matkul');
+Route::put('/admin/matakuliah/{matakuliah}', [MatakuliahController::class, 'update'])->name('matakuliah.update');
+Route::delete('/admin/matakuliah/{matakuliah}', [MatakuliahController::class, 'destroy'])->name('matakuliah.destroy');
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit_admin'])
