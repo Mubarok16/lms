@@ -13,6 +13,9 @@ use App\Models\PengajaranMahasiswa;
 use Illuminate\Support\Facades\Auth;
 use App\Models\SesiAbsensi;
 use App\Models\Tugas;
+use App\Exports\RekapNilaiExport;
+use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PengajaranController extends Controller
 {
@@ -423,5 +426,25 @@ class PengajaranController extends Controller
             'success' => true,
             'message' => 'Kelas berhasil dihapus'
         ]);
+    }
+
+
+
+    public function rekapNilai(PengajaranDosen $pengajaranDosen)
+    {
+        // Pastikan pengajaranDosen ini milik dosen yang sedang login
+        abort_unless(
+            $pengajaranDosen->dosen_id === auth()->user()->lecturer->id,
+            403
+        );
+
+        $pengajaranDosen->load('kelas.matakuliah');
+
+        $namaMk = $pengajaranDosen->kelas->matakuliah->nama_mk;
+        $kodeKelas = $pengajaranDosen->kelas->kode_kelas;
+
+        $fileName = 'Rekap-Nilai-' . Str::slug($namaMk) . '-' . $kodeKelas . '-' . now()->format('Ymd_His') . '.xlsx';
+
+        return Excel::download(new RekapNilaiExport($pengajaranDosen->id), $fileName);
     }
 }

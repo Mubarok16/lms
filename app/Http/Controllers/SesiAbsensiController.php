@@ -11,12 +11,6 @@ use Illuminate\Support\Str;
 
 class SesiAbsensiController extends Controller
 {
-    private function authorizeSesi(SesiAbsensi $sesi): void
-    {
-        $lecturer = Auth::user()->lecturer;
-        abort_unless($lecturer && (int)$sesi->dosen_id === (int)$lecturer->id, 403);
-    }
-
     public function store(Request $request, $pengajaran)
     {
         $request->validate([
@@ -64,13 +58,11 @@ class SesiAbsensiController extends Controller
 
     public function show(SesiAbsensi $sesi)
     {
-        $this->authorizeSesi($sesi);
         return view('lecturer.absensi.show', compact('sesi'));
     }
 
     public function tutup(SesiAbsensi $sesi)
     {
-        $this->authorizeSesi($sesi);
         $sesi->update(['ditutup_pada' => now()]);
 
         return back()->with('success', 'Sesi absensi ditutup.');
@@ -78,7 +70,6 @@ class SesiAbsensiController extends Controller
 
     public function count(SesiAbsensi $sesi)
     {
-        $this->authorizeSesi($sesi);
         return response()->json([
             'total' => $sesi->absensi()->count(),
         ]);
@@ -86,7 +77,6 @@ class SesiAbsensiController extends Controller
 
     public function rekap(SesiAbsensi $sesi)
     {
-        $this->authorizeSesi($sesi);
         $sesi->load(['kelas.matakuliah', 'kelas.mahasiswa.user', 'absensi']);
 
         return view('lecturer.absensi.rekap', compact('sesi'));

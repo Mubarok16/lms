@@ -6,20 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Tugas;
 use App\Models\TugasJawaban;
 use App\Models\TugasJawabanFile;
+use App\Models\PengajaranMahasiswa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class TugasController extends Controller
 {
-    private function authorizeTugas(Tugas $tugas): void
-    {
-        $student = auth()->user()->student;
-        abort_unless($student, 403);
-        $tugas->loadMissing('pengajaranDosen');
-        $ok = \App\Models\PengajaranMahasiswa::where('kelas_id',$tugas->pengajaranDosen->kelas_id)->where('mahasiswa_id',$student->id)->exists();
-        abort_unless($ok, 403);
-    }
-
     public function show(Tugas $tugas)
     {
         $this->authorizeTugas($tugas);
@@ -38,9 +30,6 @@ class TugasController extends Controller
     public function submit(Request $request, Tugas $tugas)
     {
         $this->authorizeTugas($tugas);
-        if ($tugas->deadline && now()->greaterThan($tugas->deadline)) {
-            return back()->with('error', 'Deadline tugas sudah lewat.');
-        }
         $request->validate([
             'files'   => 'required|array|min:1',
             'files.*' => 'file|mimes:pdf,jpg,jpeg,png|max:10240', // max 10MB/file
@@ -85,4 +74,19 @@ class TugasController extends Controller
             ->route('student.tugas.show', $tugas)
             ->with('success', 'Jawaban berhasil dikumpulkan.');
     }
+    private function authorizeTugas(Tugas $tugas): void
+    {
+        $student = auth()->user()->student;
+        abort_unless($student, 403, 'Akun ini tidak terdaftar sebagai mahasiswa.');
+
+        $tugas->loadMissing('pengajaranDosen');
+        abort_unless(
+            PengajaranMahasiswa::where('kelas_id', $tugas->pengajaranDosen->kelas_id)
+                ->where('mahasiswa_id', $student->id)
+                ->exists(),
+            403,
+            'Kamu tidak terdaftar pada kelas tugas ini.'
+        );
+    }
+
 }

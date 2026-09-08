@@ -9,8 +9,15 @@ class ProdiSeeder extends Seeder
 {
     public function run(): void
     {
-        foreach (['Teknik Komputer','Teknik Sipil','Teknik Lingkungan'] as $nama) {
-            Prodi::firstOrCreate(['nama_prodi'=>$nama]);
+        foreach ([
+            'Teknik Komputer',
+            'Teknik Sipil',
+            'Teknik Lingkungan',
+        ] as $namaProdi) {
+            Prodi::updateOrCreate(
+                ['nama_prodi' => $namaProdi],
+                []
+            );
         }
     }
 }

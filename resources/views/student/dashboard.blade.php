@@ -1,59 +1,64 @@
 @extends('student.app-student')
-@section('ketjudul')
-Dashboard
-@endsection
-
-@section('judul')
-Ringkasan E-Learning UNWIR
-@endsection
-
+@section('ketjudul', 'Dashboard')
+@section('judul', 'Ringkasan Belajar Saya')
 @section('content')
+<div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+    <a href="{{ route('student.matakuliah.index') }}" class="rounded-2xl border border-line bg-white p-6 shadow-sm transition hover:shadow-md">
+        <p class="text-xs font-mono uppercase tracking-wide text-ink/45">Mata Kuliah</p>
+        <p class="mt-4 font-display text-3xl font-semibold">{{ $totalMatkul }}</p>
+        <p class="mt-1 text-sm text-ink/50">Mata kuliah yang diikuti</p>
+    </a>
+    <a href="{{ route('student.akademik.tugas.index') }}" class="rounded-2xl border border-line bg-white p-6 shadow-sm transition hover:shadow-md">
+        <p class="text-xs font-mono uppercase tracking-wide text-ink/45">Tugas</p>
+        <p class="mt-4 font-display text-3xl font-semibold">{{ $pendingTugas }}</p>
+        <p class="mt-1 text-sm text-ink/50">Belum dikumpulkan</p>
+    </a>
+    <a href="{{ route('student.akademik.quiz.index') }}" class="rounded-2xl border border-line bg-white p-6 shadow-sm transition hover:shadow-md">
+        <p class="text-xs font-mono uppercase tracking-wide text-ink/45">Quiz</p>
+        <p class="mt-4 font-display text-3xl font-semibold">{{ $pendingQuiz }}</p>
+        <p class="mt-1 text-sm text-ink/50">Belum dikerjakan</p>
+    </a>
+    <a href="{{ route('student.akademik.nilai.index') }}" class="rounded-2xl border border-line bg-white p-6 shadow-sm transition hover:shadow-md">
+        <p class="text-xs font-mono uppercase tracking-wide text-ink/45">Rata-rata Nilai</p>
+        <p class="mt-4 font-display text-3xl font-semibold">{{ $nilaiRataRata !== null ? number_format((float)$nilaiRataRata, 2) : '-' }}</p>
+        <p class="mt-1 text-sm text-ink/50">Rata-rata tugas dan quiz yang sudah dinilai</p>
+    </a>
+</div>
 
-<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="mt-8 grid gap-6 xl:grid-cols-2">
+    <section class="overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
+        <div class="flex items-center justify-between border-b border-line p-5">
+            <div><h2 class="font-display text-lg font-semibold">Tugas yang Perlu Dikerjakan</h2><p class="mt-1 text-xs text-ink/45">Tugas yang belum kamu submit.</p></div>
+            <a href="{{ route('student.akademik.tugas.index') }}" class="text-sm font-semibold text-teal">Lihat semua</a>
+        </div>
+        <div class="divide-y divide-line">
+            @forelse($tugasTerbaru as $tugas)
+                <a href="{{ route('student.tugas.show', $tugas) }}" class="block p-5 transition hover:bg-paper">
+                    <div class="flex items-start justify-between gap-4">
+                        <div><p class="font-semibold">{{ $tugas->judul }}</p><p class="mt-1 text-xs text-ink/45">{{ $tugas->pengajaranDosen->kelas->matakuliah->nama_mk ?? '-' }} · Kelas {{ $tugas->pengajaranDosen->kelas->kode_kelas ?? '-' }}</p></div>
+                        <span class="shrink-0 rounded-full bg-yellow-50 px-3 py-1 text-xs font-semibold text-yellow-700">{{ $tugas->deadline?->format('d M H:i') ?? 'Tanpa deadline' }}</span>
+                    </div>
+                </a>
+            @empty
+                <div class="p-8 text-center text-sm text-ink/50">Tidak ada tugas yang belum dikumpulkan.</div>
+            @endforelse
+        </div>
+    </section>
 
-  <div class="bg-white border border-line rounded-2xl p-6">
-    <div class="flex items-center justify-between">
-      <div class="w-11 h-11 rounded-lg bg-teal/10 flex items-center justify-center">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="1.8">
-          <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
-        </svg>
-      </div>
-      <span class="text-xs font-mono px-2 py-1 rounded-full bg-teal/10 text-teal">Ganjil 2025/2026</span>
-    </div>
-    <p class="font-display text-3xl font-semibold mt-5">{{ \App\Models\PengajaranMahasiswa::where('mahasiswa_id', auth()->user()->student?->id)->count() }}</p>
-    <p class="text-sm text-ink/55 mt-1">Mata Kuliah Aktif</p>
-  </div>
-
-  <div class="bg-white border border-line rounded-2xl p-6">
-    <div class="flex items-center justify-between">
-      <div class="w-11 h-11 rounded-lg bg-coral/10 flex items-center justify-center">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" stroke-width="1.8">
-          <path d="M20 21v-2a4 4 0 00-3-3.87" />
-          <path d="M14 3.13a4 4 0 010 7.75" />
-          <circle cx="9" cy="7" r="4" />
-          <path d="M2 21v-2a4 4 0 013-3.87" />
-        </svg>
-      </div>
-      <span class="text-xs font-mono px-2 py-1 rounded-full bg-coral/10 text-coral">6 Fakultas</span>
-    </div>
-    <p class="font-display text-3xl font-semibold mt-5">{{ \App\Models\Tugas::whereIn('pengajaran_dosen_id', \App\Models\PengajaranDosen::whereIn('kelas_id', \App\Models\PengajaranMahasiswa::where('mahasiswa_id', auth()->user()->student?->id)->pluck('kelas_id'))->pluck('id'))->count() }}</p>
-    <p class="text-sm text-ink/55 mt-1">Dosen Pengajar</p>
-  </div>
-
-  <div class="bg-white border border-line rounded-2xl p-6">
-    <div class="flex items-center justify-between">
-      <div class="w-11 h-11 rounded-lg bg-amber/15 flex items-center justify-center">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F2A4D" stroke-width="1.8">
-          <path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z" />
-          <path d="M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5" />
-        </svg>
-      </div>
-      <span class="text-xs font-mono px-2 py-1 rounded-full bg-amber/15 text-ink">Aktif</span>
-    </div>
-    <p class="font-display text-3xl font-semibold mt-5">{{ \App\Models\QuizJawaban::where('mahasiswa_id', auth()->user()->student?->id)->count() }}</p>
-    <p class="text-sm text-ink/55 mt-1">Mahasiswa Terdaftar</p>
-  </div>
-
+    <section class="overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
+        <div class="flex items-center justify-between border-b border-line p-5">
+            <div><h2 class="font-display text-lg font-semibold">Quiz yang Tersedia</h2><p class="mt-1 text-xs text-ink/45">Quiz published yang belum kamu kerjakan.</p></div>
+            <a href="{{ route('student.akademik.quiz.index') }}" class="text-sm font-semibold text-teal">Lihat semua</a>
+        </div>
+        <div class="divide-y divide-line">
+            @forelse($quizTerbaru as $quiz)
+                <a href="{{ route('student.quiz.show', $quiz) }}" class="block p-5 transition hover:bg-paper">
+                    <div class="flex items-start justify-between gap-4"><div><p class="font-semibold">{{ $quiz->judul }}</p><p class="mt-1 text-xs text-ink/45">{{ $quiz->pengajaranDosen->kelas->matakuliah->nama_mk ?? '-' }} · Kelas {{ $quiz->pengajaranDosen->kelas->kode_kelas ?? '-' }}</p></div>@if($quiz->durasi_menit)<span class="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">{{ $quiz->durasi_menit }} menit</span>@endif</div>
+                </a>
+            @empty
+                <div class="p-8 text-center text-sm text-ink/50">Tidak ada quiz yang belum dikerjakan.</div>
+            @endforelse
+        </div>
+    </section>
 </div>
 @endsection

@@ -12,20 +12,10 @@ use Illuminate\Support\Facades\Storage;
 
 class TugasController extends Controller
 {
-    private function authorizeTeaching(PengajaranDosen $pengajaranDosen): void
-    {
-        abort_unless(auth()->user()->lecturer && $pengajaranDosen->dosen_id === auth()->user()->lecturer->id, 403);
-    }
-
-    private function authorizeTugas(Tugas $tugas): void
-    {
-        $tugas->loadMissing('pengajaranDosen');
-        abort_unless(auth()->user()->lecturer && $tugas->pengajaranDosen->dosen_id === auth()->user()->lecturer->id, 403);
-    }
-
     public function create(PengajaranDosen $pengajaranDosen)
     {
-        $this->authorizeTeaching($pengajaranDosen);
+        $this->authorizePengajaran($pengajaranDosen);
+        // load relasi supaya tahu ini tugas untuk kelas/matkul apa
         $pengajaranDosen->load('kelas.matakuliah');
 
         return view('lecturer.tugas.create', compact('pengajaranDosen'));
@@ -33,7 +23,7 @@ class TugasController extends Controller
 
     public function store(Request $request, PengajaranDosen $pengajaranDosen)
     {
-        $this->authorizeTeaching($pengajaranDosen);
+        $this->authorizePengajaran($pengajaranDosen);
         $validated = $request->validate([
             'judul'       => 'required|string|max:255',
             'deskripsi'   => 'nullable|string',
@@ -68,7 +58,7 @@ class TugasController extends Controller
         }
 
         return redirect()
-            ->route('lecturer.pengajaran.show', $pengajaranDosen->kelas_id) // sesuaikan dengan route show kamu
+            ->route('pengajaran.show', $pengajaranDosen->kelas_id) // sesuaikan dengan route show kamu
             ->with('success', 'Tugas berhasil ditambahkan.');
     }
     public function edit(Tugas $tugas)
@@ -131,14 +121,13 @@ class TugasController extends Controller
         }
 
         return redirect()
-            ->route('lecturer.pengajaran.show', ['id' => $tugas->pengajaranDosen->kelas_id])
+            ->route('pengajaran.show', ['id' => $tugas->pengajaranDosen->kelas_id])
             ->with('success', 'Tugas berhasil diperbarui.');
     }
 
     public function destroy(Tugas $tugas)
     {
         $this->authorizeTugas($tugas);
-        $kelasId = $tugas->pengajaranDosen->kelas_id;
         foreach ($tugas->files as $file) {
             Storage::disk('public')->delete($file->file_path);
         }
@@ -146,7 +135,7 @@ class TugasController extends Controller
         $tugas->delete();
 
         return redirect()
-            ->route('lecturer.pengajaran.show', ['id' => $kelasId])
+            ->route('pengajaran.show', ['id' => $tugas->pengajaranDosen->kelas_id])
             ->with('success', 'Tugas berhasil dihapus.');
     }
     public function show(Tugas $tugas)
@@ -154,63 +143,67 @@ class TugasController extends Controller
         $this->authorizeTugas($tugas);
         $tugas->load(['files', 'pengajaranDosen.kelas.matakuliah']);
 
-        // Tampilkan hanya submission yang benar-benar sudah dikirim mahasiswa.
-        $jawabanList = TugasJawaban::with(['mahasiswa.user', 'files'])
+        return view('lecturer.tugas.show', compact('tugas'));
+    }
+
+    // ... di dalam class TugasController (lecturer)
+
+    public function jawabanIndex(Tugas $tugas)
+    {
+        $this->authorizeTugas($tugas);
+        $tugas->load('pengajaranDosen');
+
+        $jawabanList = TugasJawaban::with('mahasiswa.user', 'files')
             ->where('tugas_id', $tugas->id)
-            ->whereNotNull('waktu_submit')
-            ->orderByRaw("CASE status WHEN 'menunggu_koreksi' THEN 1 WHEN 'sudah_dikoreksi' THEN 2 ELSE 3 END")
+            ->orderByRaw("CASE status WHEN 'menunggu_koreksi' THEN 1 WHEN 'sudah_dikoreksi' THEN 2 WHEN 'belum_submit' THEN 3 ELSE 4 END")
             ->orderBy('waktu_submit')
             ->get();
 
-        return view('lecturer.tugas.show', compact('tugas', 'jawabanList'));
+        return view('lecturer.tugas.jawaban-index', compact('tugas', 'jawabanList'));
     }
 
-// ... di dalam class TugasController (lecturer)
+    public function jawabanShow(Tugas $tugas, TugasJawaban $jawaban)
+    {
+        $this->authorizeTugas($tugas);
+        abort_if($jawaban->tugas_id !== $tugas->id, 404);
 
-public function jawabanIndex(Tugas $tugas)
-{
-    $this->authorizeTugas($tugas);
-    $tugas->load('pengajaranDosen');
+        $jawaban->load('mahasiswa.user', 'files');
 
-    $jawabanList = TugasJawaban::with('mahasiswa.user', 'files')
-        ->where('tugas_id', $tugas->id)
-        ->orderByRaw("CASE status WHEN 'menunggu_koreksi' THEN 1 WHEN 'sudah_dikoreksi' THEN 2 WHEN 'belum_submit' THEN 3 ELSE 4 END")
-        ->orderBy('waktu_submit')
-        ->get();
+        return view('lecturer.tugas.jawaban-show', compact('tugas', 'jawaban'));
+    }
 
-    return view('lecturer.tugas.jawaban-index', compact('tugas', 'jawabanList'));
-}
+    public function koreksi(Request $request, Tugas $tugas, TugasJawaban $jawaban)
+    {
+        $this->authorizeTugas($tugas);
+        abort_if($jawaban->tugas_id !== $tugas->id, 404);
 
-public function jawabanShow(Tugas $tugas, TugasJawaban $jawaban)
-{
-    $this->authorizeTugas($tugas);
-    abort_if($jawaban->tugas_id !== $tugas->id, 404);
+        $request->validate([
+            'skor'            => 'required|numeric|min:0|max:100',
+            'catatan_koreksi' => 'nullable|string|max:2000',
+        ]);
 
-    $jawaban->load('mahasiswa.user', 'files');
+        $jawaban->update([
+            'skor'            => $request->skor,
+            'catatan_koreksi' => $request->catatan_koreksi,
+            'status'          => 'sudah_dikoreksi',
+            'dikoreksi_oleh'  => auth()->user()->lecturer->id, // sesuaikan relasi user->lecturer Anda
+            'dikoreksi_at'    => now(),
+        ]);
 
-    return view('lecturer.tugas.jawaban-show', compact('tugas', 'jawaban'));
-}
+        return redirect()
+            ->route('lecturer.tugas.jawaban.index', $tugas)
+            ->with('success', 'Koreksi berhasil disimpan.');
+    }
+    private function authorizePengajaran(PengajaranDosen $pengajaranDosen): void
+    {
+        $lecturer = auth()->user()->lecturer;
+        abort_unless($lecturer && (int) $pengajaranDosen->dosen_id === (int) $lecturer->id, 403, 'Anda tidak mengampu mata kuliah ini.');
+    }
 
-public function koreksi(Request $request, Tugas $tugas, TugasJawaban $jawaban)
-{
-    $this->authorizeTugas($tugas);
-    abort_if($jawaban->tugas_id !== $tugas->id, 404);
+    private function authorizeTugas(Tugas $tugas): void
+    {
+        $tugas->loadMissing('pengajaranDosen');
+        $this->authorizePengajaran($tugas->pengajaranDosen);
+    }
 
-    $request->validate([
-        'skor'            => 'required|numeric|min:0|max:100',
-        'catatan_koreksi' => 'nullable|string|max:2000',
-    ]);
-
-    $jawaban->update([
-        'skor'            => $request->skor,
-        'catatan_koreksi' => $request->catatan_koreksi,
-        'status'          => 'sudah_dikoreksi',
-        'dikoreksi_oleh'  => auth()->user()->lecturer->id, // sesuaikan relasi user->lecturer Anda
-        'dikoreksi_at'    => now(),
-    ]);
-
-    return redirect()
-        ->route('lecturer.tugas.jawaban.index', $tugas)
-        ->with('success', 'Koreksi berhasil disimpan.');
-}
 }

@@ -37,13 +37,13 @@ class PengajaranDosen extends Model
         return $this->hasMany(Materi::class, 'pengajaran_id');
     }
 
-    public function tugas()
-    {
-        return $this->hasMany(Tugas::class, 'pengajaran_dosen_id');
-    }
-
     public function quizzes()
     {
         return $this->hasMany(Quiz::class, 'pengajaran_dosen_id');
+    }
+
+    public function tugas()
+    {
+        return $this->hasMany(Tugas::class, 'pengajaran_dosen_id');
     }
 }

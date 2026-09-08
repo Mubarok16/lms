@@ -32,19 +32,141 @@
   </div>
 </div>
 
-<!-- Navigasi utama -->
-<nav class="flex-1 overflow-y-auto px-4 py-5">
+<!-- Navigasi utama + daftar isi kursus -->
+<nav class="flex-1 overflow-y-auto px-4 py-5 space-y-6">
+
   <div class="space-y-1">
-    <a href="{{ route('student.dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('student.dashboard') ? 'bg-white/10 text-paper' : 'text-paper/70 hover:bg-white/5 hover:text-paper' }} text-sm font-medium transition-colors">Dashboard</a>
-    <a href="{{ route('student.matakuliah.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-paper/70 hover:bg-white/5 hover:text-paper text-sm font-medium transition-colors">Mata Kuliah Saya</a>
-    <a href="{{ route('student.tugas.kuis') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-paper/70 hover:bg-white/5 hover:text-paper text-sm font-medium transition-colors">Tugas & Kuis</a>
-    <a href="{{ route('student.nilai') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-paper/70 hover:bg-white/5 hover:text-paper text-sm font-medium transition-colors">Nilai</a>
-    <a href="{{ route('jadwal.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-paper/70 hover:bg-white/5 hover:text-paper text-sm font-medium transition-colors">Jadwal Kuliah</a>
-    <a href="{{ route('messages.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-paper/70 hover:bg-white/5 hover:text-paper text-sm font-medium transition-colors">Pesan</a>
-    <a href="{{ route('student.absensi.scan') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-paper/70 hover:bg-white/5 hover:text-paper text-sm font-medium transition-colors">Scan Absensi</a>
+    <a href="{{ route('student.dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white/10 text-paper text-sm font-medium">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <rect x="3" y="3" width="7" height="9" rx="1.5" />
+        <rect x="14" y="3" width="7" height="5" rx="1.5" />
+        <rect x="14" y="12" width="7" height="9" rx="1.5" />
+        <rect x="3" y="16" width="7" height="5" rx="1.5" />
+      </svg>
+      Dashboard
+    </a>
+    <a href="{{ route('student.matakuliah.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-paper/70 hover:bg-white/5 hover:text-paper text-sm font-medium transition-colors">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
+      </svg>
+      Mata Kuliah Saya
+    </a>
+    <a href="{{ route('student.akademik.tugas.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-paper/70 hover:bg-white/5 hover:text-paper text-sm font-medium transition-colors">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M9 11l3 3L22 4" />
+        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+      </svg>
+      Tugas
+    </a>
+    <a href="{{ route('student.akademik.quiz.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-paper/70 hover:bg-white/5 hover:text-paper text-sm font-medium transition-colors">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M9.5 9a2.7 2.7 0 015.1 1.2c0 1.8-2.6 2-2.6 3.6M12 17h.01" />
+      </svg>
+      Quiz
+    </a>
+    <a href="{{ route('student.akademik.nilai.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-paper/70 hover:bg-white/5 hover:text-paper text-sm font-medium transition-colors">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M3 3v18h18" />
+        <path d="M7 15l4-6 3 4 5-8" />
+      </svg>
+      Nilai
+    </a>
+    <a href="{{ route('jadwal.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-paper/70 hover:bg-white/5 hover:text-paper text-sm font-medium transition-colors">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+        <path d="M3 10h18M8 2v4M16 2v4" />
+      </svg>
+      Jadwal Kuliah
+    </a>
+    <a href="{{ route('chat.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-paper/70 hover:bg-white/5 hover:text-paper text-sm font-medium transition-colors">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+      </svg>
+      Pesan
+    </a>
+    @include('partials.chat-course-links')
   </div>
+
+  @php
+  // Asumsi total pertemuan per semester untuk hitung progres.
+  // Ganti angka ini kalau ada kolom "total_pertemuan" di tabel kelas/matakuliah.
+  $totalPertemuan = 16;
+  $jumlahMateri = $materiList->count();
+  $progress = $totalPertemuan > 0
+  ? min(100, round(($jumlahMateri / $totalPertemuan) * 100))
+  : 0;
+  @endphp
+
+  <!-- Kursus yang sedang dibuka -->
+  <div>
+    <button @click="courseOpen = !courseOpen" class="w-full flex items-center gap-2 px-3 mb-2 text-[11px] font-mono uppercase tracking-wider text-paper/40">
+      <span>Sedang Dibuka</span>
+      <svg :class="courseOpen ? 'rotate-90' : ''" class="ml-auto transition-transform" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M4 2l4 4-4 4" />
+      </svg>
+    </button>
+
+    <div x-show="courseOpen" x-cloak class="rounded-xl bg-white/5 border border-white/10 p-3">
+      <p class="text-sm font-medium leading-snug">{{ $kelas->matakuliah->nama_mk }}</p>
+      <p class="text-[11px] text-paper/40 font-mono mt-0.5 mb-3">
+        {{ $mahasiswa->study_program ?? '-' }} · Semester {{ $mahasiswa->semester ?? '-' }} · {{ $kelas->matakuliah->sks }} SKS
+      </p>
+
+      <ol class="space-y-0.5">
+        @forelse($materiList as $index => $materi)
+        <li>
+          <span class="flex items-center gap-2.5 px-2 py-1.5 rounded-md text-paper/60 text-[13px]">
+            <span class="w-4 h-4 rounded-full bg-teal/40 flex items-center justify-center shrink-0">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                <path d="M20 6L9 17l-5-5" />
+              </svg>
+            </span>
+            {{ $materi->judul ?? 'Materi ' . ($index + 1) }}
+          </span>
+        </li>
+        @empty
+        <li class="px-2 py-1.5 text-[13px] text-paper/40">Belum ada materi untuk kelas ini.</li>
+        @endforelse
+      </ol>
+
+      <div class="mt-3 pt-3 border-t border-white/10">
+        <div class="flex items-center justify-between text-[11px] text-paper/40 mb-1.5 font-mono">
+          <span>PROGRES</span><span>{{ $progress }}%</span>
+        </div>
+        <div class="h-1.5 bg-white/10 rounded-full overflow-hidden">
+          <div class="h-full bg-amber rounded-full" style="width:{{ $progress }}%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </nav>
+
+<!-- Bottom -->
 <div class="px-4 py-4 border-t border-white/10 shrink-0 space-y-1">
-  <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-paper/70 hover:bg-white/5 hover:text-paper text-sm font-medium transition-colors">Pengaturan</a>
-  <form action="{{ route('logout') }}" method="POST">@csrf<button type="submit" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-paper/70 hover:bg-white/5 hover:text-paper text-sm font-medium transition-colors">Keluar</button></form>
+  <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-paper/70 hover:bg-white/5 hover:text-paper text-sm font-medium transition-colors">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9c.36.15.68.4.9.72" />
+    </svg>
+    Pengaturan
+  </a>
+  <form id="logout-form" method="POST" action="{{ route('logout') }}">
+    @csrf
+
+    <a href="{{ route('logout') }}"
+      onclick="event.preventDefault(); this.closest('form').submit();"
+      class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-paper/70 hover:bg-white/5 hover:text-paper text-sm font-medium transition-colors">
+
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+        <path d="M16 17l5-5-5-5" />
+        <path d="M21 12H9" />
+      </svg>
+
+      Keluar
+    </a>
+  </form>
 </div>
