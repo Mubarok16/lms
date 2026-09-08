@@ -50,4 +50,14 @@ class Kelas extends Model
             'mahasiswa_id'
         )->withTimestamps();
     }
+    public function chats()
+    {
+        return $this->hasMany(CourseChat::class, 'kelas_id');
+    }
+
+    public function jadwal()
+    {
+        return $this->hasMany(JadwalMatakuliah::class, 'kelas_id');
+    }
+
 }

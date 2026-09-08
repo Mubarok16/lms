@@ -21,7 +21,12 @@ use App\Models\Lecturer;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\CourseChatController;
+use App\Http\Controllers\JadwalMatakuliahController;
+use App\Http\Controllers\Lecturer\AkademikController as LecturerAkademikController;
+use App\Http\Controllers\Student\AkademikController as StudentAkademikController;
 use App\Models\PengajaranMahasiswa;
+
 
 Route::get('/', function () {
 
@@ -88,11 +93,59 @@ Route::get('/lecturer/dashboard', function () {
 })->middleware(['auth', 'role:lecturer'])->name('lecturer.dashboard');
 
 Route::get('/student/dashboard', function () {
-    $totalMatkul    = Matakuliah::count();
-    $totalDosen     = Lecturer::count();
-    $totalMahasiswa = Student::count();
+    $mahasiswa = Auth::user()->student;
+    abort_unless($mahasiswa, 403, 'Akun ini tidak terdaftar sebagai mahasiswa.');
 
-    return view('student.dashboard', compact('totalMatkul', 'totalDosen', 'totalMahasiswa'));
+    $kelasIds = PengajaranMahasiswa::where('mahasiswa_id', $mahasiswa->id)->pluck('kelas_id');
+    $pengajaranIds = \App\Models\PengajaranDosen::whereIn('kelas_id', $kelasIds)->pluck('id');
+
+    $totalMatkul = $kelasIds->unique()->count();
+
+    $pendingTugas = \App\Models\Tugas::whereIn('pengajaran_dosen_id', $pengajaranIds)
+        ->whereDoesntHave('jawaban', fn ($q) => $q->where('mahasiswa_id', $mahasiswa->id))
+        ->count();
+
+    $pendingQuiz = \App\Models\Quiz::whereIn('pengajaran_dosen_id', $pengajaranIds)
+        ->where('is_published', true)
+        ->whereDoesntHave('jawaban', fn ($q) => $q->where('mahasiswa_id', $mahasiswa->id))
+        ->count();
+
+    $tugasAvg = \App\Models\TugasJawaban::where('mahasiswa_id', $mahasiswa->id)
+        ->whereNotNull('skor')
+        ->whereHas('tugas', fn ($q) => $q->whereIn('pengajaran_dosen_id', $pengajaranIds))
+        ->avg('skor');
+
+    $quizAvg = \App\Models\QuizJawaban::where('mahasiswa_id', $mahasiswa->id)
+        ->whereNotNull('skor')
+        ->whereHas('quiz', fn ($q) => $q->whereIn('pengajaran_dosen_id', $pengajaranIds))
+        ->avg('skor');
+
+    $nilaiRataRata = collect([$tugasAvg, $quizAvg])->filter(fn ($v) => $v !== null)->avg();
+
+    $tugasTerbaru = \App\Models\Tugas::whereIn('pengajaran_dosen_id', $pengajaranIds)
+        ->with('pengajaranDosen.kelas.matakuliah')
+        ->whereDoesntHave('jawaban', fn ($q) => $q->where('mahasiswa_id', $mahasiswa->id))
+        ->orderByRaw('CASE WHEN deadline IS NULL THEN 1 ELSE 0 END')
+        ->orderBy('deadline')
+        ->take(5)
+        ->get();
+
+    $quizTerbaru = \App\Models\Quiz::whereIn('pengajaran_dosen_id', $pengajaranIds)
+        ->where('is_published', true)
+        ->with('pengajaranDosen.kelas.matakuliah')
+        ->whereDoesntHave('jawaban', fn ($q) => $q->where('mahasiswa_id', $mahasiswa->id))
+        ->latest()
+        ->take(5)
+        ->get();
+
+    return view('student.dashboard', compact(
+        'totalMatkul',
+        'pendingTugas',
+        'pendingQuiz',
+        'nilaiRataRata',
+        'tugasTerbaru',
+        'quizTerbaru'
+    ));
 })->middleware(['auth', 'role:student'])->name('student.dashboard');
 
 
@@ -217,7 +270,7 @@ Route::delete('/kelas/{id}', [PengajaranController::class, 'destroy'])->name('ke
 
 
 
-Route::prefix('lecturer')->name('lecturer.')->group(function () {
+Route::middleware(['auth', 'role:lecturer'])->prefix('lecturer')->name('lecturer.')->group(function () {
 
     // Form tambah materi (untuk pengajaran tertentu)
     Route::get('/pengajaran/{pengajaran}/materi/create', [MateriController::class, 'create'])
@@ -266,7 +319,7 @@ Route::get('absensi/scan/{token}', [AbsensiController::class, 'scan'])
     ->middleware('auth')
     ->name('mahasiswa.absensi.scan');
 
-Route::prefix('quiz')->name('lecturer.quiz.')->group(function () {
+Route::middleware(['auth', 'role:lecturer'])->prefix('quiz')->name('lecturer.quiz.')->group(function () {
     Route::get('/{pengajaranDosen}', [QuizController::class, 'index'])->name('index');
     Route::get('/{pengajaranDosen}/create', [QuizController::class, 'create'])->name('create');
     Route::post('/{pengajaranDosen}', [QuizController::class, 'store'])->name('store');
@@ -277,10 +330,11 @@ Route::prefix('quiz')->name('lecturer.quiz.')->group(function () {
 });
 
 Route::post('lecturer/quiz/question/{quizQuestion}/gambar', [QuizController::class, 'uploadGambarSoal'])
+    ->middleware(['auth', 'role:lecturer'])
     ->name('lecturer.quiz.question.gambar');
 
 
-Route::prefix('lecturer')->name('lecturer.')->group(function () {
+Route::middleware(['auth', 'role:lecturer'])->prefix('lecturer')->name('lecturer.')->group(function () {
     // ...route lain yang sudah ada (materi, quiz, dll)
 
     Route::get('tugas/create/{pengajaranDosen}', [LecturerTugasController::class, 'create'])
@@ -317,6 +371,7 @@ Route::prefix('lecturer')->name('lecturer.')->group(function () {
         ->name('profile.update');
 });
 Route::get('lecturer/tugas/{tugas}', [LecturerTugasController::class, 'show'])
+    ->middleware(['auth', 'role:lecturer'])
     ->name('lecturer.tugas.show');
 
 
@@ -327,9 +382,11 @@ Route::get('student/matakuliah/{kelas}', [MatakuliahController::class, 'show'])
     ->name('student.matakuliah.show');
 
 Route::get('student/quiz/{quiz}', [StudentQuizController::class, 'show'])
+    ->middleware(['auth', 'role:student'])
     ->name('student.quiz.show');
 
 Route::post('student/quiz/{quiz}/submit', [StudentQuizController::class, 'submit'])
+    ->middleware(['auth', 'role:student'])
     ->name('student.quiz.submit');
 
 Route::get('student/absensi/scan', [StudentAbsensiController::class, 'scan'])
@@ -389,5 +446,58 @@ Route::get(
     '/lecturer/pengajaran/{pengajaranDosen}/absensi/rekap/export',
     [AbsensiController::class, 'exportRekap']
 )->name('lecturer.absensi.rekapSemua.export');
+
+
+// =========================================================
+// CHAT MATA KULIAH & JADWAL
+// =========================================================
+Route::middleware('auth')->group(function () {
+    Route::get('/chat', [CourseChatController::class, 'index'])->name('chat.index');
+    Route::get('/chat/{kelas}', [CourseChatController::class, 'show'])->name('chat.show');
+    Route::post('/chat/{kelas}', [CourseChatController::class, 'store'])->name('chat.store');
+    Route::get('/chat/{kelas}/messages', [CourseChatController::class, 'messages'])->name('chat.messages');
+
+    Route::get('/jadwal', [JadwalMatakuliahController::class, 'index'])->name('jadwal.index');
+});
+
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::post('/jadwal', [JadwalMatakuliahController::class, 'store'])->name('jadwal.store');
+    Route::put('/jadwal/{jadwal}', [JadwalMatakuliahController::class, 'update'])->name('jadwal.update');
+    Route::delete('/jadwal/{jadwal}', [JadwalMatakuliahController::class, 'destroy'])->name('jadwal.destroy');
+    Route::post('/jadwal/import', [JadwalMatakuliahController::class, 'import'])->name('jadwal.import');
+    Route::get('/jadwal/template', [JadwalMatakuliahController::class, 'template'])->name('jadwal.template');
+});
+
+
+// =========================================================
+// AKADEMIK DOSEN — TUGAS, QUIZ, NILAI
+// =========================================================
+Route::middleware(['auth', 'role:lecturer'])->prefix('lecturer')->name('lecturer.akademik.')->group(function () {
+    Route::get('/tugas-menu', [LecturerAkademikController::class, 'tugasCourses'])->name('tugas.courses');
+    Route::get('/tugas-menu/{pengajaranDosen}', [LecturerAkademikController::class, 'tugasList'])->name('tugas.list');
+
+    Route::get('/quiz-menu', [LecturerAkademikController::class, 'quizCourses'])->name('quiz.courses');
+    Route::get('/quiz-menu/{pengajaranDosen}', [LecturerAkademikController::class, 'quizList'])->name('quiz.list');
+    Route::get('/quiz-jawaban/{quiz}', [LecturerAkademikController::class, 'quizJawabanIndex'])->name('quiz.jawaban.index');
+    Route::get('/quiz-jawaban/{quiz}/{jawaban}', [LecturerAkademikController::class, 'quizJawabanShow'])->name('quiz.jawaban.show');
+
+    Route::get('/nilai-menu', [LecturerAkademikController::class, 'nilaiCourses'])->name('nilai.courses');
+    Route::get('/nilai-menu/{pengajaranDosen}', [LecturerAkademikController::class, 'nilaiStudents'])->name('nilai.students');
+    Route::get('/nilai-menu/{pengajaranDosen}/mahasiswa/{student}', [LecturerAkademikController::class, 'nilaiStudent'])->name('nilai.student');
+});
+
+// =========================================================
+// AKADEMIK MAHASISWA — TUGAS, QUIZ, NILAI
+// =========================================================
+Route::middleware(['auth', 'role:student'])->prefix('student/akademik')->name('student.akademik.')->group(function () {
+    Route::get('/tugas', [StudentAkademikController::class, 'tugasIndex'])->name('tugas.index');
+    Route::get('/tugas/kelas/{kelas}', [StudentAkademikController::class, 'tugasKelas'])->name('tugas.kelas');
+
+    Route::get('/quiz', [StudentAkademikController::class, 'quizIndex'])->name('quiz.index');
+    Route::get('/quiz/kelas/{kelas}', [StudentAkademikController::class, 'quizKelas'])->name('quiz.kelas');
+
+    Route::get('/nilai', [StudentAkademikController::class, 'nilaiIndex'])->name('nilai.index');
+    Route::get('/nilai/kelas/{kelas}', [StudentAkademikController::class, 'nilaiKelas'])->name('nilai.kelas');
+});
 
 require __DIR__ . '/auth.php';
