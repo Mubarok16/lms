@@ -113,7 +113,7 @@ Absensi - {{ $sesi->kelas->matakuliah->nama_mk }}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
     new QRCode(document.getElementById("qrcode"), {
-        text: "{{ route('mahasiswa.absensi.scan', $sesi->token) }}",
+        text: "{{ $sesi->token }}",
         width: 220,
         height: 220,
     });
