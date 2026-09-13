@@ -18,7 +18,7 @@ class Kelas extends Model
     {
         return $this->belongsTo(
             //Kelas ini belongsTo satu MataKuliah.
-            MataKuliah::class,
+            Matakuliah::class,
             'kode_mk',  //matakuliah.kode_mk ==>PK
             'kode_mk' //kelas.kode_mk ==> FK
         );
