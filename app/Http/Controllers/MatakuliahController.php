@@ -271,38 +271,24 @@ class MatakuliahController extends Controller
         return back()->with('success', 'Matakuliah berhasil dihapus.');
     }
 
-    public function index_daftar_mk()
-    {
-        $mahasiswa = auth()->user()->student;
-
-        $mataKuliahs = MataKuliah::whereHas('kelas.pengajaranDosen')
-            ->with(['kelas' => function ($query) {
-                $query->whereHas('pengajaranDosen')
-                    ->with('dosen.user'); // load dosen sekaligus data user-nya (nama)
-            }])
-             ->latest()
-    ->paginate(12);
-
-        return view('student.matakuliah.daftar-mk', compact('mataKuliahs'));
-    }
-
-    public function daftarMataKuliah(Request $request)
+   public function index_daftar_mk(Request $request)
 {
-    $search = $request->query('search');
+    $search = trim($request->query('search', ''));
 
-    $mataKuliahs = Matakuliah::query()
-        ->whereHas('kelas.dosen') // hanya MK yang kelasnya sudah punya dosen
+    $mataKuliahs = MataKuliah::query()
+        ->whereHas('kelas.pengajaranDosen')
         ->with([
             'kelas' => function ($query) {
-                $query->whereHas('dosen'); // hanya kelas yang sudah ada dosennya
-            },
-            'kelas.dosen.user',
+                $query->whereHas('pengajaranDosen')
+                    ->with('dosen.user');
+            }
         ])
-        ->when($search, function ($query, $search) {
+        ->when($search !== '', function ($query) use ($search) {
             $query->where('nama_mk', 'like', '%' . $search . '%');
         })
+        ->latest()
         ->paginate(12)
-        ->withQueryString(); // supaya query search ikut kebawa pas pindah halaman
+        ->withQueryString();
 
     return view('student.matakuliah.daftar-mk', compact('mataKuliahs'));
 }
