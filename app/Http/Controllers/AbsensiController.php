@@ -20,6 +20,13 @@ class AbsensiController extends Controller
             return redirect('/')->with('error', 'QR absensi sudah kedaluwarsa.');
         }
 
+        // Cek dulu apakah user sudah login SEBELUM akses ->student
+        if (!auth()->check() || !auth()->user()->student) {
+            // simpan intended url supaya setelah login diarahkan balik ke sini
+            session(['url.intended' => url()->current()]);
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu untuk absen.');
+        }
+
         $mahasiswaId = auth()->user()->student->id;
 
         $terdaftar = PengajaranMahasiswa::where('kelas_id', $sesi->kelas_id)
@@ -46,7 +53,10 @@ class AbsensiController extends Controller
             ? 'Absensi berhasil dicatat.'
             : 'Kamu sudah absen di sesi ini.';
 
-        return redirect('/')->with('success', $pesan);
+        // GANTI: redirect ke rekap, bukan ke '/'
+        return redirect()
+            ->route('student.absensi.rekap', $sesi->kelas_id)
+            ->with('success', $pesan);
     }
 
     public function rekapSemua(PengajaranDosen $pengajaranDosen)
