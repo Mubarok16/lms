@@ -85,6 +85,10 @@ Scan QR Absensi
 
                     if (body.success) {
                         scanner.stop();
+                        // Redirect ke rekap absensi setelah beberapa detik
+                        setTimeout(() => {
+                            window.location.href = body.redirect;
+                        }, 1500);
                     } else {
                         setTimeout(() => {
                             isProcessing = false;

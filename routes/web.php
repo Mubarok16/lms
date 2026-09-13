@@ -337,6 +337,9 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->group(function (
     Route::get('/absensi/scan', [StudentAbsensiController::class, 'scan'])->name('student.absensi.scan');
     Route::post('/absensi/absen', [StudentAbsensiController::class, 'absen'])->name('student.absensi.absen');
 
+    Route::get('/absensi/rekap/{kelas}', [StudentAbsensiController::class, 'rekap'])
+        ->name('student.absensi.rekap');
+
     // Tugas
     Route::get('/tugas/{tugas}', [StudentTugasController::class, 'show'])->name('student.tugas.show');
     Route::post('/tugas/{tugas}/submit', [StudentTugasController::class, 'submit'])->name('student.tugas.submit');
