@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Absensi;
+use App\Models\Kelas;
 use App\Models\SesiAbsensi;
 use App\Models\PengajaranMahasiswa;
 use Illuminate\Http\Request;
@@ -61,6 +62,24 @@ class StudentAbsensiController extends Controller
         return response()->json([
             'success' => true,
             'message' => "Absen berhasil untuk Pertemuan {$sesi->pertemuan_ke}" . ($sesi->judul ? " — {$sesi->judul}" : ''),
+            'redirect' => route('student.absensi.rekap', $sesi->kelas_id), // tambahan ini
         ]);
+    }
+
+    public function rekap($kelasId)
+    {
+        $mahasiswa = auth()->user()->student;
+
+        $kelas = Kelas::with('matakuliah')->findOrFail($kelasId);
+
+        $riwayat = Absensi::whereHas('sesiAbsensi', function ($q) use ($kelasId) {
+            $q->where('kelas_id', $kelasId);
+        })
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->with('sesiAbsensi')
+            ->orderBy('waktu_absen', 'desc')
+            ->get();
+
+        return view('student.absensi.rekap', compact('kelas', 'riwayat'));
     }
 }
