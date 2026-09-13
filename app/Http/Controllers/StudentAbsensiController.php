@@ -72,11 +72,11 @@ class StudentAbsensiController extends Controller
 
         $kelas = Kelas::with('matakuliah')->findOrFail($kelasId);
 
-        $riwayat = Absensi::whereHas('sesiAbsensi', function ($q) use ($kelasId) {
+        $riwayat = Absensi::whereHas('sesi', function ($q) use ($kelasId) {
             $q->where('kelas_id', $kelasId);
         })
             ->where('mahasiswa_id', $mahasiswa->id)
-            ->with('sesiAbsensi')
+            ->with('sesi')
             ->orderBy('waktu_absen', 'desc')
             ->get();
 
