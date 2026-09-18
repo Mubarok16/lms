@@ -150,12 +150,11 @@ class TugasController extends Controller
 
     public function jawabanIndex(Tugas $tugas)
     {
-        $this->authorizeTugas($tugas);
         $tugas->load('pengajaranDosen');
 
         $jawabanList = TugasJawaban::with('mahasiswa.user', 'files')
             ->where('tugas_id', $tugas->id)
-            ->orderByRaw("CASE status WHEN 'menunggu_koreksi' THEN 1 WHEN 'sudah_dikoreksi' THEN 2 WHEN 'belum_submit' THEN 3 ELSE 4 END")
+            ->orderByRaw("FIELD(status, 'menunggu_koreksi', 'sudah_dikoreksi', 'belum_submit')")
             ->orderBy('waktu_submit')
             ->get();
 
@@ -164,7 +163,6 @@ class TugasController extends Controller
 
     public function jawabanShow(Tugas $tugas, TugasJawaban $jawaban)
     {
-        $this->authorizeTugas($tugas);
         abort_if($jawaban->tugas_id !== $tugas->id, 404);
 
         $jawaban->load('mahasiswa.user', 'files');
@@ -174,7 +172,6 @@ class TugasController extends Controller
 
     public function koreksi(Request $request, Tugas $tugas, TugasJawaban $jawaban)
     {
-        $this->authorizeTugas($tugas);
         abort_if($jawaban->tugas_id !== $tugas->id, 404);
 
         $request->validate([
