@@ -689,95 +689,44 @@ Akun Pengguna E-Learning
     |--------------------------------------------------------------------------
     */
 
+    // Base URL ikut subfolder aplikasi (mis. /elearning)
+    const dosenBaseUrl = @js(url('admin/akun-dosen'));
+    const updateUrlTemplate = @js(route('admin.dosen.update', ['id' => '__ID__']));
+
     function openEditModal(id) {
 
-        fetch(`/admin/akun-dosen/${id}`)
-
-            .then(response => {
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        'Data dosen tidak ditemukan'
-                    );
-
+        fetch(`${dosenBaseUrl}/${id}`, {
+                headers: {
+                    'Accept': 'application/json'
                 }
-
-                return response.json();
-
             })
-
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Data dosen tidak ditemukan');
+                }
+                return response.json();
+            })
             .then(data => {
 
-                /*
-                |--------------------------------------------------------------------------
-                | Isi data ke form edit
-                |--------------------------------------------------------------------------
-                */
-
-                document.getElementById('editNidn').value =
-                    data.nidn ?? '';
-
-                document.getElementById('editNama').value =
-                    data.name ?? '';
-
-                document.getElementById('editEmail').value =
-                    data.email ?? '';
-
-                document.getElementById('editProdi').value =
-                    data.prodi_id ?? '';
-
-                document.getElementById('editPhone').value =
-                    data.phone ?? '';
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | Action form
-                |--------------------------------------------------------------------------
-                */
+                document.getElementById('editNidn').value = data.nidn ?? '';
+                document.getElementById('editNama').value = data.name ?? '';
+                document.getElementById('editEmail').value = data.email ?? '';
+                document.getElementById('editProdi').value = data.prodi_id ?? '';
+                document.getElementById('editPhone').value = data.phone ?? '';
 
                 document.getElementById('formEditUser').action =
-                    `/admin/akun-dosen/${data.id}`;
+                    updateUrlTemplate.replace('__ID__', data.id);
 
-
-                /*
-                |--------------------------------------------------------------------------
-                | Tampilkan modal
-                |--------------------------------------------------------------------------
-                */
-
-                document.getElementById('modalEditUser')
-                    .classList.remove('hidden');
-
+                document.getElementById('modalEditUser').classList.remove('hidden');
             })
-
-
             .catch(error => {
-
                 console.error(error);
-
-                alert(
-                    'Gagal mengambil data dosen.'
-                );
-
+                alert('Gagal mengambil data dosen.');
             });
-
     }
 
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | CLOSE EDIT MODAL
-    |--------------------------------------------------------------------------
-    */
-
     function closeEditModal() {
-
-        document.getElementById('modalEditUser')
-            .classList.add('hidden');
-
+        document.getElementById('modalEditUser').classList.add('hidden');
     }
 </script>
 
