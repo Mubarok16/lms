@@ -307,16 +307,26 @@ class PengajaranController extends Controller
 
     public function mk_saya()
     {
+        $lecturer = auth()->user()->lecturer;
+
+        if (!$lecturer) {
+            abort(403, 'Data dosen tidak ditemukan.');
+        }
+
+        $lecturerId = $lecturer->id;
+
         $kelas = Kelas::with([
-            'pengajaranDosen.lecturer', //ambil fungsi lecturer dari pengajaranDosen
+            'pengajaranDosen' => function ($query) use ($lecturerId) {
+                $query->where('dosen_id', $lecturerId)->with('lecturer');
+            },
             'matakuliah'
-        ])->get();
+        ])
+            ->whereHas('pengajaranDosen', function ($query) use ($lecturerId) {
+                $query->where('dosen_id', $lecturerId);
+            })
+            ->get();
 
-
-        return view(
-            'lecturer.matakuliah-saya',
-            compact('kelas')
-        );
+        return view('lecturer.matakuliah-saya', compact('kelas'));
     }
 
 

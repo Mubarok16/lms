@@ -81,10 +81,15 @@ Scan QR Absensi
                     status,
                     body
                 }) => {
+                    console.log('RESPONSE:', body); // tambahkan ini sementara
                     showResult(body.success, body.message);
 
                     if (body.success) {
-                        scanner.stop();
+                        console.log('Redirecting to:', body.redirect); // dan ini
+                        setTimeout(() => {
+                            window.location.href = body.redirect;
+                        }, 1500);
+                        scanner.stop().catch(() => {});
                     } else {
                         setTimeout(() => {
                             isProcessing = false;
