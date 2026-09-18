@@ -357,6 +357,14 @@ Peserta Matakuliah
 
     let kelasId = null;
 
+    function urlSearchStudents(id, search) {
+        const base = "{{ route('kelas.students.search', ['kelas' => '__ID__']) }}".replace('__ID__', id);
+        return `${base}?search=${encodeURIComponent(search)}`;
+    }
+
+    function urlKelasPeserta(id) {
+        return "{{ route('kelas.peserta', ['kelas' => '__ID__']) }}".replace('__ID__', id);
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -464,8 +472,7 @@ Peserta Matakuliah
             |--------------------------------------------------------------------------
             */
 
-            const url =
-                `/kelas/${kelasId}/students?search=${encodeURIComponent(search)}`;
+            const url = urlSearchStudents(kelasId, search);
 
             console.log('Mencari mahasiswa:', url);
 
@@ -732,7 +739,7 @@ Peserta Matakuliah
         */
 
         fetch(
-                `/kelas/${kelasId}/peserta`, {
+                urlKelasPeserta(kelasId), {
 
                     method: 'POST',
 
@@ -942,7 +949,7 @@ Peserta Matakuliah
         |--------------------------------------------------------------------------
         */
 
-        fetch(`/kelas/${kelasId}/peserta`, {
+        fetch(urlKelasPeserta(kelasId), {
 
                 method: 'GET',
 

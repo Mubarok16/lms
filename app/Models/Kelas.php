@@ -18,9 +18,20 @@ class Kelas extends Model
     {
         return $this->belongsTo(
             //Kelas ini belongsTo satu MataKuliah.
-            MataKuliah::class,
+            Matakuliah::class,
             'kode_mk',  //matakuliah.kode_mk ==>PK
             'kode_mk' //kelas.kode_mk ==> FK
+        );
+    }
+
+    // relasi many-to-many langsung ke dosen lewat pivot pengajaran_dosen
+    public function dosen()
+    {
+        return $this->belongsToMany(
+            Lecturer::class,
+            'pengajaran_dosen',
+            'kelas_id',
+            'dosen_id'
         );
     }
 
@@ -49,5 +60,14 @@ class Kelas extends Model
             'kelas_id',
             'mahasiswa_id'
         )->withTimestamps();
+    }
+    public function chats()
+    {
+        return $this->hasMany(CourseChat::class, 'kelas_id');
+    }
+
+    public function jadwal()
+    {
+        return $this->hasMany(JadwalMatakuliah::class, 'kelas_id');
     }
 }

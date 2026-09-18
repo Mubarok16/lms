@@ -22,7 +22,7 @@ Tambah Tugas
             </p>
 
             <form method="POST"
-                action="{{ route('lecturer.tugas.store', $pengajaranDosen->id) }}"
+                action="{{ route('tugas.store', $pengajaranDosen->id) }}"
                 enctype="multipart/form-data"
                 class="mt-6 space-y-5">
                 @csrf

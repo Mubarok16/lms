@@ -176,16 +176,25 @@ class AccountController extends Controller
     // ============================================================
     // HALAMAN AKUN MAHASISWA
     // ============================================================
-    public function index_mahasiswa()
+    public function index_mahasiswa(Request $request)
     {
         $prodi = Prodi::latest()->get();
+
+        $search = $request->input('search');
 
         $akunmahasiswa = Student::with([
             'user',
             'prodi'
         ])
+            ->when($search, function ($query) use ($search) {
+                $query->where('nim', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
+            })
             ->latest()
-            ->get();
+            ->paginate(20);
 
         return view(
             'admin.index-akun-mahasiswa',

@@ -9,8 +9,11 @@ use App\Models\Matakuliah;
 use App\Models\Materi;
 use App\Models\PengajaranDosen;
 use App\Models\PengajaranMahasiswa;
+use App\Models\PengajuanKelas;
 use App\Models\Quiz;
 use App\Models\Tugas;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class MatakuliahController extends Controller
 {
@@ -266,5 +269,102 @@ class MatakuliahController extends Controller
         $matakuliah->delete();
 
         return back()->with('success', 'Matakuliah berhasil dihapus.');
+    }
+
+   public function index_daftar_mk(Request $request)
+{
+    $search = trim($request->query('search', ''));
+
+    $mataKuliahs = MataKuliah::query()
+        ->whereHas('kelas.pengajaranDosen')
+        ->with([
+            'kelas' => function ($query) {
+                $query->whereHas('pengajaranDosen')
+                    ->with('dosen.user');
+            }
+        ])
+        ->when($search !== '', function ($query) use ($search) {
+            $query->where('nama_mk', 'like', '%' . $search . '%');
+        })
+        ->latest()
+        ->paginate(12)
+        ->withQueryString();
+
+    return view('student.matakuliah.daftar-mk', compact('mataKuliahs'));
+}
+
+    public function ambilMk(Kelas $kelas)
+    {
+        Log::info('ambilMk dipanggil', ['kelas_id' => $kelas->id, 'user_id' => Auth::id()]);
+
+        $mahasiswa = Auth::user()->student;
+
+        Log::info('data mahasiswa', ['mahasiswa' => $mahasiswa]);
+
+        abort_unless($mahasiswa, 403, 'Akun ini tidak terdaftar sebagai mahasiswa.');
+
+        $sudahTerdaftar = PengajaranMahasiswa::where('kelas_id', $kelas->id)
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->exists();
+
+        Log::info('cek sudah terdaftar', ['sudahTerdaftar' => $sudahTerdaftar]);
+
+        if ($sudahTerdaftar) {
+            return back()->with('info', 'Anda sudah terdaftar di kelas ini.');
+        }
+
+        $pengajuan = PengajuanKelas::firstOrNew([
+            'kelas_id' => $kelas->id,
+            'mahasiswa_id' => $mahasiswa->id,
+        ]);
+
+        Log::info('data pengajuan sebelum save', $pengajuan->toArray());
+
+        if ($pengajuan->exists && $pengajuan->status === 'pending') {
+            return back()->with('info', 'Pengajuan Anda untuk kelas ini masih menunggu persetujuan dosen.');
+        }
+
+        $pengajuan->status = 'pending';
+        $pengajuan->catatan_dosen = null;
+        $pengajuan->diproses_oleh = null;
+        $pengajuan->diproses_at = null;
+        $pengajuan->save();
+
+        Log::info('pengajuan berhasil disimpan', ['id' => $pengajuan->id]);
+
+        return back()->with('success', 'Pengajuan berhasil dikirim, menunggu persetujuan dosen.');
+    }
+
+    public function ambilMk_old(Kelas $kelas)
+    {
+        $mahasiswa = Auth::user()->student;
+        abort_unless($mahasiswa, 403, 'Akun ini tidak terdaftar sebagai mahasiswa.');
+
+        // Sudah resmi terdaftar di kelas ini?
+        $sudahTerdaftar = PengajaranMahasiswa::where('kelas_id', $kelas->id)
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->exists();
+
+        if ($sudahTerdaftar) {
+            return back()->with('info', 'Anda sudah terdaftar di kelas ini.');
+        }
+
+        $pengajuan = PengajuanKelas::firstOrNew([
+            'kelas_id' => $kelas->id,
+            'mahasiswa_id' => $mahasiswa->id,
+        ]);
+
+        if ($pengajuan->exists && $pengajuan->status === 'pending') {
+            return back()->with('info', 'Pengajuan Anda untuk kelas ini masih menunggu persetujuan dosen.');
+        }
+
+        // Kalau sebelumnya pernah ditolak, izinkan mengajukan ulang (reset ke pending)
+        $pengajuan->status = 'pending';
+        $pengajuan->catatan_dosen = null;
+        $pengajuan->diproses_oleh = null;
+        $pengajuan->diproses_at = null;
+        $pengajuan->save();
+
+        return back()->with('success', 'Pengajuan berhasil dikirim, menunggu persetujuan dosen.');
     }
 }

@@ -40,12 +40,12 @@ Detail Tugas
                 </div>
 
                 <div class="flex shrink-0 gap-2">
-                    <a href="{{ route('lecturer.tugas.edit', $tugas->id) }}"
+                    <a href="{{ route('tugas.edit', $tugas->id) }}"
                         class="rounded-lg border border-line px-4 py-2.5 text-sm font-semibold text-ink
                                transition hover:bg-paper">
                         Edit
                     </a>
-                    <form method="POST" action="{{ route('lecturer.tugas.destroy', $tugas->id) }}"
+                    <form method="POST" action="{{ route('tugas.destroy', $tugas->id) }}"
                         onsubmit="return confirm('Yakin ingin menghapus tugas ini?')">
                         @csrf
                         @method('DELETE')

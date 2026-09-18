@@ -1,4 +1,3 @@
-
 @extends('admin.app-admin')
 
 @section('ketjudul')
@@ -11,27 +10,88 @@ Akun Mahasiswa
 
 @section('content')
 
-<div class="flex justify-end gap-3 mb-4">
+<div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
 
-    <!-- Tombol Tambah Mahasiswa -->
-    <button
-        type="button"
-        onclick="document.getElementById('modalUser').classList.remove('hidden')"
-        class="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg bg-teal text-white hover:bg-teal/90 transition-colors">
+    <!-- Form Search -->
+    <form
+        action="{{ route('akun_mahasiswa.index') }}"
+        method="GET"
+        class="flex items-center gap-2">
 
-        + Tambah Mahasiswa
+        <div class="relative">
 
-    </button>
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="absolute left-3 top-1/2 -translate-y-1/2 text-ink/40">
+
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+
+            </svg>
+
+            <input
+                type="text"
+                name="search"
+                value="{{ request('search') }}"
+                placeholder="Cari NPM, nama, atau email..."
+                class="w-64 border border-line rounded-lg pl-9 pr-3 py-2 text-sm
+                focus:outline-none focus:ring-2 focus:ring-teal/40">
+
+        </div>
+
+        <button
+            type="submit"
+            class="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg
+            bg-teal text-white hover:bg-teal/90 transition-colors">
+
+            Cari
+
+        </button>
+
+        @if (request('search'))
+        <a
+            href="{{ route('akun_mahasiswa.index') }}"
+            class="text-sm font-medium text-ink/50 hover:text-ink/80 px-2">
+
+            Reset
+
+        </a>
+        @endif
+
+    </form>
 
 
-    <!-- Tombol Tambah Banyak Mahasiswa -->
-    <a
-        href="{{ route('mahasiswa.import') }}"
-        class="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg bg-teal text-white hover:bg-teal/90 transition-colors">
+    <div class="flex gap-3">
 
-        + Tambah Banyak Mahasiswa
+        <!-- Tombol Tambah Mahasiswa -->
+        <button
+            type="button"
+            onclick="document.getElementById('modalUser').classList.remove('hidden')"
+            class="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg bg-teal text-white hover:bg-teal/90 transition-colors">
 
-    </a>
+            + Tambah Mahasiswa
+
+        </button>
+
+
+        <!-- Tombol Tambah Banyak Mahasiswa -->
+        <a
+            href="{{ route('mahasiswa.import') }}"
+            class="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg bg-teal text-white hover:bg-teal/90 transition-colors">
+
+            + Tambah Banyak Mahasiswa
+
+        </a>
+
+    </div>
 
 </div>
 
@@ -251,16 +311,13 @@ Akun Mahasiswa
             Daftar Akun Mahasiswa
         </h2>
 
+        @if (request('search'))
+        <p class="text-xs text-ink/50 mt-1">
+            Hasil pencarian untuk: "{{ request('search') }}" ({{ $akunmahasiswa->total() }} data)
+        </p>
+        @endif
+
     </div>
-
-
-    <a
-        href="#"
-        class="text-sm font-medium text-teal hover:underline">
-
-        Lihat Semua
-
-    </a>
 
 </div>
 
@@ -320,10 +377,10 @@ Akun Mahasiswa
             <tr class="border-b border-line last:border-0 hover:bg-paper/60 transition-colors">
 
 
-                {{-- No --}}
+                {{-- No (menyesuaikan nomor urut lintas halaman) --}}
                 <td class="py-3 pr-4 font-mono text-xs text-ink/60">
 
-                    {{ $loop->iteration }}
+                    {{ ($akunmahasiswa->currentPage() - 1) * $akunmahasiswa->perPage() + $loop->iteration }}
 
                 </td>
 
@@ -485,7 +542,11 @@ Akun Mahasiswa
                     colspan="8"
                     class="py-6 text-center text-ink/40 text-sm">
 
+                    @if (request('search'))
+                    Tidak ditemukan data untuk pencarian "{{ request('search') }}".
+                    @else
                     Belum ada data akun mahasiswa.
+                    @endif
 
                 </td>
 
@@ -496,6 +557,14 @@ Akun Mahasiswa
         </tbody>
 
     </table>
+
+</div>
+
+
+<!-- Pagination -->
+<div class="mt-5">
+
+    {{ $akunmahasiswa->appends(request()->query())->links() }}
 
 </div>
 
