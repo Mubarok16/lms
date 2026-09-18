@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\SesiAbsensi;
 use App\Models\Tugas;
 use App\Exports\RekapNilaiExport;
+use App\Models\PengajuanKelas;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -306,16 +307,26 @@ class PengajaranController extends Controller
 
     public function mk_saya()
     {
+        $lecturer = auth()->user()->lecturer;
+
+        if (!$lecturer) {
+            abort(403, 'Data dosen tidak ditemukan.');
+        }
+
+        $lecturerId = $lecturer->id;
+
         $kelas = Kelas::with([
-            'pengajaranDosen.lecturer', //ambil fungsi lecturer dari pengajaranDosen
+            'pengajaranDosen' => function ($query) use ($lecturerId) {
+                $query->where('dosen_id', $lecturerId)->with('lecturer');
+            },
             'matakuliah'
-        ])->get();
+        ])
+            ->whereHas('pengajaranDosen', function ($query) use ($lecturerId) {
+                $query->where('dosen_id', $lecturerId);
+            })
+            ->get();
 
-
-        return view(
-            'lecturer.matakuliah-saya',
-            compact('kelas')
-        );
+        return view('lecturer.matakuliah-saya', compact('kelas'));
     }
 
 
@@ -381,6 +392,12 @@ class PengajaranController extends Controller
             ->latest()
             ->get();
 
+        $pengajuanPending = PengajuanKelas::where('kelas_id', $kelas->id)
+            ->where('status', 'pending')
+            ->with('mahasiswa.user')
+            ->latest()
+            ->get();
+
         return view(
             'lecturer.show',
             [
@@ -389,7 +406,8 @@ class PengajaranController extends Controller
                 'materiList' => $materiList,           // dipakai untuk render daftar materi
                 'sesiAbsensiList' => $sesiAbsensiList, // <-- tambahan
                 'quizList' => $quizList,
-                'tugasList' => $tugasList // tambahkan ini
+                'tugasList' => $tugasList, // tambahkan ini
+                'pengajuanPending' => $pengajuanPending, // tambahan
             ]
         );
     }

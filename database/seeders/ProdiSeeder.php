@@ -13,6 +13,7 @@ class ProdiSeeder extends Seeder
             'Teknik Komputer',
             'Teknik Sipil',
             'Teknik Lingkungan',
+            'Kesehatan Masyarakat',
         ] as $namaProdi) {
             Prodi::updateOrCreate(
                 ['nama_prodi' => $namaProdi],

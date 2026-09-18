@@ -128,7 +128,7 @@
       <div>
         <span class="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-teal bg-teal/10 border border-teal/20 rounded-full px-3 py-1.5">
           <span class="w-1.5 h-1.5 rounded-full bg-teal"></span>
-          Semester Genap 2025/2026 — Perkuliahan Aktif
+          Semester Ganjil 2026/2027 — Perkuliahan Aktif
         </span>
 
         <h1 class="font-display text-[2.75rem] sm:text-5xl lg:text-[3.4rem] leading-[1.08] font-semibold tracking-tight mt-6">

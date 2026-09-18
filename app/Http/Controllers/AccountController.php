@@ -21,14 +21,28 @@ class AccountController extends Controller
     // ============================================================
     // MENAMPILKAN DATA AKUN DOSEN
     // ============================================================
-    public function index()
+    public function index(Request $request)
     {
-        $prodi = Prodi::latest()
-            ->get();
+        $prodi = Prodi::latest()->get();
+        $search = trim((string) $request->input('search'));
 
-        $akundosen = Lecturer::with('user')
+        $akundosen = Lecturer::with(['user', 'prodi'])
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nidn', 'like', "%{$search}%")
+                        ->orWhere('phone', 'like', "%{$search}%")
+                        ->orWhereHas('user', function ($userQuery) use ($search) {
+                            $userQuery->where('name', 'like', "%{$search}%")
+                                ->orWhere('email', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('prodi', function ($prodiQuery) use ($search) {
+                            $prodiQuery->where('nama_prodi', 'like', "%{$search}%");
+                        });
+                });
+            })
             ->latest()
-            ->get();
+            ->paginate(20)
+            ->withQueryString();
 
         return view('admin.index-akun_dosen', compact('akundosen', 'prodi'));
     }
@@ -176,16 +190,30 @@ class AccountController extends Controller
     // ============================================================
     // HALAMAN AKUN MAHASISWA
     // ============================================================
-    public function index_mahasiswa()
+    public function index_mahasiswa(Request $request)
     {
         $prodi = Prodi::latest()->get();
 
-        $akunmahasiswa = Student::with([
-            'user',
-            'prodi'
-        ])
+        $search = $request->input('search');
+
+        $akunmahasiswa = Student::with(['user', 'prodi'])
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nim', 'like', "%{$search}%")
+                        ->orWhere('angkatan', 'like', "%{$search}%")
+                        ->orWhere('phone', 'like', "%{$search}%")
+                        ->orWhereHas('user', function ($userQuery) use ($search) {
+                            $userQuery->where('name', 'like', "%{$search}%")
+                                ->orWhere('email', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('prodi', function ($prodiQuery) use ($search) {
+                            $prodiQuery->where('nama_prodi', 'like', "%{$search}%");
+                        });
+                });
+            })
             ->latest()
-            ->get();
+            ->paginate(20)
+            ->withQueryString();
 
         return view(
             'admin.index-akun-mahasiswa',
@@ -420,18 +448,17 @@ class AccountController extends Controller
     // ============================================================
     public function destroy($id)
     {
-        $lecturer = Lecturer::findOrFail($id);
+        $lecturer = Lecturer::with('user')->findOrFail($id);
 
         DB::transaction(function () use ($lecturer) {
-
-            // Simpan user_id sebelum lecturer dihapus
-            $userId = $lecturer->user_id;
-
-            // Hapus data lecturer
-            $lecturer->delete();
-
-            // Hapus data user
-            User::where('id', $userId)->delete();
+            // Hapus dari users terlebih dahulu. Foreign key user_id pada lecturer
+            // menggunakan cascadeOnDelete, lalu data akademik dosen ikut mengikuti
+            // aturan cascade/nullOnDelete yang sudah ada pada migration.
+            if ($lecturer->user) {
+                $lecturer->user->delete();
+            } else {
+                $lecturer->delete();
+            }
         });
 
         return redirect()
@@ -528,17 +555,16 @@ class AccountController extends Controller
     // ============================================================
     public function destroy_mahasiswa($id)
     {
-        $student = Student::findOrFail($id);
+        $student = Student::with('user')->findOrFail($id);
 
         DB::transaction(function () use ($student) {
-
-            $userId = $student->user_id;
-
-            // Hapus data mahasiswa
-            $student->delete();
-
-            // Hapus akun user
-            User::where('id', $userId)->delete();
+            // Hapus akun user sebagai parent agar students dan data akademik
+            // terkait terhapus melalui foreign-key cascade yang sudah tersedia.
+            if ($student->user) {
+                $student->user->delete();
+            } else {
+                $student->delete();
+            }
         });
 
         return redirect()

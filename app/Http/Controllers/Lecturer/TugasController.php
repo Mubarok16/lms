@@ -205,5 +205,4 @@ class TugasController extends Controller
         $tugas->loadMissing('pengajaranDosen');
         $this->authorizePengajaran($tugas->pengajaranDosen);
     }
-
 }

@@ -27,7 +27,7 @@
      </a>
      <div class="min-w-0">
        <p class="text-sm font-medium truncate">{{ Auth::user()->name }}</p>
-       <p class="text-xs text-paper/45 truncate font-mono"> {{ Auth::user()->lecturer->nidn }} · {{ Auth::user()->lecturer?->prodi?->nama_prodi ?? '-' }}</p>
+       <p class="text-xs text-paper/45 truncate font-mono"> {{ Auth::user()->lecturer->nidn }} · {{ Auth::user()->lecturer?->prodi_id?->nama_prodi ?? '-' }}</p>
      </div>
    </div>
  </div>

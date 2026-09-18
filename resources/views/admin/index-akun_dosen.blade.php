@@ -5,780 +5,268 @@ Selamat Datang di
 @endsection
 
 @section('judul')
-Akun Pengguna E-Learning
+Akun Dosen
 @endsection
 
 @section('content')
 
-<div class="flex justify-end gap-3 mb-4">
+@if (session('success'))
+<div class="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+    {{ session('success') }}
+</div>
+@endif
 
-    <!-- Tombol Tambah Dosen -->
-    <button
-        type="button"
-        onclick="document.getElementById('modalUser').classList.remove('hidden')"
-        class="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg bg-teal text-white hover:bg-teal/90 transition-colors">
+@if ($errors->any())
+<div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+    <p class="font-semibold">Data belum dapat disimpan.</p>
+    <ul class="mt-1 list-disc pl-5">
+        @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
 
-        + Tambah Dosen
+<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <form action="{{ route('akun_dosen.index') }}" method="GET" class="flex flex-wrap items-center gap-2">
+        <div class="relative">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 text-ink/40">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+            </svg>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari NIDN, nama, email, prodi..." class="w-72 rounded-lg border border-line py-2 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
+        </div>
+        <button type="submit" class="rounded-lg bg-teal px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal/90">Cari</button>
+        @if (request('search'))
+        <a href="{{ route('akun_dosen.index') }}" class="px-2 text-sm font-medium text-ink/50 hover:text-ink/80">Reset</a>
+        @endif
+    </form>
 
-    </button>
-
-
-    <!-- Tombol Tambah Banyak Dosen -->
-    <a
-        href="{{ route('dosen.import') }}"
-        class="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg bg-teal text-white hover:bg-teal/90 transition-colors">
-
-        + Tambah Banyak Dosen
-
-    </a>
-
+    <div class="flex flex-wrap gap-3">
+        <button type="button" onclick="openCreateDosen()" class="inline-flex items-center gap-2 rounded-lg bg-teal px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal/90">
+            + Tambah Dosen
+        </button>
+        <a href="{{ route('dosen.import') }}" class="inline-flex items-center gap-2 rounded-lg bg-teal px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal/90">
+            + Tambah Banyak Dosen
+        </a>
+    </div>
 </div>
 
-
-<!-- Header Card -->
-<div class="flex items-center justify-between mb-5">
-
+<div class="mb-5 flex items-center justify-between">
     <div>
-
-        <h2 class="font-display text-lg font-semibold">
-            Daftar Akun Dosen
-        </h2>
-
-        <p class="text-sm text-ink/50 mt-0.5">
-            ===========================
+        <h2 class="font-display text-lg font-semibold">Daftar Akun Dosen</h2>
+        <p class="mt-1 text-xs text-ink/50">
+            @if (request('search'))
+                Hasil pencarian "{{ request('search') }}" · {{ $akundosen->total() }} data
+            @else
+                Total {{ $akundosen->total() }} akun dosen
+            @endif
         </p>
-
     </div>
-
-    <a
-        href="#"
-        class="text-sm font-medium text-teal hover:underline">
-
-        Lihat Semua
-
-    </a>
-
 </div>
 
-
-<!-- Tabel -->
-<div class="overflow-x-auto">
-
+<div class="overflow-x-auto rounded-xl border border-line bg-white">
     <table class="w-full text-sm">
-
         <thead>
-
-            <tr class="border-b border-line text-left">
-
-                <th class="py-3 pr-4 font-medium text-ink/50 font-mono text-xs uppercase tracking-wide">
-                    No
-                </th>
-
-                <th class="py-3 pr-4 font-medium text-ink/50 font-mono text-xs uppercase tracking-wide">
-                    NIDN
-                </th>
-
-                <th class="py-3 pr-4 font-medium text-ink/50 font-mono text-xs uppercase tracking-wide">
-                    Nama Dosen
-                </th>
-
-                <th class="py-3 pr-4 font-medium text-ink/50 font-mono text-xs uppercase tracking-wide">
-                    Email
-                </th>
-
-                <th class="py-3 pr-4 font-medium text-ink/50 font-mono text-xs uppercase tracking-wide">
-                    No. HP
-                </th>
-
-                <th class="py-3 pr-4 font-medium text-ink/50 font-mono text-xs uppercase tracking-wide">
-                    Aksi
-                </th>
-
+            <tr class="border-b border-line bg-paper/50 text-left">
+                <th class="px-4 py-3 font-mono text-xs font-medium uppercase tracking-wide text-ink/50">No</th>
+                <th class="px-4 py-3 font-mono text-xs font-medium uppercase tracking-wide text-ink/50">NIDN</th>
+                <th class="px-4 py-3 font-mono text-xs font-medium uppercase tracking-wide text-ink/50">Nama Dosen</th>
+                <th class="px-4 py-3 font-mono text-xs font-medium uppercase tracking-wide text-ink/50">Program Studi</th>
+                <th class="px-4 py-3 font-mono text-xs font-medium uppercase tracking-wide text-ink/50">Email</th>
+                <th class="px-4 py-3 font-mono text-xs font-medium uppercase tracking-wide text-ink/50">No. HP</th>
+                <th class="px-4 py-3 font-mono text-xs font-medium uppercase tracking-wide text-ink/50">Aksi</th>
             </tr>
-
         </thead>
-
-
         <tbody>
-
-            @forelse ($akundosen as $mk)
-
-            <tr class="border-b border-line last:border-0 hover:bg-paper/60 transition-colors">
-
-                {{-- No --}}
-                <td class="py-3 pr-4 font-mono text-xs text-ink/60">
-
-                    {{ $loop->iteration }}
-
-                </td>
-
-
-                {{-- NIDN --}}
-                <td class="py-3 pr-4 font-medium">
-
-                    {{ $mk->nidn }}
-
-                </td>
-
-
-                {{-- Nama --}}
-                <td class="py-3 pr-4 text-ink/70">
-
-                    {{ $mk->user->name }}
-
-                </td>
-
-
-                {{-- Email --}}
-                <td class="py-3 pr-4 text-ink/70">
-
-                    {{ $mk->user->email }}
-
-                </td>
-
-
-                {{-- Phone --}}
-                <td class="py-3 pr-4 text-ink/70">
-
-                    {{ $mk->phone ?? '-' }}
-
-                </td>
-
-
-                {{-- Aksi --}}
-                <td class="py-3 pr-4">
-
-                    <div class="relative z-10 flex items-center gap-2">
-
-
-                        {{-- BUTTON EDIT --}}
-                        <button
-                            type="button"
-                            onclick="openEditModal({{ $mk->id }})"
-                            class="relative z-20 inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium bg-blue-500 text-white hover:bg-blue-600 transition-colors cursor-pointer">
-
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="14"
-                                height="14"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round">
-
-                                <path d="M12 20h9" />
-
-                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" />
-
-                            </svg>
-
+            @forelse ($akundosen as $dosen)
+            <tr class="border-b border-line last:border-0 hover:bg-paper/60">
+                <td class="px-4 py-3 font-mono text-xs text-ink/60">{{ ($akundosen->firstItem() ?? 1) + $loop->index }}</td>
+                <td class="px-4 py-3 font-medium">{{ $dosen->nidn }}</td>
+                <td class="px-4 py-3 text-ink/70">{{ $dosen->user?->name ?? '-' }}</td>
+                <td class="px-4 py-3 text-ink/70">{{ $dosen->prodi?->nama_prodi ?? '-' }}</td>
+                <td class="px-4 py-3 text-ink/70">{{ $dosen->user?->email ?? '-' }}</td>
+                <td class="px-4 py-3 text-ink/70">{{ $dosen->phone ?: '-' }}</td>
+                <td class="px-4 py-3">
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="openEditDosen({{ $dosen->id }})" class="inline-flex items-center gap-1 rounded-md bg-blue-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-600">
                             Edit
-
                         </button>
-
-
-                        {{-- BUTTON DELETE --}}
-                        <form
-                            action="{{ route('admin.dosen.destroy', $mk->id) }}"
-                            method="POST"
-                            class="inline-block relative z-20"
-                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus akun {{ $mk->user->name }}?')">
-
+                        <form action="{{ route('admin.dosen.destroy', $dosen->id) }}" method="POST" onsubmit="return confirmDelete('dosen')">
                             @csrf
-
                             @method('DELETE')
-
-
-                            <button
-                                type="submit"
-                                class="relative z-20 inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium bg-red-500 text-white hover:bg-red-600 transition-colors cursor-pointer">
-
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="14"
-                                    height="14"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round">
-
-                                    <path d="M3 6h18" />
-
-                                    <path d="M8 6V4h8v2" />
-
-                                    <path d="M19 6v14H5V6" />
-
-                                    <path d="M10 11v6" />
-
-                                    <path d="M14 11v6" />
-
-                                </svg>
-
+                            <button type="submit" class="inline-flex items-center gap-1 rounded-md bg-red-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-600">
                                 Delete
-
                             </button>
-
                         </form>
-
                     </div>
-
                 </td>
-
             </tr>
-
-
             @empty
-
             <tr>
-
-                <td
-                    colspan="6"
-                    class="py-6 text-center text-ink/40 text-sm">
-
-                    Belum ada data akun dosen.
-
+                <td colspan="7" class="px-4 py-8 text-center text-sm text-ink/40">
+                    @if (request('search'))
+                        Tidak ditemukan data dosen untuk pencarian "{{ request('search') }}".
+                    @else
+                        Belum ada data akun dosen.
+                    @endif
                 </td>
-
             </tr>
-
             @endforelse
-
         </tbody>
-
     </table>
-
 </div>
 
+<div class="mt-5">
+    {{ $akundosen->links() }}
+</div>
 
-
-{{-- =========================================================
-     MODAL TAMBAH DOSEN
-========================================================= --}}
-
-<div
-    id="modalUser"
-    class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-
-
-    {{-- Overlay --}}
-    <div
-        class="absolute inset-0 bg-black/40"
-        onclick="document.getElementById('modalUser').classList.add('hidden')">
-    </div>
-
-
-    {{-- Konten Modal --}}
-    <div class="relative bg-white w-full max-w-md rounded-xl shadow-lg p-6">
-
-
-        {{-- Header --}}
-        <div class="flex items-center justify-between mb-4">
-
-            <h3 class="font-display text-lg font-semibold">
-                Tambah Akun Dosen
-            </h3>
-
-
-            <button
-                type="button"
-                onclick="document.getElementById('modalUser').classList.add('hidden')"
-                class="text-ink/40 hover:text-ink/70 text-xl leading-none">
-
-                &times;
-
-            </button>
-
+{{-- MODAL TAMBAH DOSEN --}}
+<div id="modalUser" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/40" onclick="closeCreateDosen()"></div>
+    <div class="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white p-6 shadow-lg">
+        <div class="mb-4 flex items-center justify-between">
+            <h3 class="font-display text-lg font-semibold">Tambah Akun Dosen</h3>
+            <button type="button" onclick="closeCreateDosen()" class="text-xl leading-none text-ink/40 hover:text-ink/70">&times;</button>
         </div>
 
-
-        {{-- Form --}}
-        <form
-            action="{{ route('admin.dosen.buatAkun') }}"
-            method="POST">
-
+        <form action="{{ route('admin.dosen.buatAkun') }}" method="POST">
             @csrf
-
-
-            {{-- NIDN --}}
             <div class="mb-4">
-
-                <label
-                    class="block text-sm font-medium text-ink/70 mb-1">
-
-                    NIDN
-
-                </label>
-
-                <input
-                    id="inputNidn"
-                    type="text"
-                    required
-                    name="nidn"
-                    value="{{ old('nidn') }}"
-                    class="w-full border border-line rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40"
-                    placeholder="Masukkan Nomor Induk Dosen">
-
+                <label class="mb-1 block text-sm font-medium text-ink/70">NIDN</label>
+                <input type="text" name="nidn" required value="{{ old('nidn') }}" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
             </div>
-
-
-            {{-- Nama --}}
             <div class="mb-4">
-
-                <label
-                    class="block text-sm font-medium text-ink/70 mb-1">
-
-                    Nama Lengkap
-
-                </label>
-
-                <input
-                    id="inputNama"
-                    type="text"
-                    required
-                    name="name"
-                    value="{{ old('name') }}"
-                    class="w-full border border-line rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40"
-                    placeholder="Masukkan nama lengkap">
-
+                <label class="mb-1 block text-sm font-medium text-ink/70">Nama Lengkap</label>
+                <input type="text" name="name" required value="{{ old('name') }}" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
             </div>
-
-
-            {{-- Email --}}
             <div class="mb-4">
-
-                <label
-                    class="block text-sm font-medium text-ink/70 mb-1">
-
-                    Email
-
-                </label>
-
-                <input
-                    type="email"
-                    required
-                    name="email"
-                    value="{{ old('email') }}"
-                    class="w-full border border-line rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40"
-                    placeholder="nama@email.com">
-
+                <label class="mb-1 block text-sm font-medium text-ink/70">Email</label>
+                <input type="email" name="email" required value="{{ old('email') }}" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
             </div>
-
-
-            {{-- Phone --}}
             <div class="mb-4">
-
-                <label
-                    class="block text-sm font-medium text-ink/70 mb-1">
-
-                    No. HP
-
-                </label>
-
-                <input
-                    id="inputPhone"
-                    type="text"
-                    name="phone"
-                    value="{{ old('phone') }}"
-                    class="w-full border border-line rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40"
-                    placeholder="Masukkan No. HP">
-
-            </div>
-
-
-            {{-- Program Studi --}}
-            <div class="mb-4">
-
-                <label
-                    class="block text-sm font-medium text-ink/70 mb-1">
-
-                    Program Studi
-
-                </label>
-
-
-                <select
-                    name="prodi_id"
-                    required
-                    class="w-full border border-line rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal/40">
-
-                    <option
-                        value=""
-                        disabled
-                        {{ old('prodi_id') ? '' : 'selected' }}>
-
-                        Pilih Program Studi
-
-                    </option>
-
-
+                <label class="mb-1 block text-sm font-medium text-ink/70">Program Studi</label>
+                <select name="prodi_id" required class="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
+                    <option value="" disabled {{ old('prodi_id') ? '' : 'selected' }}>Pilih Program Studi</option>
                     @foreach ($prodi as $item)
-
-                    <option
-                        value="{{ $item->id }}"
-                        {{ old('prodi_id') == $item->id ? 'selected' : '' }}>
-
-                        {{ $item->nama_prodi }}
-
-                    </option>
-
+                    <option value="{{ $item->id }}" {{ (string) old('prodi_id') === (string) $item->id ? 'selected' : '' }}>{{ $item->nama_prodi }}</option>
                     @endforeach
-
                 </select>
-
-
-                @error('prodi_id')
-
-                <p class="mt-1 text-xs text-red-500">
-
-                    {{ $message }}
-
-                </p>
-
-                @enderror
-
             </div>
-
-
-            {{-- Button --}}
+            <div class="mb-4">
+                <label class="mb-1 block text-sm font-medium text-ink/70">Nomor Telepon</label>
+                <input type="text" name="phone" value="{{ old('phone') }}" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
+            </div>
             <div class="flex justify-end gap-2">
-
-                <button
-                    type="button"
-                    onclick="document.getElementById('modalUser').classList.add('hidden')"
-                    class="px-4 py-2 text-sm font-medium rounded-lg border border-line text-ink/70 hover:bg-paper/60">
-
-                    Batal
-
-                </button>
-
-
-                <button
-                    type="submit"
-                    class="px-4 py-2 text-sm font-medium rounded-lg bg-teal text-white hover:bg-teal/90">
-
-                    Simpan
-
-                </button>
-
+                <button type="button" onclick="closeCreateDosen()" class="rounded-lg border border-line px-4 py-2 text-sm font-medium text-ink/70 hover:bg-paper/60">Batal</button>
+                <button type="submit" class="rounded-lg bg-teal px-4 py-2 text-sm font-medium text-white hover:bg-teal/90">Simpan</button>
             </div>
-
         </form>
-
     </div>
-
 </div>
 
-
-
-{{-- =========================================================
-     MODAL EDIT DOSEN
-========================================================= --}}
-
-<div
-    id="modalEditUser"
-    class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-
-
-    {{-- Overlay --}}
-    <div
-        class="absolute inset-0 bg-black/40"
-        onclick="closeEditModal()">
-    </div>
-
-
-    {{-- Konten Modal --}}
-    <div class="relative bg-white w-full max-w-md rounded-xl shadow-lg p-6">
-
-
-        {{-- Header --}}
-        <div class="flex items-center justify-between mb-4">
-
-            <h3 class="font-display text-lg font-semibold">
-
-                Edit Akun Dosen
-
-            </h3>
-
-
-            <button
-                type="button"
-                onclick="closeEditModal()"
-                class="text-ink/40 hover:text-ink/70 text-xl leading-none">
-
-                &times;
-
-            </button>
-
+{{-- MODAL EDIT DOSEN --}}
+<div id="modalEditDosen" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/40" onclick="closeEditDosen()"></div>
+    <div class="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white p-6 shadow-lg">
+        <div class="mb-4 flex items-center justify-between">
+            <h3 class="font-display text-lg font-semibold">Edit Akun Dosen</h3>
+            <button type="button" onclick="closeEditDosen()" class="text-xl leading-none text-ink/40 hover:text-ink/70">&times;</button>
         </div>
 
-
-        {{-- Form --}}
-        <form
-            id="formEditUser"
-            method="POST">
-
+        <form id="formEditDosen" method="POST">
             @csrf
-
             @method('PUT')
-
-
-            {{-- NIDN --}}
             <div class="mb-4">
-
-                <label
-                    class="block text-sm font-medium text-ink/70 mb-1">
-
-                    NIDN
-
-                </label>
-
-
-                <input
-                    id="editNidn"
-                    type="text"
-                    name="nidn"
-                    required
-                    class="w-full border border-line rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
-
+                <label class="mb-1 block text-sm font-medium text-ink/70">NIDN</label>
+                <input id="editDosenNidn" type="text" name="nidn" required class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
             </div>
-
-
-            {{-- Nama --}}
             <div class="mb-4">
-
-                <label
-                    class="block text-sm font-medium text-ink/70 mb-1">
-
-                    Nama Lengkap
-
-                </label>
-
-
-                <input
-                    id="editNama"
-                    type="text"
-                    name="name"
-                    required
-                    class="w-full border border-line rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
-
+                <label class="mb-1 block text-sm font-medium text-ink/70">Nama Lengkap</label>
+                <input id="editDosenName" type="text" name="name" required class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
             </div>
-
-
-            {{-- Email --}}
             <div class="mb-4">
-
-                <label
-                    class="block text-sm font-medium text-ink/70 mb-1">
-
-                    Email
-
-                </label>
-
-
-                <input
-                    id="editEmail"
-                    type="email"
-                    name="email"
-                    required
-                    class="w-full border border-line rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
-
+                <label class="mb-1 block text-sm font-medium text-ink/70">Email</label>
+                <input id="editDosenEmail" type="email" name="email" required class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
             </div>
-
-
-            {{-- Program Studi --}}
             <div class="mb-4">
-
-                <label
-                    class="block text-sm font-medium text-ink/70 mb-1">
-
-                    Program Studi
-
-                </label>
-
-
-                <select
-                    id="editProdi"
-                    name="prodi_id"
-                    required
-                    class="w-full border border-line rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal/40">
-
-                    <option
-                        value=""
-                        disabled>
-
-                        Pilih Program Studi
-
-                    </option>
-
-
+                <label class="mb-1 block text-sm font-medium text-ink/70">Program Studi</label>
+                <select id="editDosenProdi" name="prodi_id" required class="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
+                    <option value="" disabled>Pilih Program Studi</option>
                     @foreach ($prodi as $item)
-
-                    <option value="{{ $item->id }}">
-
-                        {{ $item->nama_prodi }}
-
-                    </option>
-
+                    <option value="{{ $item->id }}">{{ $item->nama_prodi }}</option>
                     @endforeach
-
                 </select>
-
             </div>
-
-
-            {{-- Phone --}}
             <div class="mb-4">
-
-                <label
-                    class="block text-sm font-medium text-ink/70 mb-1">
-
-                    Nomor Telepon
-
-                </label>
-
-
-                <input
-                    id="editPhone"
-                    type="text"
-                    name="phone"
-                    class="w-full border border-line rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40"
-                    placeholder="Masukkan nomor telepon">
-
+                <label class="mb-1 block text-sm font-medium text-ink/70">Nomor Telepon</label>
+                <input id="editDosenPhone" type="text" name="phone" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
             </div>
-
-
-            {{-- Button --}}
             <div class="flex justify-end gap-2">
-
-                <button
-                    type="button"
-                    onclick="closeEditModal()"
-                    class="px-4 py-2 text-sm font-medium rounded-lg border border-line text-ink/70 hover:bg-paper/60">
-
-                    Batal
-
-                </button>
-
-
-                <button
-                    type="submit"
-                    class="px-4 py-2 text-sm font-medium rounded-lg bg-teal text-white hover:bg-teal/90">
-
-                    Simpan Perubahan
-
-                </button>
-
+                <button type="button" onclick="closeEditDosen()" class="rounded-lg border border-line px-4 py-2 text-sm font-medium text-ink/70 hover:bg-paper/60">Batal</button>
+                <button type="submit" class="rounded-lg bg-teal px-4 py-2 text-sm font-medium text-white hover:bg-teal/90">Simpan Perubahan</button>
             </div>
-
         </form>
-
     </div>
-
 </div>
 
-
+@php
+    $dosenRowsForEdit = $akundosen->getCollection()->mapWithKeys(function ($dosen) {
+        return [
+            (string) $dosen->id => [
+                'id' => $dosen->id,
+                'nidn' => $dosen->nidn,
+                'name' => optional($dosen->user)->name,
+                'email' => optional($dosen->user)->email,
+                'prodi_id' => $dosen->prodi_id,
+                'phone' => $dosen->phone,
+            ],
+        ];
+    })->all();
+@endphp
 
 <script>
-    /*
-    |--------------------------------------------------------------------------
-    | OPEN EDIT MODAL
-    |--------------------------------------------------------------------------
-    */
+    const dosenRows = @json($dosenRowsForEdit);
+    const dosenUpdateUrl = @json(route('admin.dosen.update', ['id' => '__ID__']));
 
-    function openEditModal(id) {
-
-        fetch(`/admin/akun-dosen/${id}`)
-
-            .then(response => {
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        'Data dosen tidak ditemukan'
-                    );
-
-                }
-
-                return response.json();
-
-            })
-
-            .then(data => {
-
-                /*
-                |--------------------------------------------------------------------------
-                | Isi data ke form edit
-                |--------------------------------------------------------------------------
-                */
-
-                document.getElementById('editNidn').value =
-                    data.nidn ?? '';
-
-                document.getElementById('editNama').value =
-                    data.name ?? '';
-
-                document.getElementById('editEmail').value =
-                    data.email ?? '';
-
-                document.getElementById('editProdi').value =
-                    data.prodi_id ?? '';
-
-                document.getElementById('editPhone').value =
-                    data.phone ?? '';
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | Action form
-                |--------------------------------------------------------------------------
-                */
-
-                document.getElementById('formEditUser').action =
-                    `/admin/akun-dosen/${data.id}`;
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | Tampilkan modal
-                |--------------------------------------------------------------------------
-                */
-
-                document.getElementById('modalEditUser')
-                    .classList.remove('hidden');
-
-            })
-
-
-            .catch(error => {
-
-                console.error(error);
-
-                alert(
-                    'Gagal mengambil data dosen.'
-                );
-
-            });
-
+    function openCreateDosen() {
+        document.getElementById('modalUser').classList.remove('hidden');
     }
 
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | CLOSE EDIT MODAL
-    |--------------------------------------------------------------------------
-    */
-
-    function closeEditModal() {
-
-        document.getElementById('modalEditUser')
-            .classList.add('hidden');
-
+    function closeCreateDosen() {
+        document.getElementById('modalUser').classList.add('hidden');
     }
+
+    function openEditDosen(id) {
+        const data = dosenRows[id];
+        if (!data) {
+            alert('Data dosen tidak ditemukan pada halaman ini.');
+            return;
+        }
+
+        document.getElementById('formEditDosen').action = dosenUpdateUrl.replace('__ID__', id);
+        document.getElementById('editDosenNidn').value = data.nidn ?? '';
+        document.getElementById('editDosenName').value = data.name ?? '';
+        document.getElementById('editDosenEmail').value = data.email ?? '';
+        document.getElementById('editDosenProdi').value = data.prodi_id ?? '';
+        document.getElementById('editDosenPhone').value = data.phone ?? '';
+        document.getElementById('modalEditDosen').classList.remove('hidden');
+    }
+
+    function closeEditDosen() {
+        document.getElementById('modalEditDosen').classList.add('hidden');
+    }
+
+    function confirmDelete(type) {
+        return confirm(`Apakah Anda yakin ingin menghapus akun ${type} ini? Data akademik terkait yang mengikuti aturan cascade juga dapat ikut terhapus.`);
+    }
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            closeCreateDosen();
+            closeEditDosen();
+        }
+    });
 </script>
 
 @endsection

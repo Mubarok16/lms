@@ -18,6 +18,15 @@ class ProfileUpdateRequest extends FormRequest
     {
         return [
 
+            'email' => [
+                'required',
+                'string',
+                'lowercase',
+                'email',
+                'max:255',
+                Rule::unique(User::class, 'email')->ignore($this->user()->id),
+            ],
+
             'profile_photo' => [
                 'nullable',
                 'image',

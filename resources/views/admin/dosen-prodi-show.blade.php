@@ -310,7 +310,7 @@ Dosen Prodi {{ $prodi->nama_prodi }}
         modal.classList.remove('hidden');
         modal.classList.add('flex');
 
-        fetch(`{{ url('/pengajaran') }}/${lecturerId}/matakuliah`, {
+        fetch(`{{ route('admin.pengajaran.matakuliah', ['lecturer' => '__ID__']) }}`.replace('__ID__', lecturerId), {
                 headers: {
                     'Accept': 'application/json'
                 }
@@ -412,7 +412,7 @@ Dosen Prodi {{ $prodi->nama_prodi }}
             return;
         }
 
-        fetch(`/kelas/${id}`, {
+        fetch(`{{ route('kelas.destroy', ['id' => '__ID__']) }}`.replace('__ID__', id), {
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,

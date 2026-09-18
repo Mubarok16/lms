@@ -707,6 +707,40 @@ Sebelum deployment production:
 8. Pastikan akses file upload dilindungi sesuai kebutuhan aplikasi.
 
 ---
+# update file dari github ke cloud
+saat mau masuk ke aplikasi di hostinger:
+
+```bash
+cd ~/domains/ft.unwir.ac.id/laravel_app
+```
+
+lalu ambil file terbaru dari github:
+
+```bash
+git pull origin
+```
+# ambil file tertentu saja dari github
+
+misal mau ambil routesnya saja:
+```bash
+git fetch origin
+```
+lalu ketikkan:
+```bash
+git restore --source=origin/main -- routes/web.php
+```
+atau ambil MataKuliahController saja:
+```bash
+git restore --source=origin/main -- app/Http/Controllers/MatakuliahController.php
+```
+
+# update README saja ke github:
+
+```bash
+git add README.md
+git commit -m "update README"
+git push origin main
+```
 
 # License
 

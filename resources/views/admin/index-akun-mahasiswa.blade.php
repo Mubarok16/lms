@@ -1,4 +1,3 @@
-
 @extends('admin.app-admin')
 
 @section('ketjudul')
@@ -11,806 +10,275 @@ Akun Mahasiswa
 
 @section('content')
 
-<div class="flex justify-end gap-3 mb-4">
+@if (session('success'))
+<div class="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+    {{ session('success') }}
+</div>
+@endif
 
-    <!-- Tombol Tambah Mahasiswa -->
-    <button
-        type="button"
-        onclick="document.getElementById('modalUser').classList.remove('hidden')"
-        class="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg bg-teal text-white hover:bg-teal/90 transition-colors">
+@if ($errors->any())
+<div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+    <p class="font-semibold">Data belum dapat disimpan.</p>
+    <ul class="mt-1 list-disc pl-5">
+        @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
 
-        + Tambah Mahasiswa
+<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <form action="{{ route('akun_mahasiswa.index') }}" method="GET" class="flex flex-wrap items-center gap-2">
+        <div class="relative">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 text-ink/40">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+            </svg>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari NPM, nama, email, prodi..." class="w-72 rounded-lg border border-line py-2 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
+        </div>
+        <button type="submit" class="rounded-lg bg-teal px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal/90">Cari</button>
+        @if (request('search'))
+        <a href="{{ route('akun_mahasiswa.index') }}" class="px-2 text-sm font-medium text-ink/50 hover:text-ink/80">Reset</a>
+        @endif
+    </form>
 
-    </button>
-
-
-    <!-- Tombol Tambah Banyak Mahasiswa -->
-    <a
-        href="{{ route('mahasiswa.import') }}"
-        class="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg bg-teal text-white hover:bg-teal/90 transition-colors">
-
-        + Tambah Banyak Mahasiswa
-
-    </a>
-
+    <div class="flex flex-wrap gap-3">
+        <button type="button" onclick="openCreateMahasiswa()" class="inline-flex items-center gap-2 rounded-lg bg-teal px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal/90">
+            + Tambah Mahasiswa
+        </button>
+        <a href="{{ route('mahasiswa.import') }}" class="inline-flex items-center gap-2 rounded-lg bg-teal px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal/90">
+            + Tambah Banyak Mahasiswa
+        </a>
+    </div>
 </div>
 
-
-
-{{-- =========================================================
-     MODAL EDIT MAHASISWA
-========================================================= --}}
-
-<div
-    id="modalEditMahasiswa"
-    class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-
-    {{-- Overlay --}}
-    <div
-        class="absolute inset-0 bg-black/40"
-        onclick="closeEditMahasiswaModal()">
+<div class="mb-5 flex items-center justify-between">
+    <div>
+        <h2 class="font-display text-lg font-semibold">Daftar Akun Mahasiswa</h2>
+        <p class="mt-1 text-xs text-ink/50">
+            @if (request('search'))
+                Hasil pencarian "{{ request('search') }}" · {{ $akunmahasiswa->total() }} data
+            @else
+                Total {{ $akunmahasiswa->total() }} akun mahasiswa
+            @endif
+        </p>
     </div>
+</div>
 
+<div class="overflow-x-auto rounded-xl border border-line bg-white">
+    <table class="w-full text-sm">
+        <thead>
+            <tr class="border-b border-line bg-paper/50 text-left">
+                <th class="px-4 py-3 font-mono text-xs font-medium uppercase tracking-wide text-ink/50">No</th>
+                <th class="px-4 py-3 font-mono text-xs font-medium uppercase tracking-wide text-ink/50">NPM</th>
+                <th class="px-4 py-3 font-mono text-xs font-medium uppercase tracking-wide text-ink/50">Nama Mahasiswa</th>
+                <th class="px-4 py-3 font-mono text-xs font-medium uppercase tracking-wide text-ink/50">Prodi</th>
+                <th class="px-4 py-3 font-mono text-xs font-medium uppercase tracking-wide text-ink/50">Angkatan</th>
+                <th class="px-4 py-3 font-mono text-xs font-medium uppercase tracking-wide text-ink/50">Email</th>
+                <th class="px-4 py-3 font-mono text-xs font-medium uppercase tracking-wide text-ink/50">No. HP</th>
+                <th class="px-4 py-3 font-mono text-xs font-medium uppercase tracking-wide text-ink/50">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($akunmahasiswa as $mahasiswa)
+            <tr class="border-b border-line last:border-0 hover:bg-paper/60">
+                <td class="px-4 py-3 font-mono text-xs text-ink/60">{{ ($akunmahasiswa->firstItem() ?? 1) + $loop->index }}</td>
+                <td class="px-4 py-3 font-medium">{{ $mahasiswa->nim }}</td>
+                <td class="px-4 py-3 text-ink/70">{{ $mahasiswa->user?->name ?? '-' }}</td>
+                <td class="px-4 py-3 text-ink/70">{{ $mahasiswa->prodi?->nama_prodi ?? '-' }}</td>
+                <td class="px-4 py-3 text-ink/70">{{ $mahasiswa->angkatan }}</td>
+                <td class="px-4 py-3 text-ink/70">{{ $mahasiswa->user?->email ?? '-' }}</td>
+                <td class="px-4 py-3 text-ink/70">{{ $mahasiswa->phone ?: '-' }}</td>
+                <td class="px-4 py-3">
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="openEditMahasiswa({{ $mahasiswa->id }})" class="inline-flex items-center gap-1 rounded-md bg-blue-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-600">
+                            Edit
+                        </button>
+                        <form action="{{ route('admin.mahasiswa.destroy', $mahasiswa->id) }}" method="POST" onsubmit="return confirmDelete('mahasiswa')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="inline-flex items-center gap-1 rounded-md bg-red-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-600">
+                                Delete
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="8" class="px-4 py-8 text-center text-sm text-ink/40">
+                    @if (request('search'))
+                        Tidak ditemukan data mahasiswa untuk pencarian "{{ request('search') }}".
+                    @else
+                        Belum ada data akun mahasiswa.
+                    @endif
+                </td>
+            </tr>
+            @endforelse
+        </tbody>
+    </table>
+</div>
 
-    {{-- Modal --}}
-    <div class="relative bg-white w-full max-w-md rounded-xl shadow-lg p-6">
+<div class="mt-5">
+    {{ $akunmahasiswa->links() }}
+</div>
 
-
-        {{-- Header --}}
-        <div class="flex items-center justify-between mb-4">
-
-            <h3 class="font-display text-lg font-semibold">
-                Edit Akun Mahasiswa
-            </h3>
-
-
-            <button
-                type="button"
-                onclick="closeEditMahasiswaModal()"
-                class="text-ink/40 hover:text-ink/70 text-xl leading-none">
-
-                &times;
-
-            </button>
-
+{{-- MODAL TAMBAH MAHASISWA --}}
+<div id="modalUser" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/40" onclick="closeCreateMahasiswa()"></div>
+    <div class="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white p-6 shadow-lg">
+        <div class="mb-4 flex items-center justify-between">
+            <h3 class="font-display text-lg font-semibold">Tambah Akun Mahasiswa</h3>
+            <button type="button" onclick="closeCreateMahasiswa()" class="text-xl leading-none text-ink/40 hover:text-ink/70">&times;</button>
         </div>
 
+        <form action="{{ route('admin.mahasiswa.buatAkun') }}" method="POST">
+            @csrf
+            <div class="mb-4">
+                <label class="mb-1 block text-sm font-medium text-ink/70">NPM</label>
+                <input type="text" name="nim" required value="{{ old('nim') }}" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
+            </div>
+            <div class="mb-4">
+                <label class="mb-1 block text-sm font-medium text-ink/70">Nama Lengkap</label>
+                <input type="text" name="name" required value="{{ old('name') }}" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
+            </div>
+            <div class="mb-4">
+                <label class="mb-1 block text-sm font-medium text-ink/70">Email</label>
+                <input type="email" name="email" required value="{{ old('email') }}" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
+            </div>
+            <div class="mb-4">
+                <label class="mb-1 block text-sm font-medium text-ink/70">Angkatan</label>
+                <input type="number" name="angkatan" required min="2000" max="2100" value="{{ old('angkatan') }}" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
+            </div>
+            <div class="mb-4">
+                <label class="mb-1 block text-sm font-medium text-ink/70">Program Studi</label>
+                <select name="prodi_id" required class="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
+                    <option value="" disabled {{ old('prodi_id') ? '' : 'selected' }}>Pilih Program Studi</option>
+                    @foreach ($prodi as $item)
+                    <option value="{{ $item->id }}" {{ (string) old('prodi_id') === (string) $item->id ? 'selected' : '' }}>{{ $item->nama_prodi }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="mb-1 block text-sm font-medium text-ink/70">Nomor Telepon</label>
+                <input type="text" name="phone" value="{{ old('phone') }}" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
+            </div>
+            <div class="flex justify-end gap-2">
+                <button type="button" onclick="closeCreateMahasiswa()" class="rounded-lg border border-line px-4 py-2 text-sm font-medium text-ink/70 hover:bg-paper/60">Batal</button>
+                <button type="submit" class="rounded-lg bg-teal px-4 py-2 text-sm font-medium text-white hover:bg-teal/90">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-        {{-- Form --}}
-        <form
-            id="formEditMahasiswa"
-            method="POST">
+{{-- MODAL EDIT MAHASISWA --}}
+<div id="modalEditMahasiswa" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/40" onclick="closeEditMahasiswa()"></div>
+    <div class="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white p-6 shadow-lg">
+        <div class="mb-4 flex items-center justify-between">
+            <h3 class="font-display text-lg font-semibold">Edit Akun Mahasiswa</h3>
+            <button type="button" onclick="closeEditMahasiswa()" class="text-xl leading-none text-ink/40 hover:text-ink/70">&times;</button>
+        </div>
 
+        <form id="formEditMahasiswa" method="POST">
             @csrf
             @method('PUT')
-
-
-            {{-- NPM --}}
             <div class="mb-4">
-
-                <label class="block text-sm font-medium text-ink/70 mb-1">
-                    NPM
-                </label>
-
-                <input
-                    id="editNim"
-                    type="text"
-                    name="nim"
-                    required
-                    class="w-full border border-line rounded-lg px-3 py-2 text-sm
-                    focus:outline-none focus:ring-2 focus:ring-teal/40">
-
+                <label class="mb-1 block text-sm font-medium text-ink/70">NPM</label>
+                <input id="editMahasiswaNim" type="text" name="nim" required class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
             </div>
-
-
-            {{-- Nama --}}
             <div class="mb-4">
-
-                <label class="block text-sm font-medium text-ink/70 mb-1">
-                    Nama Lengkap
-                </label>
-
-                <input
-                    id="editNamaMahasiswa"
-                    type="text"
-                    name="name"
-                    required
-                    class="w-full border border-line rounded-lg px-3 py-2 text-sm
-                    focus:outline-none focus:ring-2 focus:ring-teal/40">
-
+                <label class="mb-1 block text-sm font-medium text-ink/70">Nama Lengkap</label>
+                <input id="editMahasiswaName" type="text" name="name" required class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
             </div>
-
-
-            {{-- Email --}}
             <div class="mb-4">
-
-                <label class="block text-sm font-medium text-ink/70 mb-1">
-                    Email
-                </label>
-
-                <input
-                    id="editEmailMahasiswa"
-                    type="email"
-                    name="email"
-                    required
-                    class="w-full border border-line rounded-lg px-3 py-2 text-sm
-                    focus:outline-none focus:ring-2 focus:ring-teal/40">
-
+                <label class="mb-1 block text-sm font-medium text-ink/70">Email</label>
+                <input id="editMahasiswaEmail" type="email" name="email" required class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
             </div>
-
-
-            {{-- Angkatan --}}
             <div class="mb-4">
-
-                <label class="block text-sm font-medium text-ink/70 mb-1">
-                    Angkatan
-                </label>
-
-                <input
-                    id="editAngkatan"
-                    type="text"
-                    name="angkatan"
-                    required
-                    class="w-full border border-line rounded-lg px-3 py-2 text-sm
-                    focus:outline-none focus:ring-2 focus:ring-teal/40">
-
+                <label class="mb-1 block text-sm font-medium text-ink/70">Angkatan</label>
+                <input id="editMahasiswaAngkatan" type="number" name="angkatan" required min="2000" max="2100" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
             </div>
-
-
-            {{-- Program Studi --}}
             <div class="mb-4">
-
-                <label class="block text-sm font-medium text-ink/70 mb-1">
-                    Program Studi
-                </label>
-
-                <select
-                    id="editProdiMahasiswa"
-                    name="prodi_id"
-                    required
-                    class="w-full border border-line rounded-lg px-3 py-2 text-sm
-                    bg-white focus:outline-none focus:ring-2 focus:ring-teal/40">
-
-                    <option value="" disabled>
-                        Pilih Program Studi
-                    </option>
-
-
+                <label class="mb-1 block text-sm font-medium text-ink/70">Program Studi</label>
+                <select id="editMahasiswaProdi" name="prodi_id" required class="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
+                    <option value="" disabled>Pilih Program Studi</option>
                     @foreach ($prodi as $item)
-
-                    <option value="{{ $item->id }}">
-                        {{ $item->nama_prodi }}
-                    </option>
-
+                    <option value="{{ $item->id }}">{{ $item->nama_prodi }}</option>
                     @endforeach
-
                 </select>
-
             </div>
-
-
-            {{-- Phone --}}
             <div class="mb-4">
-
-                <label class="block text-sm font-medium text-ink/70 mb-1">
-                    Nomor Telepon
-                </label>
-
-                <input
-                    id="editPhoneMahasiswa"
-                    type="text"
-                    name="phone"
-                    value="{{ old('phone') }}"
-                    class="w-full border border-line rounded-lg px-3 py-2 text-sm
-                    focus:outline-none focus:ring-2 focus:ring-teal/40"
-                    placeholder="Masukkan nomor telepon">
-
+                <label class="mb-1 block text-sm font-medium text-ink/70">Nomor Telepon</label>
+                <input id="editMahasiswaPhone" type="text" name="phone" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40">
             </div>
-
-
-            {{-- Button --}}
             <div class="flex justify-end gap-2">
-
-                <button
-                    type="button"
-                    onclick="closeEditMahasiswaModal()"
-                    class="px-4 py-2 text-sm font-medium rounded-lg
-                    border border-line text-ink/70 hover:bg-paper/60">
-
-                    Batal
-
-                </button>
-
-
-                <button
-                    type="submit"
-                    class="px-4 py-2 text-sm font-medium rounded-lg
-                    bg-teal text-white hover:bg-teal/90">
-
-                    Simpan Perubahan
-
-                </button>
-
+                <button type="button" onclick="closeEditMahasiswa()" class="rounded-lg border border-line px-4 py-2 text-sm font-medium text-ink/70 hover:bg-paper/60">Batal</button>
+                <button type="submit" class="rounded-lg bg-teal px-4 py-2 text-sm font-medium text-white hover:bg-teal/90">Simpan Perubahan</button>
             </div>
-
         </form>
-
     </div>
-
 </div>
 
-
-
-<!-- Header Card -->
-
-<div class="flex items-center justify-between mb-5">
-
-    <div>
-
-        <h2 class="font-display text-lg font-semibold">
-            Daftar Akun Mahasiswa
-        </h2>
-
-    </div>
-
-
-    <a
-        href="#"
-        class="text-sm font-medium text-teal hover:underline">
-
-        Lihat Semua
-
-    </a>
-
-</div>
-
-
-
-<!-- Tabel -->
-
-<div class="overflow-x-auto">
-
-    <table class="w-full text-sm">
-
-        <thead>
-
-            <tr class="border-b border-line text-left">
-
-                <th class="py-3 pr-4 font-medium text-ink/50 font-mono text-xs uppercase tracking-wide">
-                    No
-                </th>
-
-                <th class="py-3 pr-4 font-medium text-ink/50 font-mono text-xs uppercase tracking-wide">
-                    NPM
-                </th>
-
-                <th class="py-3 pr-4 font-medium text-ink/50 font-mono text-xs uppercase tracking-wide">
-                    Nama Mahasiswa
-                </th>
-
-                <th class="py-3 pr-4 font-medium text-ink/50 font-mono text-xs uppercase tracking-wide">
-                    Prodi
-                </th>
-
-                <th class="py-3 pr-4 font-medium text-ink/50 font-mono text-xs uppercase tracking-wide">
-                    Angkatan
-                </th>
-
-                <th class="py-3 pr-4 font-medium text-ink/50 font-mono text-xs uppercase tracking-wide">
-                    Email
-                </th>
-
-                <th class="py-3 pr-4 font-medium text-ink/50 font-mono text-xs uppercase tracking-wide">
-                    No. HP
-                </th>
-
-                <th class="py-3 pr-4 font-medium text-ink/50 font-mono text-xs uppercase tracking-wide">
-                    Aksi
-                </th>
-
-            </tr>
-
-        </thead>
-
-
-        <tbody>
-
-            @forelse ($akunmahasiswa as $mk)
-
-            <tr class="border-b border-line last:border-0 hover:bg-paper/60 transition-colors">
-
-
-                {{-- No --}}
-                <td class="py-3 pr-4 font-mono text-xs text-ink/60">
-
-                    {{ $loop->iteration }}
-
-                </td>
-
-
-                {{-- NPM --}}
-                <td class="py-3 pr-4 font-medium">
-
-                    {{ $mk->nim }}
-
-                </td>
-
-
-                {{-- Nama --}}
-                <td class="py-3 pr-4 text-ink/70">
-
-                    {{ $mk->user->name }}
-
-                </td>
-
-
-                {{-- Prodi --}}
-                <td class="py-3 pr-4 text-ink/70">
-
-                    {{ $mk->prodi->nama_prodi }}
-
-                </td>
-
-
-                {{-- Angkatan --}}
-                <td class="py-3 pr-4 text-ink/70">
-
-                    {{ $mk->angkatan }}
-
-                </td>
-
-
-                {{-- Email --}}
-                <td class="py-3 pr-4 text-ink/70">
-
-                    {{ $mk->user->email }}
-
-                </td>
-
-
-                {{-- Phone --}}
-                <td class="py-3 pr-4 text-ink/70">
-
-                    {{ $mk->phone ?? '-' }}
-
-                </td>
-
-
-                {{-- Aksi --}}
-                <td class="py-3 pr-4">
-
-                    <div class="relative z-10 flex items-center gap-2">
-
-
-                        {{-- EDIT --}}
-                        <button
-                            type="button"
-                            onclick="openEditMahasiswaModal(
-                                {{ $mk->id }},
-                                @js($mk->nim),
-                                @js($mk->user->name),
-                                @js($mk->user->email),
-                                {{ $mk->prodi_id }},
-                                @js($mk->angkatan),
-                                @js($mk->phone)
-                            )"
-                            class="relative z-20 inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium
-                            bg-blue-500 text-white hover:bg-blue-600 transition-colors cursor-pointer">
-
-
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="14"
-                                height="14"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round">
-
-                                <path d="M12 20h9" />
-
-                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" />
-
-                            </svg>
-
-
-                            Edit
-
-                        </button>
-
-
-
-                        {{-- DELETE --}}
-                        <form
-                            action="{{ route('admin.mahasiswa.destroy', $mk->id) }}"
-                            method="POST"
-                            class="inline-block relative z-20"
-                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus akun {{ $mk->user->name }}?')">
-
-                            @csrf
-
-                            @method('DELETE')
-
-
-                            <button
-                                type="submit"
-                                class="relative z-20 inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium
-                                bg-red-500 text-white hover:bg-red-600 transition-colors cursor-pointer">
-
-
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="14"
-                                    height="14"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round">
-
-                                    <path d="M3 6h18" />
-
-                                    <path d="M8 6V4h8v2" />
-
-                                    <path d="M19 6v14H5V6" />
-
-                                    <path d="M10 11v6" />
-
-                                    <path d="M14 11v6" />
-
-                                </svg>
-
-
-                                Delete
-
-                            </button>
-
-                        </form>
-
-                    </div>
-
-                </td>
-
-            </tr>
-
-
-            @empty
-
-            <tr>
-
-                <td
-                    colspan="8"
-                    class="py-6 text-center text-ink/40 text-sm">
-
-                    Belum ada data akun mahasiswa.
-
-                </td>
-
-            </tr>
-
-            @endforelse
-
-        </tbody>
-
-    </table>
-
-</div>
-
-
-
-{{-- =========================================================
-     MODAL TAMBAH MAHASISWA
-========================================================= --}}
-
-<div
-    id="modalUser"
-    class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-
-
-    {{-- Overlay --}}
-    <div
-        class="absolute inset-0 bg-black/40"
-        onclick="document.getElementById('modalUser').classList.add('hidden')">
-    </div>
-
-
-    {{-- Konten Modal --}}
-    <div class="relative bg-white w-full max-w-md rounded-xl shadow-lg p-6">
-
-
-        {{-- Header --}}
-        <div class="flex items-center justify-between mb-4">
-
-            <h3 class="font-display text-lg font-semibold">
-                Tambah Akun Mahasiswa
-            </h3>
-
-
-            <button
-                type="button"
-                onclick="document.getElementById('modalUser').classList.add('hidden')"
-                class="text-ink/40 hover:text-ink/70 text-xl leading-none">
-
-                &times;
-
-            </button>
-
-        </div>
-
-
-        {{-- Form --}}
-        <form
-            action="{{ route('admin.mahasiswa.buatAkun') }}"
-            method="POST">
-
-            @csrf
-
-
-            {{-- NPM --}}
-            <div class="mb-4">
-
-                <label class="block text-sm font-medium text-ink/70 mb-1">
-                    NPM
-                </label>
-
-                <input
-                    id="inputNim"
-                    name="nim"
-                    type="text"
-                    required
-                    value="{{ old('nim') }}"
-                    class="w-full border border-line rounded-lg px-3 py-2 text-sm
-                    focus:outline-none focus:ring-2 focus:ring-teal/40"
-                    placeholder="Masukkan Nomor Induk Mahasiswa">
-
-            </div>
-
-
-            {{-- Nama --}}
-            <div class="mb-4">
-
-                <label class="block text-sm font-medium text-ink/70 mb-1">
-                    Nama Lengkap
-                </label>
-
-                <input
-                    id="inputNama"
-                    name="name"
-                    type="text"
-                    required
-                    value="{{ old('name') }}"
-                    class="w-full border border-line rounded-lg px-3 py-2 text-sm
-                    focus:outline-none focus:ring-2 focus:ring-teal/40"
-                    placeholder="Masukkan nama lengkap">
-
-            </div>
-
-
-            {{-- Email --}}
-            <div class="mb-4">
-
-                <label class="block text-sm font-medium text-ink/70 mb-1">
-                    Email
-                </label>
-
-                <input
-                    id="inputEmail"
-                    name="email"
-                    type="email"
-                    required
-                    value="{{ old('email') }}"
-                    class="w-full border border-line rounded-lg px-3 py-2 text-sm
-                    focus:outline-none focus:ring-2 focus:ring-teal/40"
-                    placeholder="nama@email.com">
-
-            </div>
-
-
-            {{-- Angkatan --}}
-            <div class="mb-4">
-
-                <label class="block text-sm font-medium text-ink/70 mb-1">
-                    Angkatan
-                </label>
-
-                <input
-                    id="inputAngkatan"
-                    name="angkatan"
-                    type="number"
-                    required
-                    value="{{ old('angkatan') }}"
-                    min="2000"
-                    max="2100"
-                    class="w-full border border-line rounded-lg px-3 py-2 text-sm
-                    focus:outline-none focus:ring-2 focus:ring-teal/40"
-                    placeholder="Contoh: 2022">
-
-            </div>
-
-
-            {{-- Program Studi --}}
-            <div class="mb-4">
-
-                <label class="block text-sm font-medium text-ink/70 mb-1">
-                    Program Studi
-                </label>
-
-
-                <select
-                    name="prodi_id"
-                    required
-                    class="w-full border border-line rounded-lg px-3 py-2 text-sm
-                    bg-white focus:outline-none focus:ring-2 focus:ring-teal/40">
-
-
-                    <option
-                        value=""
-                        disabled
-                        {{ old('prodi_id') ? '' : 'selected' }}>
-
-                        Pilih Program Studi
-
-                    </option>
-
-
-                    @foreach ($prodi as $item)
-
-                    <option
-                        value="{{ $item->id }}"
-                        {{ old('prodi_id') == $item->id ? 'selected' : '' }}>
-
-                        {{ $item->nama_prodi }}
-
-                    </option>
-
-                    @endforeach
-
-                </select>
-
-
-                @error('prodi_id')
-
-                <p class="mt-1 text-xs text-red-500">
-
-                    {{ $message }}
-
-                </p>
-
-                @enderror
-
-            </div>
-
-
-            {{-- Phone --}}
-            <div class="mb-4">
-
-                <label class="block text-sm font-medium text-ink/70 mb-1">
-                    No. HP
-                </label>
-
-
-                <input
-                    id="inputPhone"
-                    name="phone"
-                    type="text"
-                    value="{{ old('phone') }}"
-                    class="w-full border border-line rounded-lg px-3 py-2 text-sm
-                    focus:outline-none focus:ring-2 focus:ring-teal/40"
-                    placeholder="Contoh: 081234567890">
-
-
-            </div>
-
-
-            {{-- Button --}}
-            <div class="flex justify-end gap-2">
-
-                <button
-                    type="button"
-                    onclick="document.getElementById('modalUser').classList.add('hidden')"
-                    class="px-4 py-2 text-sm font-medium rounded-lg
-                    border border-line text-ink/70 hover:bg-paper/60">
-
-                    Batal
-
-                </button>
-
-
-                <button
-                    type="submit"
-                    class="px-4 py-2 text-sm font-medium rounded-lg
-                    bg-teal text-white hover:bg-teal/90">
-
-                    Simpan
-
-                </button>
-
-            </div>
-
-        </form>
-
-    </div>
-
-</div>
-
-
+@php
+    $mahasiswaRowsForEdit = $akunmahasiswa->getCollection()->mapWithKeys(function ($mahasiswa) {
+        return [
+            (string) $mahasiswa->id => [
+                'id' => $mahasiswa->id,
+                'nim' => $mahasiswa->nim,
+                'name' => optional($mahasiswa->user)->name,
+                'email' => optional($mahasiswa->user)->email,
+                'prodi_id' => $mahasiswa->prodi_id,
+                'angkatan' => $mahasiswa->angkatan,
+                'phone' => $mahasiswa->phone,
+            ],
+        ];
+    })->all();
+@endphp
 
 <script>
-    /*
-    |--------------------------------------------------------------------------
-    | OPEN EDIT MAHASISWA MODAL
-    |--------------------------------------------------------------------------
-    */
+    const mahasiswaRows = @json($mahasiswaRowsForEdit);
+    const mahasiswaUpdateUrl = @json(route('admin.mahasiswa.update', ['id' => '__ID__']));
 
-    function openEditMahasiswaModal(
-        id,
-        nim,
-        nama,
-        email,
-        prodiId,
-        angkatan,
-        phone
-    ) {
-
-
-        // Action form
-        document.getElementById('formEditMahasiswa').action =
-            `/admin/akun-mahasiswa/${id}`;
-
-
-        // Isi NPM
-        document.getElementById('editNim').value =
-            nim ?? '';
-
-
-        // Isi Nama
-        document.getElementById('editNamaMahasiswa').value =
-            nama ?? '';
-
-
-        // Isi Email
-        document.getElementById('editEmailMahasiswa').value =
-            email ?? '';
-
-
-        // Isi Program Studi
-        document.getElementById('editProdiMahasiswa').value =
-            prodiId ?? '';
-
-
-        // Isi Angkatan
-        document.getElementById('editAngkatan').value =
-            angkatan ?? '';
-
-
-        // Isi Phone
-        document.getElementById('editPhoneMahasiswa').value =
-            phone ?? '';
-
-
-        // Tampilkan modal
-        document.getElementById('modalEditMahasiswa')
-            .classList.remove('hidden');
-
+    function openCreateMahasiswa() {
+        document.getElementById('modalUser').classList.remove('hidden');
     }
 
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | CLOSE EDIT MAHASISWA MODAL
-    |--------------------------------------------------------------------------
-    */
-
-    function closeEditMahasiswaModal() {
-
-        document.getElementById('modalEditMahasiswa')
-            .classList.add('hidden');
-
+    function closeCreateMahasiswa() {
+        document.getElementById('modalUser').classList.add('hidden');
     }
+
+    function openEditMahasiswa(id) {
+        const data = mahasiswaRows[id];
+        if (!data) {
+            alert('Data mahasiswa tidak ditemukan pada halaman ini.');
+            return;
+        }
+
+        document.getElementById('formEditMahasiswa').action = mahasiswaUpdateUrl.replace('__ID__', id);
+        document.getElementById('editMahasiswaNim').value = data.nim ?? '';
+        document.getElementById('editMahasiswaName').value = data.name ?? '';
+        document.getElementById('editMahasiswaEmail').value = data.email ?? '';
+        document.getElementById('editMahasiswaProdi').value = data.prodi_id ?? '';
+        document.getElementById('editMahasiswaAngkatan').value = data.angkatan ?? '';
+        document.getElementById('editMahasiswaPhone').value = data.phone ?? '';
+        document.getElementById('modalEditMahasiswa').classList.remove('hidden');
+    }
+
+    function closeEditMahasiswa() {
+        document.getElementById('modalEditMahasiswa').classList.add('hidden');
+    }
+
+    function confirmDelete(type) {
+        return confirm(`Apakah Anda yakin ingin menghapus akun ${type} ini? Data akademik terkait yang mengikuti aturan cascade juga dapat ikut terhapus.`);
+    }
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            closeCreateMahasiswa();
+            closeEditMahasiswa();
+        }
+    });
 </script>
 
 @endsection

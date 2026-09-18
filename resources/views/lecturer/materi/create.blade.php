@@ -64,7 +64,7 @@ Tambah Materi
 
 
             <form method="POST"
-                action="{{ route('lecturer.materi.store', $pengajaran->id) }}"
+                action="{{ route('materi.store', $pengajaran->id) }}"
                 enctype="multipart/form-data"
                 class="divide-y divide-line">
 
