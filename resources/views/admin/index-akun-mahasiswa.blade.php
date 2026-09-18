@@ -267,7 +267,43 @@ Akun Mahasiswa
 
             </div>
 
+            {{-- Password Baru (opsional) --}}
+            <div class="mb-4">
 
+                <label class="block text-sm font-medium text-ink/70 mb-1">
+                    Password Baru
+                    <span class="text-ink/40 font-normal">(opsional)</span>
+                </label>
+
+                <div class="relative">
+
+                    <input
+                        id="editPasswordMahasiswa"
+                        type="password"
+                        name="password"
+                        autocomplete="new-password"
+                        minlength="8"
+                        class="w-full border border-line rounded-lg pl-3 pr-16 py-2 text-sm
+            focus:outline-none focus:ring-2 focus:ring-teal/40"
+                        placeholder="Kosongkan jika tidak ingin mengganti">
+
+                    <button
+                        type="button"
+                        onclick="toggleEditPassword()"
+                        id="btnTogglePassword"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-ink/50 hover:text-ink/80">
+
+                        Lihat
+
+                    </button>
+
+                </div>
+
+                <p class="mt-1 text-xs text-ink/40">
+                    Minimal 8 karakter. Jika dikosongkan, password tidak akan diubah.
+                </p>
+
+            </div>
             {{-- Button --}}
             <div class="flex justify-end gap-2">
 
@@ -858,15 +894,33 @@ Akun Mahasiswa
         // Isi Phone
         document.getElementById('editPhoneMahasiswa').value =
             phone ?? '';
+        // Selalu kosongkan field password setiap modal dibuka
+        const pw = document.getElementById('editPasswordMahasiswa');
+        pw.value = '';
+        pw.type = 'password';
+        document.getElementById('btnTogglePassword').textContent = 'Lihat';
+
 
 
         // Tampilkan modal
         document.getElementById('modalEditMahasiswa')
             .classList.remove('hidden');
 
+        function toggleEditPassword() {
+            const input = document.getElementById('editPasswordMahasiswa');
+            const btn = document.getElementById('btnTogglePassword');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = 'Sembunyi';
+            } else {
+                input.type = 'password';
+                btn.textContent = 'Lihat';
+            }
+
+        }
+
     }
-
-
 
     /*
     |--------------------------------------------------------------------------

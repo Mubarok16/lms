@@ -13,7 +13,7 @@ use App\Models\Lecturer;
 use App\Models\Student;
 use App\Imports\LecturerImport;
 use App\Models\Prodi;
-
+use Illuminate\Support\Facades\Hash;
 use App\Imports\StudentImport;
 
 class AccountController extends Controller
@@ -477,53 +477,42 @@ class AccountController extends Controller
                 'max:12',
                 Rule::unique('students', 'nim')->ignore($student->id),
             ],
-
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-            ],
-
+            'name' => ['required', 'string', 'max:255'],
             'email' => [
                 'required',
                 'email',
                 'max:255',
                 Rule::unique('users', 'email')->ignore($student->user_id),
             ],
+            'prodi_id' => ['required', 'integer', 'exists:prodi,id'],
+            'angkatan' => ['required', 'string', 'max:4'],
+            'phone' => ['nullable', 'string', 'max:20'],
 
-            'prodi_id' => [
-                'required',
-                'integer',
-                'exists:prodi,id',
-            ],
-
-            'angkatan' => [
-                'required',
-                'string',
-                'max:4',
-            ],
-
-            'phone' => [
-                'nullable',
-                'string',
-                'max:20',
-            ],
+            // Password opsional: kosong = tidak diganti
+            'password' => ['nullable', 'string', 'min:8'],
         ]);
 
         DB::transaction(function () use ($student, $validated) {
 
-            // Update User
-            $student->user->update([
-                'name' => $validated['name'],
+            // Data user
+            $userData = [
+                'name'  => $validated['name'],
                 'email' => $validated['email'],
-            ]);
+            ];
 
-            // Update Student
+            // Hanya ganti password jika diisi
+            if (!empty($validated['password'])) {
+                $userData['password'] = Hash::make($validated['password']);
+            }
+
+            $student->user->update($userData);
+
+            // Data mahasiswa
             $student->update([
-                'nim' => $validated['nim'],
+                'nim'      => $validated['nim'],
                 'prodi_id' => $validated['prodi_id'],
                 'angkatan' => $validated['angkatan'],
-                'phone' => $validated['phone'] ?? null,
+                'phone'    => $validated['phone'] ?? null,
             ]);
         });
 
@@ -531,7 +520,6 @@ class AccountController extends Controller
             ->route('akun_mahasiswa.index')
             ->with('success', 'Data akun mahasiswa berhasil diperbarui.');
     }
-
     // ============================================================
     // PROSES HAPUS AKUN MAHASISWA
     // ============================================================
