@@ -226,6 +226,9 @@ Route::middleware(['auth', 'role:lecturer'])->prefix('lecturer')->group(function
         Route::get('/detail/{quiz}', [QuizController::class, 'show'])->name('show');
         Route::patch('/{quiz}/publish', [QuizController::class, 'publish'])->name('publish');
         Route::post('/question/{quizQuestion}/gambar', [QuizController::class, 'uploadGambarSoal'])->name('question.gambar');
+        Route::put('/question/{quizQuestion}', [QuizController::class, 'updateSoal'])
+            ->name('question.update');   // hasil akhir: lecturer.quiz.question.update
+
     });
 
     // Tugas

@@ -168,4 +168,36 @@ class QuizController extends Controller
         $this->authorizePengajaran($quiz->pengajaranDosen);
     }
 
+    /**
+     * Edit pertanyaan, pilihan ganda, dan kunci jawaban.
+     */
+    public function updateSoal(Request $request, QuizQuestion $quizQuestion): RedirectResponse
+    {
+        $quizQuestion->loadMissing('quiz.pengajaranDosen');
+        $this->authorizePengajaran($quizQuestion->quiz->pengajaranDosen);
+
+        $validated = $request->validate([
+            'pertanyaan'    => ['required', 'string'],
+            'pilihan_a'     => ['required', 'string', 'max:255'],
+            'pilihan_b'     => ['required', 'string', 'max:255'],
+            'pilihan_c'     => ['nullable', 'string', 'max:255'],
+            'pilihan_d'     => ['nullable', 'string', 'max:255'],
+            'pilihan_e'     => ['nullable', 'string', 'max:255'],
+            'kunci_jawaban' => ['required', 'in:A,B,C,D,E'],
+        ]);
+
+        // Kunci jawaban harus menunjuk ke pilihan yang terisi
+        $kolomKunci = 'pilihan_' . strtolower($validated['kunci_jawaban']);
+        if (empty($validated[$kolomKunci])) {
+            return back()
+                ->withErrors(['kunci_jawaban' => 'Kunci jawaban ' . $validated['kunci_jawaban'] . ' tidak boleh menunjuk pilihan yang kosong.'])
+                ->withInput();
+        }
+
+        $quizQuestion->update($validated);
+
+        return redirect()
+            ->back()
+            ->with('success', 'Soal nomor ' . $quizQuestion->nomor . ' berhasil diperbarui.');
+    }
 }
