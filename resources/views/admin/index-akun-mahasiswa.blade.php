@@ -136,7 +136,7 @@ Akun Mahasiswa
         </div>
 
 
-        {{-- Form --}}
+        {{-- Form (action diisi lewat JS saat modal dibuka) --}}
         <form
             id="formEditMahasiswa"
             method="POST">
@@ -304,6 +304,7 @@ Akun Mahasiswa
                 </p>
 
             </div>
+
             {{-- Button --}}
             <div class="flex justify-end gap-2">
 
@@ -846,10 +847,19 @@ Akun Mahasiswa
 <script>
     /*
     |--------------------------------------------------------------------------
+    | URL TEMPLATE UPDATE
+    |--------------------------------------------------------------------------
+    | Dibuat lewat route() agar ikut base URL / subfolder aplikasi
+    | (mis. /elearning), bukan path absolut yang di-hardcode.
+    */
+    const updateUrlTemplate = @js(route('admin.mahasiswa.update', ['id' => '__ID__']));
+
+
+    /*
+    |--------------------------------------------------------------------------
     | OPEN EDIT MAHASISWA MODAL
     |--------------------------------------------------------------------------
     */
-
     function openEditMahasiswaModal(
         id,
         nim,
@@ -860,79 +870,65 @@ Akun Mahasiswa
         phone
     ) {
 
-
         // Action form
         document.getElementById('formEditMahasiswa').action =
-            `/admin/akun-mahasiswa/${id}`;
-
+            updateUrlTemplate.replace('__ID__', id);
 
         // Isi NPM
-        document.getElementById('editNim').value =
-            nim ?? '';
-
+        document.getElementById('editNim').value = nim ?? '';
 
         // Isi Nama
-        document.getElementById('editNamaMahasiswa').value =
-            nama ?? '';
-
+        document.getElementById('editNamaMahasiswa').value = nama ?? '';
 
         // Isi Email
-        document.getElementById('editEmailMahasiswa').value =
-            email ?? '';
-
+        document.getElementById('editEmailMahasiswa').value = email ?? '';
 
         // Isi Program Studi
-        document.getElementById('editProdiMahasiswa').value =
-            prodiId ?? '';
-
+        document.getElementById('editProdiMahasiswa').value = prodiId ?? '';
 
         // Isi Angkatan
-        document.getElementById('editAngkatan').value =
-            angkatan ?? '';
-
+        document.getElementById('editAngkatan').value = angkatan ?? '';
 
         // Isi Phone
-        document.getElementById('editPhoneMahasiswa').value =
-            phone ?? '';
+        document.getElementById('editPhoneMahasiswa').value = phone ?? '';
+
         // Selalu kosongkan field password setiap modal dibuka
         const pw = document.getElementById('editPasswordMahasiswa');
         pw.value = '';
         pw.type = 'password';
         document.getElementById('btnTogglePassword').textContent = 'Lihat';
 
-
-
         // Tampilkan modal
-        document.getElementById('modalEditMahasiswa')
-            .classList.remove('hidden');
-
-        function toggleEditPassword() {
-            const input = document.getElementById('editPasswordMahasiswa');
-            const btn = document.getElementById('btnTogglePassword');
-
-            if (input.type === 'password') {
-                input.type = 'text';
-                btn.textContent = 'Sembunyi';
-            } else {
-                input.type = 'password';
-                btn.textContent = 'Lihat';
-            }
-
-        }
-
+        document.getElementById('modalEditMahasiswa').classList.remove('hidden');
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TOGGLE LIHAT / SEMBUNYIKAN PASSWORD
+    |--------------------------------------------------------------------------
+    */
+    function toggleEditPassword() {
+        const input = document.getElementById('editPasswordMahasiswa');
+        const btn = document.getElementById('btnTogglePassword');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            btn.textContent = 'Sembunyi';
+        } else {
+            input.type = 'password';
+            btn.textContent = 'Lihat';
+        }
+    }
+
 
     /*
     |--------------------------------------------------------------------------
     | CLOSE EDIT MAHASISWA MODAL
     |--------------------------------------------------------------------------
     */
-
     function closeEditMahasiswaModal() {
-
-        document.getElementById('modalEditMahasiswa')
-            .classList.add('hidden');
-
+        document.getElementById('modalEditMahasiswa').classList.add('hidden');
     }
 </script>
 
